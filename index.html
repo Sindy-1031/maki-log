@@ -4,167 +4,85 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>MAKI-LOG — 薪シェアアプリ</title>
-
-  <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#4B5320" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet" />
-
 <style>
-:root {
-  --bg: #0F0F0D; --olive: #4B5320; --gold: #C5A059; --text: #E2DDD0;
-  --card-bg: #171714; --safe-bottom: env(safe-area-inset-bottom, 0px);
-}
+:root { --bg: #0F0F0D; --olive: #4B5320; --gold: #C5A059; --text: #E2DDD0; --card-bg: #171714; --safe-bottom: env(safe-area-inset-bottom, 0px); }
 body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; overflow: hidden; }
-
 #app { display: flex; flex-direction: column; height: 100dvh; }
 .page { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding-bottom: 80px; }
 .page.active { display: flex; }
-
-/* 地図エリア */
-#leaflet-map { height: 300px; width: 100%; flex-shrink: 0; }
-.map-instruction { font-size: 11px; padding: 8px; color: var(--gold); background: #000; text-align: center; }
-
-/* カード & サンプル表記 */
+#leaflet-map { height: 350px; width: 100%; flex-shrink: 0; }
 .card-container { padding: 16px; display: flex; gap: 12px; overflow-x: auto; }
 .spot-card { background: var(--card-bg); border: 1px solid #2e2d27; border-radius: 12px; min-width: 200px; padding: 12px; position: relative; }
-.sample-badge { font-size: 9px; color: #888; border: 1px solid #444; padding: 2px 4px; border-radius: 4px; position: absolute; top: 12px; right: 12px; }
-
-/* マイページ */
-.profile-section { padding: 40px 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-#drop-zone { width: 100px; height: 100px; border-radius: 50%; border: 2px dashed var(--gold); display: flex; align-items: center; justify-content: center; overflow: hidden; background: #222; cursor: pointer; }
+.sample-badge { font-size: 9px; color: #888; border: 1px solid #444; padding: 2px 4px; border-radius: 4px; position: absolute; top: 10px; right: 10px; }
+.profile-section { padding: 30px 20px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+#drop-zone { width: 90px; height: 90px; border-radius: 50%; border: 2px dashed var(--gold); overflow: hidden; background: #222; cursor: pointer; }
 #drop-zone img { width: 100%; height: 100%; object-fit: cover; }
-.input-group { width: 100%; max-width: 300px; }
-.input-group label { display: block; font-size: 12px; color: var(--gold); margin-bottom: 8px; }
-input { width: 100%; background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; box-sizing: border-box; }
-
-/* インストールバナー（修正版） */
-#install-banner {
-  position: fixed; bottom: calc(80px + var(--safe-bottom)); left: 16px; right: 16px;
-  z-index: 10000; background: var(--card-bg); border: 1px solid var(--gold);
-  border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px;
-  transform: translateY(250%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+input { width: 100%; background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; margin-bottom: 10px; }
+#install-banner { position: fixed; bottom: calc(70px + var(--safe-bottom)); left: 10px; right: 10px; z-index: 10000; background: var(--card-bg); border: 1px solid var(--gold); border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 10px; transform: translateY(200%); transition: transform 0.4s; }
 #install-banner.show { transform: translateY(0); }
-
-/* タブバー */
 #tab-bar { position: fixed; bottom: 0; width: 100%; display: flex; background: #000; border-top: 1px solid #2e2d27; padding-bottom: var(--safe-bottom); }
-.tab-item { flex: 1; padding: 15px; text-align: center; font-size: 10px; color: #5c574f; font-family: 'Courier Prime', monospace; cursor: pointer; }
+.tab-item { flex: 1; padding: 12px; text-align: center; font-size: 9px; color: #5c574f; font-family: 'Courier Prime'; cursor: pointer; }
 .tab-item.active { color: var(--gold); }
 </style>
 </head>
-
 <body>
 <div id="app">
   <div id="page-map" class="page active">
     <div id="leaflet-map"></div>
-    <div class="map-instruction">📍 地図をタップして場所を指定できます</div>
+    <div style="font-size:11px; color:var(--gold); text-align:center; padding:5px;">📍 地図をタップして場所を指定</div>
     <div class="card-container">
       <div class="spot-card"><span class="sample-badge">SAMPLE</span><div style="color:var(--gold)">直売所</div><strong>杉山製材所</strong><br><small>¥500 / 束</small></div>
-      <div class="spot-card"><span class="sample-badge">SAMPLE</span><div style="color:var(--gold)">無人販売</div><strong>道の駅 まきのさと</strong><br><small>¥380 / 束</small></div>
+      <div class="spot-card"><span class="sample-badge">SAMPLE</span><div style="color:var(--gold)">キャンプ場</div><strong>富士見キャンプ場</strong><br><small>¥600 / 束</small></div>
     </div>
   </div>
-
-  <div id="page-log" class="page">
+  <div id="page-post" class="page"><div style="padding:20px; text-align:center;"><span class="sample-badge">SAMPLE</span><h2>POST (投稿)</h2><p>ここに薪の情報を入力するフォームがきます</p></div></div>
+  <div id="page-rescue" class="page"><div style="padding:20px; text-align:center;"><span class="sample-badge">SAMPLE</span><h2>RESCUE (レスキュー)</h2><p>薪が足りないキャンパーの依頼が表示されます</p></div></div>
+  <div id="page-my" class="page">
     <div class="profile-section">
-      <h2 style="font-family:'Courier Prime'">MY PROFILE</h2>
-      <div id="drop-zone">
-        <img id="profile-img" src="https://via.placeholder.com/100" alt="Profile">
-        <input type="file" id="file-input" hidden accept="image/*">
-      </div>
-      <p style="font-size:10px; color:#888;">画像をタップまたはドラッグ＆ドロップ</p>
-      
-      <div class="input-group">
-        <label>ニックネーム</label>
-        <input type="text" id="user-name" placeholder="キャンパー名を入力">
-      </div>
-      <div class="input-group">
-        <label>キャンプ歴</label>
-        <input type="text" id="camp-years" placeholder="例: 3年">
-      </div>
-      <button onclick="saveProfile()" style="margin-top:20px; background:var(--olive); color:white; border:none; padding:12px 40px; border-radius:20px; cursor:pointer;">保存する</button>
+      <h2 style="font-family:'Courier Prime'">MY PAGE</h2>
+      <div id="drop-zone"><img id="profile-img" src="https://via.placeholder.com/100"><input type="file" id="file-input" hidden accept="image/*"></div>
+      <input type="text" id="user-name" placeholder="ニックネーム">
+      <input type="text" id="camp-years" placeholder="キャンプ歴 (例: 2年)">
+      <button onclick="alert('保存しました')" style="background:var(--olive); color:white; border:none; padding:10px 30px; border-radius:20px;">保存</button>
     </div>
   </div>
-
   <div id="tab-bar">
     <div class="tab-item active" onclick="switchPage('map')">MAP</div>
-    <div class="tab-item" onclick="switchPage('log')">MY PAGE</div>
+    <div class="tab-item" onclick="switchPage('post')">POST</div>
+    <div class="tab-item" onclick="switchPage('rescue')">RESCUE</div>
+    <div class="tab-item" onclick="switchPage('my')">MY PAGE</div>
   </div>
 </div>
-
 <div id="install-banner">
-  <div style="flex:1; font-size:13px;">📲 <strong>MAKI-LOG</strong> をホーム画面に追加！</div>
-  <button id="install-btn" style="background:var(--olive); color:white; border:1px solid var(--gold); padding:8px 12px; border-radius:6px; font-weight:bold;">追加</button>
-  <div id="close-banner" style="font-size:24px; cursor:pointer; padding-left:10px;">×</div>
+  <div style="flex:1; font-size:12px;">📲 <strong>MAKI-LOG</strong> を追加！</div>
+  <button id="install-btn" style="background:var(--olive); color:white; border:1px solid var(--gold); padding:5px 10px; border-radius:5px;">追加</button>
+  <div id="close-banner" style="font-size:20px; cursor:pointer;">×</div>
 </div>
-
 <script>
-  // 1. 地図初期化
   const map = L.map('leaflet-map', { zoomControl: false }).setView([34.626, 135.599], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-  let tempMarker;
-  map.on('click', function(e) {
-    if (tempMarker) map.removeLayer(tempMarker);
-    tempMarker = L.marker(e.latlng).addTo(map);
-    alert("場所を指定しました: " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4));
-  });
-
-  // 2. ページ切り替え
-  function switchPage(pageId) {
+  map.on('click', e => { alert("地点登録: " + e.latlng.lat.toFixed(4)); });
+  function switchPage(pId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-    document.getElementById('page-' + pageId).classList.add('active');
+    document.getElementById('page-' + pId).classList.add('active');
     event.currentTarget.classList.add('active');
-    if(pageId === 'map') setTimeout(() => map.invalidateSize(), 200);
+    if(pId === 'map') setTimeout(() => map.invalidateSize(), 200);
   }
-
-  // 3. プロフィール画像処理
+  const banner = document.getElementById('install-banner');
+  window.addEventListener('load', () => { if (!localStorage.getItem('maki_hide_bn')) setTimeout(() => banner.classList.add('show'), 2000); });
+  document.getElementById('close-banner').onclick = () => { banner.classList.remove('show'); localStorage.setItem('maki_hide_bn', 'true'); };
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('file-input');
-  const profileImg = document.getElementById('profile-img');
-
   dropZone.onclick = () => fileInput.click();
-  fileInput.onchange = (e) => handleFiles(e.target.files);
-
-  dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.borderColor = "white"; };
-  dropZone.ondragleave = () => { dropZone.style.borderColor = "var(--gold)"; };
-  dropZone.ondrop = (e) => {
-    e.preventDefault();
-    handleFiles(e.dataTransfer.files);
+  fileInput.onchange = (e) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => document.getElementById('profile-img').src = ev.target.result;
+    reader.readAsDataURL(e.target.files[0]);
   };
-
-  function handleFiles(files) {
-    const file = files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => profileImg.src = e.target.result;
-      reader.readAsDataURL(file);
-    }
-  }
-
-  // 4. バナー制御 (×ボタン修正)
-  const banner = document.getElementById('install-banner');
-  const closeBtn = document.getElementById('close-banner');
-
-  window.addEventListener('load', () => {
-    if (!localStorage.getItem('maki_banner_dismissed')) {
-      setTimeout(() => banner.classList.add('show'), 2000);
-    }
-  });
-
-  closeBtn.addEventListener('click', () => {
-    banner.classList.remove('show');
-    localStorage.setItem('maki_banner_dismissed', 'true');
-  });
-
-  // 保存処理
-  function saveProfile() {
-    localStorage.setItem('maki_nickname', document.getElementById('user-name').value);
-    localStorage.setItem('maki_years', document.getElementById('camp-years').value);
-    alert("プロフィールを保存しました！");
-  }
 </script>
 </body>
 </html>
