@@ -483,6 +483,71 @@ textarea.f-input{resize:none;line-height:1.5}
   border:1px solid var(--bd);color:var(--tx-m);font-family:var(--mono);font-size:12px;
   transition:opacity 140ms;touch-action:manipulation}
 .np-cancel-btn:active{opacity:.75}
+
+/* ── PIN PICKER 3-mode tabs ── */
+.pp-tabs{display:flex;gap:0;margin-bottom:12px;border-radius:8px;overflow:hidden;border:1px solid var(--bd-g)}
+.pp-tab{flex:1;padding:9px 4px;font-family:var(--mono);font-size:10px;font-weight:700;
+  color:var(--tx-m);background:var(--surf2);text-align:center;letter-spacing:.3px;
+  transition:all 140ms;cursor:pointer;border:none;touch-action:manipulation}
+.pp-tab.on{background:var(--olive);color:#fff;border-color:var(--ol-l)}
+.pp-tab:not(:last-child){border-right:1px solid var(--bd-g)}
+.pp-panel{display:none}
+.pp-panel.on{display:block}
+/* 検索タブ用 */
+.pp-search-row{display:flex;gap:7px;margin-bottom:8px}
+.pp-s-inp{flex:1;background:var(--surf2);border-radius:8px;border:1px solid var(--bd);
+  color:var(--tx);font-size:13px;padding:10px 12px;transition:border-color 150ms}
+.pp-s-inp:focus{border-color:var(--bd-f)}
+.pp-s-inp::placeholder{color:var(--tx-ph)}
+.pp-s-btn{background:var(--olive);border-radius:8px;padding:10px 13px;border:1px solid var(--ol-l);
+  color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;white-space:nowrap;touch-action:manipulation}
+.pp-results{max-height:180px;overflow-y:auto;border-radius:8px;border:1px solid var(--bd);margin-bottom:8px;display:none}
+.pp-results.on{display:block}
+.pp-result-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--bd);transition:background 120ms;touch-action:manipulation}
+.pp-result-item:last-child{border-bottom:none}
+.pp-result-item:hover,.pp-result-item:active{background:var(--surf2)}
+.pp-result-name{font-weight:700;color:var(--tx);font-size:13px;margin-bottom:2px}
+.pp-result-addr{font-family:var(--mono);font-size:9px;color:var(--tx-m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 現在地タブ用 */
+.pp-gps-area{text-align:center;padding:18px 0 10px}
+.pp-gps-ico{font-size:42px;margin-bottom:8px}
+.pp-gps-status{font-family:var(--mono);font-size:11px;color:var(--tx-s);margin-bottom:14px;letter-spacing:.5px;min-height:20px}
+.pp-gps-btn{background:var(--olive);border-radius:10px;padding:13px 24px;border:1.5px solid var(--gold);
+  color:#fff;font-family:var(--mono);font-size:13px;font-weight:900;letter-spacing:1.5px;
+  box-shadow:0 3px 10px rgba(197,160,89,.15);transition:opacity 140ms;touch-action:manipulation}
+.pp-gps-btn:active{opacity:.82}
+.pp-gps-result{font-family:var(--mono);font-size:12px;color:var(--gold);text-align:center;margin-top:10px;letter-spacing:.5px;min-height:18px}
+
+/* ── bc-av: 画像対応 ── */
+.bc-av{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:17px;border:1px solid;flex-shrink:0;
+  overflow:hidden;cursor:pointer;transition:opacity 140ms}
+.bc-av:hover{opacity:.8}
+.bc-av img{width:100%;height:100%;object-fit:cover;border-radius:7px}
+.bc-author{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--tx);
+  letter-spacing:.3px;cursor:pointer;text-decoration:underline dotted var(--tx-m);
+  transition:color 140ms}
+.bc-author:hover{color:var(--gold)}
+/* ── プロフィールポップアップ ── */
+#user-profile-modal{z-index:3200}
+#user-profile-modal .sheet{padding:20px 18px calc(20px + var(--sbot))}
+.up-avatar{width:64px;height:64px;border-radius:14px;border:2px solid var(--bd-g);
+  background:var(--surf);display:flex;align-items:center;justify-content:center;
+  font-size:34px;overflow:hidden;margin:0 auto 10px;flex-shrink:0}
+.up-avatar img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.up-name{font-family:var(--mono);font-size:18px;font-weight:900;color:var(--tx);
+  text-align:center;letter-spacing:1px;margin-bottom:4px}
+.up-hist{font-family:var(--mono);font-size:10px;color:var(--ol-l);text-align:center;
+  letter-spacing:.5px;margin-bottom:12px}
+.up-rows{display:flex;flex-direction:column;gap:7px}
+.up-row{display:flex;align-items:flex-start;gap:9px;background:var(--surf2);
+  border-radius:8px;padding:9px 11px;border:1px solid var(--bd)}
+.up-row-lbl{font-family:var(--mono);font-size:9px;color:var(--tx-m);
+  text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px}
+.up-row-val{font-size:12px;color:var(--tx);font-weight:600}
+.up-style-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.up-style-tag{background:var(--ol-m);border:1px solid var(--ol-l);border-radius:4px;
+  padding:2px 8px;font-family:var(--mono);font-size:9px;color:var(--ol-l)}
 </style>
 <body>
 <div id="root">
@@ -712,7 +777,7 @@ textarea.f-input{resize:none;line-height:1.5}
         </div>
         <div class="p-field">
           <label class="p-field-lbl">⛺ キャンプ歴</label>
-          <div class="hist-row" id="hist-row">
+          <div class="hist-row" id="camp-hist-row">
             <button class="hist-btn" data-v="初心者 (1年未満)">初心者</button>
             <button class="hist-btn" data-v="1〜3年">1〜3年</button>
             <button class="hist-btn" data-v="3〜5年">3〜5年</button>
@@ -721,8 +786,17 @@ textarea.f-input{resize:none;line-height:1.5}
           </div>
         </div>
         <div class="p-field">
-          <label class="p-field-lbl" for="p-wood">🌲 好きな薪</label>
-          <input id="p-wood" class="p-field-inp" type="text" placeholder="例: ナラ・クヌギ"/>
+          <label class="p-field-lbl">🏕 キャンプスタイル (複数選択可)</label>
+          <div class="hist-row" id="style-row">
+            <button class="hist-btn" data-s="ソロキャンプ">ソロキャン</button>
+            <button class="hist-btn" data-s="デュオキャンプ">デュオ</button>
+            <button class="hist-btn" data-s="ファミリーキャンプ">ファミリー</button>
+            <button class="hist-btn" data-s="グループキャンプ">グループ</button>
+            <button class="hist-btn" data-s="ブッシュクラフト">ブッシュクラフト</button>
+            <button class="hist-btn" data-s="焚き火キャンプ">焚き火派</button>
+            <button class="hist-btn" data-s="バイクキャンプ">バイクキャン</button>
+            <button class="hist-btn" data-s="車中泊">車中泊</button>
+          </div>
         </div>
         <div class="p-field">
           <label class="p-field-lbl" for="p-bio">📝 ひとこと</label>
@@ -801,20 +875,53 @@ textarea.f-input{resize:none;line-height:1.5}
   </div>
 </div>
 
-<!-- ══ PIN PICKER MODAL ══ -->
+<!-- ══ PIN PICKER MODAL (3タブ) ══ -->
 <div class="overlay" id="pin-modal">
   <div class="sheet" style="padding-bottom:max(16px,var(--sbot))">
     <div class="card-handle"></div>
-    <div class="f-sec" style="margin-bottom:9px"><div class="f-sec-txt">// 地図でピンを立てる</div></div>
-    <p class="pp-hint">地図を動かして中央 📍 に場所を合わせてください</p>
-    <div class="pp-wrap">
-      <div id="pp-map"></div>
-      <div class="pp-cross">📍</div>
+    <div class="f-sec" style="margin-bottom:12px"><div class="f-sec-txt">// 場所を指定する</div></div>
+
+    <!-- タブ切替 -->
+    <div class="pp-tabs">
+      <button class="pp-tab on" data-pp="map">🗺 地図で指定</button>
+      <button class="pp-tab" data-pp="search">🔍 施設を検索</button>
+      <button class="pp-tab" data-pp="gps">📡 現在地</button>
     </div>
-    <p class="pp-coord" id="pp-coord">—</p>
-    <div style="display:flex;gap:8px">
+
+    <!-- パネル1: 地図ドラッグ -->
+    <div class="pp-panel on" id="pp-panel-map">
+      <p class="pp-hint">地図を動かして中央 📍 に場所を合わせてください</p>
+      <div class="pp-wrap">
+        <div id="pp-map"></div>
+        <div class="pp-cross">📍</div>
+      </div>
+      <p class="pp-coord" id="pp-coord">—</p>
+    </div>
+
+    <!-- パネル2: あいまい検索 -->
+    <div class="pp-panel" id="pp-panel-search">
+      <div class="pp-search-row">
+        <input id="pp-s-inp" class="pp-s-inp" type="search" placeholder="施設名・住所・地名を入力..." autocomplete="off"/>
+        <button id="pp-s-btn" class="pp-s-btn">検索</button>
+      </div>
+      <div class="pp-results" id="pp-results"></div>
+      <p class="pp-coord" id="pp-coord-search" style="margin-top:6px">—</p>
+    </div>
+
+    <!-- パネル3: 現在地GPS -->
+    <div class="pp-panel" id="pp-panel-gps">
+      <div class="pp-gps-area">
+        <div class="pp-gps-ico">📡</div>
+        <div class="pp-gps-status" id="pp-gps-status">ボタンを押して現在地を取得</div>
+        <button class="pp-gps-btn" id="pp-gps-get">現在地を取得する</button>
+        <div class="pp-gps-result" id="pp-gps-result"></div>
+      </div>
+    </div>
+
+    <!-- 共通フッター -->
+    <div style="display:flex;gap:8px;margin-top:10px">
       <button class="act act-neu" style="flex:1" id="pp-cancel">✕ キャンセル</button>
-      <button class="pin-set-btn act act-pri" style="flex:2" id="pp-confirm">✅ この場所に決定</button>
+      <button class="act act-pri" style="flex:2" id="pp-confirm">✅ この場所に決定</button>
     </div>
   </div>
 </div>
@@ -924,7 +1031,7 @@ const INIT_BOARD=[
 ];
 
 // ── STATE ──
-let spots=[], board=[], prof={nickname:'',campHistory:'',woodPref:'',bio:'',avatarUrl:null};
+let spots=[], board=[], prof={nickname:'',campHistory:'',campStyles:[],bio:'',avatarUrl:null};
 let lmap=null, ppMap=null, ppInited=false;
 let curLat=36.2, curLng=138.2;
 let pickedLat=null, pickedLng=null;
@@ -1427,31 +1534,150 @@ function resetPostForm(){
 document.getElementById('post-btn').addEventListener('click', doPostSubmit);
 
 // ── PIN PICKER ──
+// ── PIN PICKER (3タブ: 地図 / 検索 / 現在地) ──
+let curPpTab='map'; // 現在のタブ
+
 function openPinPicker(){
   openOverlay('pin-modal');
+  // デフォルトタブ(地図)をアクティブに
+  switchPpTab('map');
+  // 地図タブの初期化は遅延
+  initPpMap();
+}
+
+function switchPpTab(tab){
+  curPpTab=tab;
+  document.querySelectorAll('.pp-tab').forEach(b=>b.classList.toggle('on',b.dataset.pp===tab));
+  document.querySelectorAll('.pp-panel').forEach(p=>p.classList.remove('on'));
+  const panel=document.getElementById('pp-panel-'+tab);
+  if(panel) panel.classList.add('on');
+  // 地図タブに切り替わった時はサイズ再計算
+  if(tab==='map') setTimeout(()=>{if(ppMap) ppMap.invalidateSize()},80);
+}
+
+function initPpMap(){
   setTimeout(()=>{
     if(!ppInited){
       ppMap=L.map('pp-map',{center:[curLat,curLng],zoom:13,zoomControl:true,attributionControl:false});
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(ppMap);
       ppInited=true;
-    }else ppMap.setView([curLat,curLng],13);
+    }else{
+      ppMap.setView([curLat,curLng],13);
+    }
     ppMap.invalidateSize();
     updatePPCoord();
     ppMap.off('move');ppMap.on('move',updatePPCoord);
   },160);
 }
+
 function updatePPCoord(){
   if(!ppMap) return;
   const c=ppMap.getCenter();
   pickedLat=c.lat;pickedLng=c.lng;
-  document.getElementById('pp-coord').textContent=`${c.lat.toFixed(5)}°N  ${c.lng.toFixed(5)}°E`;
+  const txt=`${c.lat.toFixed(5)}°N  ${c.lng.toFixed(5)}°E`;
+  document.getElementById('pp-coord').textContent=txt;
 }
-document.getElementById('pin-open').addEventListener('click',openPinPicker);
-document.getElementById('pp-cancel').addEventListener('click',()=>closeOverlay('pin-modal'));
-document.getElementById('pp-confirm').addEventListener('click',()=>{
-  if(pickedLat!==null) document.getElementById('pin-txt').textContent=`${pickedLat.toFixed(5)}°N  ${pickedLng.toFixed(5)}°E  ✅`;
-  closeOverlay('pin-modal');
+
+// タブボタン
+document.querySelectorAll('.pp-tab').forEach(b=>{
+  b.addEventListener('click',()=>switchPpTab(b.dataset.pp));
 });
+
+// ── 検索タブ ──
+let ppSearchTimer=null;
+function doPpSearch(){
+  const q=document.getElementById('pp-s-inp')?.value.trim();
+  const res=document.getElementById('pp-results');
+  if(!q||!res){return}
+  res.innerHTML='<div style="padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--tx-m)">検索中…</div>';
+  res.classList.add('on');
+  clearTimeout(ppSearchTimer);
+  ppSearchTimer=setTimeout(async()=>{
+    try{
+      const r=await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q+' 日本')}&limit=6&accept-language=ja&countrycodes=jp`,
+        {headers:{'Accept-Language':'ja'},signal:AbortSignal.timeout(8000)}
+      );
+      const data=await r.json();
+      if(!data.length){res.innerHTML='<div style="padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--tx-m)">見つかりませんでした</div>';return}
+      res.innerHTML=data.map(item=>{
+        const name=item.namedetails?.name||item.display_name.split(',')[0];
+        return `<div class="pp-result-item" data-lat="${item.lat}" data-lng="${item.lon}" data-name="${name.replace(/"/g,'')}">
+          <div class="pp-result-name">${name}</div>
+          <div class="pp-result-addr">${item.display_name}</div>
+        </div>`;
+      }).join('');
+      res.querySelectorAll('.pp-result-item').forEach(el=>{
+        el.addEventListener('click',()=>{
+          const lat=parseFloat(el.dataset.lat);
+          const lng=parseFloat(el.dataset.lng);
+          const name=el.dataset.name;
+          pickedLat=lat;pickedLng=lng;
+          // 施設名も投稿フォームに自動入力
+          const fName=document.getElementById('f-name');
+          if(fName&&!fName.value) fName.value=name;
+          const coordEl=document.getElementById('pp-coord-search');
+          if(coordEl) coordEl.textContent=`${lat.toFixed(5)}°N  ${lng.toFixed(5)}°E  ✅  ${name}`;
+          res.classList.remove('on');
+          document.getElementById('pp-s-inp').value=name;
+          // 地図タブも同じ座標に移動
+          if(ppMap) ppMap.setView([lat,lng],15);
+        });
+      });
+    }catch{
+      res.innerHTML='<div style="padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--tx-m)">検索失敗（通信確認）</div>';
+    }
+  },400);
+}
+
+// ── 現在地タブ ──
+function doPpGps(){
+  const status=document.getElementById('pp-gps-status');
+  const result=document.getElementById('pp-gps-result');
+  const btn=document.getElementById('pp-gps-get');
+  if(!navigator.geolocation){
+    status.textContent='このブラウザはGPSに非対応です';
+    return;
+  }
+  status.textContent='取得中…📡';
+  if(btn) btn.disabled=true;
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const lat=pos.coords.latitude;
+      const lng=pos.coords.longitude;
+      const acc=Math.round(pos.coords.accuracy);
+      pickedLat=lat;pickedLng=lng;
+      // グローバルの現在地も更新
+      curLat=lat;curLng=lng;
+      if(lmap) lmap.setView([lat,lng],14);
+      if(ppMap) ppMap.setView([lat,lng],15);
+      status.textContent=`取得成功 ✅  (精度: ±${acc}m)`;
+      if(result) result.textContent=`${lat.toFixed(5)}°N  ${lng.toFixed(5)}°E`;
+      if(btn) btn.disabled=false;
+    },
+    err=>{
+      const msgs={1:'位置情報の使用を許可してください',2:'位置情報を取得できませんでした',3:'タイムアウトしました'};
+      status.textContent=msgs[err.code]||'エラーが発生しました';
+      if(btn) btn.disabled=false;
+    },
+    {enableHighAccuracy:true,timeout:12000,maximumAge:0}
+  );
+}
+
+// ── pp-confirm: 決定ボタン ──
+function confirmPin(){
+  if(pickedLat===null||pickedLng===null){
+    alert('場所が選択されていません。地図・検索・現在地のいずれかで場所を指定してください。');
+    return;
+  }
+  document.getElementById('pin-txt').textContent=
+    `${pickedLat.toFixed(5)}°N  ${pickedLng.toFixed(5)}°E  ✅`;
+  closeOverlay('pin-modal');
+}
+
+// pin-open は DOMContentLoaded でバインド (rebind削除済み)
+document.getElementById('pp-cancel').addEventListener('click',()=>closeOverlay('pin-modal'));
+document.getElementById('pp-confirm').addEventListener('click',confirmPin);
 
 // ── RESCUE BOARD ──
 function renderBoard(){
@@ -1469,9 +1695,11 @@ function renderBoard(){
       return `<div class="bc" style="border-left-color:${k.color};animation-delay:${i*55}ms">
         <div class="bc-hdr">
           <div class="bc-av-row">
-            <div class="bc-av" style="background:${k.muted};border-color:${k.border}">${p.av||'👤'}</div>
+            <div class="bc-av" style="background:${k.muted};border-color:${k.border}" data-author="${p.author}" data-postid="${p.id}">
+              ${(p.av&&p.av.startsWith('data:'))?`<img src="${p.av}" alt="${p.author}"/>`:(p.av&&p.av!=='👤'?p.av:'👤')}
+            </div>
             <div>
-              <div class="bc-author">${p.author}</div>
+              <div class="bc-author" data-author="${p.author}">${p.author}</div>
               <div class="bc-time">${frsh?`<span class="freshness${old?' old':''}">${frsh}</span>`:''}</div>
             </div>
           </div>
@@ -1496,6 +1724,10 @@ function renderBoard(){
     if(!confirm('この投稿を削除しますか？')) return;
     board=board.filter(p=>p.id!==b.dataset.id);save(SK.B,board);renderBoard();updFC();
   }));
+  // アバター・著者名クリックでプロフィール表示
+  cont.querySelectorAll('.bc-av[data-author],.bc-author[data-author]').forEach(el=>{
+    el.addEventListener('click',()=>openUserProfile(el.dataset.author));
+  });
   updFC();
 }
 function updFC(){
@@ -1568,7 +1800,9 @@ document.getElementById('b-submit').addEventListener('click',()=>{
   if(!title){showSnack('タイトルを入力してください');return}
   board.unshift({
     id:`b_${Date.now()}`,kind:newKind,
-    author:prof.nickname,av:'👤',title,
+    author:prof.nickname,
+    av:prof.avatarUrl||'👤',   // マイページの画像を反映
+    title,
     body:body||'詳細は返信でご連絡ください。',
     postedAt:Date.now(),replies:0,loc:'現在地付近',isSample:false,
   });
@@ -1589,9 +1823,12 @@ function bindOverlayOutsideClick(){
 // ── MY PAGE ──
 function syncProfileUI(){
   document.getElementById('p-nick').value=prof.nickname||'';
-  document.getElementById('p-wood').value=prof.woodPref||'';
   document.getElementById('p-bio').value=prof.bio||'';
   document.querySelectorAll('.hist-btn').forEach(b=>b.classList.toggle('on',b.dataset.v===prof.campHistory));
+  // キャンプスタイル（複数選択）
+  document.querySelectorAll('#style-row .hist-btn').forEach(b=>{
+    b.classList.toggle('on',(prof.campStyles||[]).includes(b.dataset.s));
+  });
   if(prof.avatarUrl) showAvatar(prof.avatarUrl);
 }
 function updateStats(){
@@ -1607,14 +1844,19 @@ function showAvatar(url){
   img.src=url;img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px';
   if(ph) ph.style.display='none';
 }
-document.querySelectorAll('.hist-btn').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('.hist-btn').forEach(x=>x.classList.remove('on'));
+// キャンプ歴は単一選択
+document.querySelectorAll('#camp-hist-row .hist-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#camp-hist-row .hist-btn').forEach(x=>x.classList.remove('on'));
   b.classList.add('on');prof.campHistory=b.dataset.v;
+}));
+// キャンプスタイルは複数選択
+document.querySelectorAll('#style-row .hist-btn').forEach(b=>b.addEventListener('click',()=>{
+  b.classList.toggle('on');
 }));
 document.getElementById('save-btn').addEventListener('click',()=>{
   prof.nickname=document.getElementById('p-nick').value.trim();
-  prof.woodPref=document.getElementById('p-wood').value.trim();
   prof.bio=document.getElementById('p-bio').value.trim();
+  prof.campStyles=[...document.querySelectorAll('#style-row .hist-btn.on')].map(b=>b.dataset.s);
   save(SK.P,prof);
   const t=document.getElementById('saved-toast');t.classList.add('on');
   setTimeout(()=>t.classList.remove('on'),2400);
@@ -1671,6 +1913,68 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
 
+
+// ── USER PROFILE POPUP ──
+function openUserProfile(authorName){
+  // 自分の投稿かどうか判定
+  const isMe = prof.nickname && authorName === prof.nickname;
+  // 投稿から同名の最新投稿を探してアバター取得
+  const post = board.filter(p=>p.author===authorName).sort((a,b)=>b.postedAt-a.postedAt)[0];
+  const avatarData = isMe ? prof.avatarUrl : (post?.av||null);
+
+  // アバター表示
+  const avEl = document.getElementById('up-avatar');
+  if(avEl){
+    if(avatarData && avatarData.startsWith('data:')){
+      avEl.innerHTML=`<img src="${avatarData}" alt="${authorName}" style="width:100%;height:100%;object-fit:cover;border-radius:12px"/>`;
+    } else {
+      avEl.innerHTML = avatarData || '👤';
+      avEl.style.fontSize = '34px';
+    }
+  }
+
+  // ニックネーム
+  const nameEl = document.getElementById('up-name');
+  if(nameEl) nameEl.textContent = authorName + (isMe ? ' (あなた)' : '');
+
+  // キャンプ歴
+  const histEl = document.getElementById('up-hist');
+  const histTxt = isMe ? (prof.campHistory||'') : '';
+  if(histEl) histEl.textContent = histTxt ? `⛺ ${histTxt}` : '';
+
+  // 詳細情報行
+  const rowsEl = document.getElementById('up-rows');
+  if(rowsEl){
+    const rows = [];
+    if(isMe){
+      if(prof.bio){
+        rows.push(`<div class="up-row"><span style="font-size:16px;flex-shrink:0">📝</span><div><div class="up-row-lbl">ひとこと</div><div class="up-row-val">${prof.bio}</div></div></div>`);
+      }
+      if(prof.campStyles && prof.campStyles.length){
+        const tags = prof.campStyles.map(s=>`<span class="up-style-tag">${s}</span>`).join('');
+        rows.push(`<div class="up-row"><span style="font-size:16px;flex-shrink:0">🏕</span><div><div class="up-row-lbl">キャンプスタイル</div><div class="up-style-tags">${tags}</div></div></div>`);
+      }
+      // 投稿数
+      const myPosts = board.filter(p=>p.author===authorName).length;
+      rows.push(`<div class="up-row"><span style="font-size:16px;flex-shrink:0">📡</span><div><div class="up-row-lbl">投稿数</div><div class="up-row-val">${myPosts}件</div></div></div>`);
+    } else {
+      // 他ユーザー: 投稿履歴から公開情報のみ
+      const userPosts = board.filter(p=>p.author===authorName);
+      rows.push(`<div class="up-row"><span style="font-size:16px;flex-shrink:0">📡</span><div><div class="up-row-lbl">投稿数</div><div class="up-row-val">${userPosts.length}件</div></div></div>`);
+      const rescues = userPosts.filter(p=>p.kind==='rescue').length;
+      const gives   = userPosts.filter(p=>p.kind==='give').length;
+      if(rescues||gives){
+        rows.push(`<div class="up-row"><span style="font-size:16px;flex-shrink:0">📊</span><div><div class="up-row-lbl">内訳</div><div class="up-row-val">レスキュー ${rescues}件 / ギブ ${gives}件</div></div></div>`);
+      }
+    }
+    if(!rows.length){
+      rows.push(`<div style="text-align:center;font-family:var(--mono);font-size:11px;color:var(--tx-m);padding:12px 0">公開情報はありません</div>`);
+    }
+    rowsEl.innerHTML = rows.join('');
+  }
+  openOverlay('user-profile-modal');
+}
+
 // ── INIT (DOMContentLoaded でまとめて初期化) ──
 window.addEventListener('DOMContentLoaded',()=>{
   initData();
@@ -1680,6 +1984,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   ['f-price','f-weight'].forEach(id=>{document.getElementById(id)?.addEventListener('input',calcCospa)});
   bindPhotoHandlers();
   document.getElementById('pin-open')?.addEventListener('click',openPinPicker);
+  // ピンピッカー 検索タブ
+  document.getElementById('pp-s-btn')?.addEventListener('click',doPpSearch);
+  document.getElementById('pp-s-inp')?.addEventListener('keydown',e=>{if(e.key==='Enter')doPpSearch()});
+  // ピンピッカー 現在地タブ
+  document.getElementById('pp-gps-get')?.addEventListener('click',doPpGps);
   renderBoard();
   styleFilter();
   syncProfileUI();
@@ -1716,9 +2025,26 @@ window.addEventListener('DOMContentLoaded',()=>{
   bindDetailClose();
   // ニックネームプロンプトのバインド
   initNickPrompt();
+  // ユーザープロフィールモーダルの閉じるボタン
+  document.getElementById('up-close')?.addEventListener('click',()=>closeOverlay('user-profile-modal'));
 });
 </script>
 
+
+<!-- ══ USER PROFILE MODAL ══ -->
+<div class="overlay" id="user-profile-modal">
+  <div class="sheet">
+    <div class="card-handle"></div>
+    <div id="up-avatar" class="up-avatar">👤</div>
+    <div class="up-name" id="up-name">—</div>
+    <div class="up-hist" id="up-hist"></div>
+    <div class="gold-div"><div class="gold-div-line"></div><span class="gold-div-ico">✦</span><div class="gold-div-line"></div></div>
+    <div class="up-rows" id="up-rows"></div>
+    <div style="margin-top:14px">
+      <button class="act act-neu" style="width:100%;padding:12px" id="up-close">✕ 閉じる</button>
+    </div>
+  </div>
+</div>
 <!-- ══ NICKNAME PROMPT MODAL ══ -->
 <div class="overlay" id="nick-prompt">
   <div class="sheet">
