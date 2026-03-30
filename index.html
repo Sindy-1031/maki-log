@@ -186,8 +186,8 @@ textarea.f-input{resize:none;line-height:1.5}
 /* ════════════════════════════
    MAP SCREEN
 ════════════════════════════ */
-#map-screen{position:relative}
-#lmap{flex:1;z-index:1;min-height:0}
+#map-screen{position:relative;overflow:hidden;min-height:0;height:100%}
+#lmap{width:100%;height:100%;z-index:1;flex-shrink:0}
 .leaflet-tile-pane{filter:brightness(.70) saturate(.5) hue-rotate(8deg)}
 .leaflet-control-attribution{background:rgba(13,13,11,.85)!important;color:var(--tx-m)!important;font-size:8px!important}
 .leaflet-control-attribution a{color:var(--tx-m)!important}
@@ -971,25 +971,47 @@ function spotColor(s){
 
 // ── MAP INIT ──
 function initMap(){
+  // lmap の高さを先にセット（Leaflet は height:0 だと地図が表示されない）
+  const lmapEl=document.getElementById('lmap');
+  const msEl=document.getElementById('map-screen');
+  if(lmapEl&&msEl){
+    // map-screen の高さ = ウィンドウ高さ - tab-bar の高さ
+    const tabH=document.getElementById('tabs')?.getBoundingClientRect().height||58;
+    const h=window.innerHeight-tabH;
+    lmapEl.style.height=h+'px';
+  }
   lmap=L.map('lmap',{center:[curLat,curLng],zoom:6,zoomControl:false});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:'© <a href="https://www.openstreetmap.org/copyright">OSM</a>',maxZoom:19
   }).addTo(lmap);
   L.control.zoom({position:'bottomright'}).addTo(lmap);
   lmap.on('click',closeDetail);
-  // position nearby panel above search bar — delay to ensure layout is complete
-  setTimeout(positionNearby, 80);
-  window.addEventListener('resize', positionNearby);
+  // 遅延実行で正確な高さに更新
+  setTimeout(positionNearby,100);
+  window.addEventListener('resize',()=>{
+    const tabH=document.getElementById('tabs')?.getBoundingClientRect().height||58;
+    const lEl=document.getElementById('lmap');
+    if(lEl) lEl.style.height=(window.innerHeight-tabH)+'px';
+    positionNearby();
+  });
   renderMarkers();
 }
 function positionNearby(){
   const sb=document.getElementById('search-bar');
-  if(!sb) return;
-  // Force a reflow to get accurate height
+  const ms=document.getElementById('map-screen');
+  if(!sb||!ms) return;
   const sbH=sb.getBoundingClientRect().height||72;
   document.getElementById('nearby').style.bottom=sbH+'px';
   document.getElementById('gps-btn').style.bottom=(sbH+8)+'px';
   document.getElementById('detail').style.bottom=sbH+'px';
+  // lmap の高さを明示的にセット（flex child の height:100% が効かない環境対策）
+  const lmapEl=document.getElementById('lmap');
+  if(lmapEl){
+    const msH=ms.getBoundingClientRect().height;
+    if(msH>0) lmapEl.style.height=msH+'px';
+  }
+  // Leaflet のサイズを再計算
+  if(lmap) setTimeout(()=>lmap.invalidateSize(),50);
 }
 
 function mkIcon(s,sel){
@@ -1527,9 +1549,12 @@ document.getElementById('b-submit').addEventListener('click',()=>{
 // ── OVERLAY HELPERS ──
 function openOverlay(id){document.getElementById(id).classList.add('on')}
 function closeOverlay(id){document.getElementById(id).classList.remove('on')}
-document.querySelectorAll('.overlay').forEach(o=>{
-  o.addEventListener('click',e=>{if(e.target===o) o.classList.remove('on')});
-});
+// overlay 外クリック閉じ処理は DOMContentLoaded 内で登録 (nick-prompt が後方に存在するため)
+function bindOverlayOutsideClick(){
+  document.querySelectorAll('.overlay').forEach(o=>{
+    o.addEventListener('click',e=>{if(e.target===o) o.classList.remove('on')});
+  });
+}
 
 // ── MY PAGE ──
 function syncProfileUI(){
@@ -1591,52 +1616,37 @@ function requireNickname(){
   return true; // blocked
 }
 
-// ── NICK PROMPT MODAL BINDINGS ──
-(function(){
-  document.getElementById('np-go').addEventListener('click',()=>{
-    closeOverlay('nick-prompt');
-    // 一時的に投稿モーダルも閉じてマイページへ遷移
-    closeOverlay('new-post-modal');
-    goTab('mypage');
-    // マイページのニックネーム入力欄にフォーカス
-    setTimeout(()=>{
-      const el=document.getElementById('p-nick');
-      if(el){el.focus();el.scrollIntoView({behavior:'smooth',block:'center'})}
-    },300);
-  });
-  document.getElementById('np-cancel').addEventListener('click',()=>{
-    closeOverlay('nick-prompt');
-  });
-})();
+// ── NICK PROMPT MODAL BINDINGS (DOMContentLoaded内で呼ぶ) ──
+function initNickPrompt(){
+  const go=document.getElementById('np-go');
+  const cancel=document.getElementById('np-cancel');
+  if(go){
+    go.addEventListener('click',()=>{
+      closeOverlay('nick-prompt');
+      closeOverlay('new-post-modal');
+      goTab('mypage');
+      setTimeout(()=>{
+        const el=document.getElementById('p-nick');
+        if(el){el.focus();el.scrollIntoView({behavior:'smooth',block:'center'})}
+      },300);
+    });
+  }
+  if(cancel){
+    cancel.addEventListener('click',()=>closeOverlay('nick-prompt'));
+  }
+}
 
-// ── PWA ──
+// ── PWA (service worker) ──
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();deferInstall=e;
-  setTimeout(()=>document.getElementById('toast').classList.add('on'),5000);
-});
-(()=>{
-  const toast=document.getElementById('toast');
-  function hideToast(){toast.classList.remove('on');setTimeout(()=>toast.style.display='none',350)}
-  document.getElementById('toast-add').addEventListener('click',()=>{
-    if(!deferInstall) return;
-    deferInstall.prompt();deferInstall.userChoice.then(()=>{deferInstall=null;hideToast()});
-  });
-  ['click','touchstart'].forEach(ev=>{
-    document.getElementById('toast-x').addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();hideToast()},{passive:false});
-  });
-  window.addEventListener('appinstalled',hideToast);
-})();
 
-// ── INIT ──
+// ── INIT (DOMContentLoaded でまとめて初期化) ──
 window.addEventListener('DOMContentLoaded',()=>{
   initData();
   initMap();
   initGPS();
   buildPostForm();
-  // cospa & photo & pin-open は初回のみバインド (DOM要素が静的に存在するため)
   ['f-price','f-weight'].forEach(id=>{document.getElementById(id)?.addEventListener('input',calcCospa)});
   bindPhotoHandlers();
   document.getElementById('pin-open')?.addEventListener('click',openPinPicker);
@@ -1644,6 +1654,36 @@ window.addEventListener('DOMContentLoaded',()=>{
   styleFilter();
   syncProfileUI();
   updateStats();
+
+  // ── Toast (DOM確定後にバインド) ──
+  const toast=document.getElementById('toast');
+  function hideToast(){
+    if(!toast) return;
+    toast.classList.remove('on');
+    setTimeout(()=>{toast.style.display='none'},350);
+  }
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();deferInstall=e;
+    setTimeout(()=>{toast.style.display='';toast.classList.add('on')},5000);
+  });
+  document.getElementById('toast-add').addEventListener('click',()=>{
+    if(!deferInstall) return;
+    deferInstall.prompt();
+    deferInstall.userChoice.then(()=>{deferInstall=null;hideToast()});
+  });
+  // × ボタン: click + touchstart 両対応
+  const tx=document.getElementById('toast-x');
+  if(tx){
+    ['click','touchstart'].forEach(ev=>{
+      tx.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();hideToast()},{passive:false});
+    });
+  }
+  window.addEventListener('appinstalled',hideToast);
+
+  // overlay 外クリック (nick-prompt 含む全overlay)
+  bindOverlayOutsideClick();
+  // ニックネームプロンプトのバインド
+  initNickPrompt();
 });
 </script>
 
