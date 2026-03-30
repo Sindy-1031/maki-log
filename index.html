@@ -562,8 +562,17 @@ textarea.f-input{resize:none;line-height:1.5}
       <span class="logo-txt">MAKI-LOG</span>
     </div>
   </div>
-  <div id="post-inner" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-    <div class="scroller">
+  <div id="post-inner" style="flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative">
+    <!-- 成功画面 (非表示で常に存在) -->
+    <div id="post-ok-screen" class="ok-screen" style="display:none;position:absolute;inset:0;z-index:10">
+      <span class="ok-ico">🔥</span>
+      <span class="ok-ttl">POSTED.</span>
+      <div class="ok-div"></div>
+      <span class="ok-sub">地図にピンを追加しました</span>
+      <span class="ok-hint">— マップ タブで確認できます —</span>
+    </div>
+    <!-- フォーム本体 -->
+    <div id="post-form-area" class="scroller">
       <div class="pad">
         <div class="f-sec"><div class="f-sec-txt">// 薪スポットを登録する</div></div>
 
@@ -635,8 +644,8 @@ textarea.f-input{resize:none;line-height:1.5}
         <button class="submit-btn" id="post-btn">🪵  場所を登録する</button>
         <div style="height:28px"></div>
       </div>
-    </div>
-  </div>
+    </div><!-- /post-form-area -->
+  </div><!-- /post-inner -->
 </div>
 
 <!-- ══ RESCUE SCREEN ══ -->
@@ -1300,14 +1309,16 @@ function calcCospa(){
   document.getElementById(id)?.addEventListener('input',calcCospa);
 });
 
-// photo
-const photoDropEl=document.getElementById('photo-drop');
-const photoFileEl=document.getElementById('photo-file');
-photoDropEl.addEventListener('click',()=>photoFileEl.click());
-photoDropEl.addEventListener('dragover',e=>{e.preventDefault();photoDropEl.classList.add('drag')});
-photoDropEl.addEventListener('dragleave',()=>photoDropEl.classList.remove('drag'));
-photoDropEl.addEventListener('drop',e=>{e.preventDefault();photoDropEl.classList.remove('drag');const f=e.dataTransfer.files[0];if(f) readPhoto(f)});
-photoFileEl.addEventListener('change',e=>{const f=e.target.files[0];if(f) readPhoto(f)});
+// photo (関数化: DOMContentLoadedから呼ぶ)
+function bindPhotoHandlers(){
+  const pd=document.getElementById('photo-drop'),pf=document.getElementById('photo-file');
+  if(!pd||!pf) return;
+  pd.addEventListener('click',()=>pf.click());
+  pd.addEventListener('dragover',e=>{e.preventDefault();pd.classList.add('drag')});
+  pd.addEventListener('dragleave',()=>pd.classList.remove('drag'));
+  pd.addEventListener('drop',e=>{e.preventDefault();pd.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)readPhoto(f)});
+  pf.addEventListener('change',e=>{const f=e.target.files[0];if(f)readPhoto(f)});
+}
 function readPhoto(f){
   const r=new FileReader();
   r.onload=ev=>{photoB64=ev.target.result;const p=document.getElementById('photo-prev');p.src=photoB64;p.classList.add('on')};
@@ -1315,8 +1326,8 @@ function readPhoto(f){
 }
 
 // submit
-document.getElementById('post-btn').addEventListener('click',()=>{
-  // ニックネーム未設定はブロック
+// 投稿フォームの送信処理
+function doPostSubmit(){
   if(requireNickname()) return;
   const name=document.getElementById('f-name').value.trim();
   const price=document.getElementById('f-price').value.trim();
@@ -1324,50 +1335,44 @@ document.getElementById('post-btn').addEventListener('click',()=>{
   if(!price){showSnack('価格を入力してください');return}
   if(!pickedLat||!pickedLng){showSnack('地図で場所を指定してください');return}
   const wt=parseFloat(document.getElementById('f-weight').value)||null;
-  const nick=prof.nickname; // requireNickname()で保証済み
   spots.push({
     id:`u_${Date.now()}`,name,type:selType,wood:selWood,dry:selDry,
     price,weight:wt,lat:pickedLat,lng:pickedLng,
     note:document.getElementById('f-note').value.trim(),
     facs:[...selFacs],photo:photoB64||null,
     isUserPost:true,isSample:false,soldOut:false,
-    postedAt:new Date().toISOString(),postedBy:nick,
+    postedAt:new Date().toISOString(),postedBy:prof.nickname,
   });
   save(SK.S,spots);
   renderMarkers();
-  // reset form
-  ['f-name','f-price','f-weight','f-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
-  document.getElementById('photo-prev').classList.remove('on');
-  document.getElementById('cospa-pill').style.display='none';
-  photoB64=null;pickedLat=null;pickedLng=null;selFacs.clear();
-  document.querySelectorAll('.chk').forEach(c=>{c.classList.remove('on');c.querySelector('.chk-box').textContent=''});
-  document.getElementById('pin-txt').textContent='タップして地図でピンを立てる';
-  // success UI
+  // フォームをリセット（DOM要素はそのまま保持）
+  resetPostForm();
+  // 成功画面: post-inner の中だけ差し替え
   const inner=document.getElementById('post-inner');
-  inner.innerHTML=`<div class="ok-screen"><span class="ok-ico">🔥</span><span class="ok-ttl">POSTED.</span><div class="ok-div"></div><span class="ok-sub">地図にピンを追加しました</span><span class="ok-hint">— マップ タブで確認できます —</span></div>`;
+  const formEl=document.getElementById('post-form-area');
+  if(formEl) formEl.style.display='none';
+  const ok=document.getElementById('post-ok-screen');
+  if(ok) ok.style.display='flex';
   setTimeout(()=>goTab('map'),2000);
   setTimeout(()=>{
-    inner.innerHTML=`<div class="scroller"><div class="pad"><div class="f-sec"><div class="f-sec-txt">// 薪スポットを登録する</div></div><div class="f-block"><div class="f-lbl">📍 スポット種別</div><div class="pill-row" id="type-grp"></div></div><div class="f-block"><div class="f-lbl">🗺 場所 <span class="req">*</span></div><button id="pin-open" style="width:100%;display:flex;align-items:center;gap:9px;background:var(--surf2);border-radius:8px;border:1px solid var(--bd);padding:11px 13px;text-align:left;cursor:pointer;touch-action:manipulation"><span style="font-size:15px;flex-shrink:0">📍</span><span style="font-family:var(--mono);font-size:11px;color:var(--tx-m);letter-spacing:.5px;flex:1" id="pin-txt">タップして地図でピンを立てる</span><span style="font-family:var(--mono);font-size:10px;color:var(--gold)">指定 ›</span></button></div><div class="f-block"><div class="f-lbl">🏪 施設名 <span class="req">*</span></div><input id="f-name" class="f-input" type="text" placeholder="例: カインズ 富士吉田店"/></div><div class="f-block"><div class="f-lbl">💰 価格 (円/束) <span class="req">*</span></div><div class="price-row"><input id="f-price" class="f-input" type="number" inputmode="numeric" placeholder="500"/><div class="price-unit">円/束</div></div></div><div class="f-block"><div class="f-lbl">⚖️ 重量 (kg/束) <span style="color:var(--tx-m);font-size:9px;font-weight:400">— コスパ自動計算</span></div><input id="f-weight" class="f-input" type="number" inputmode="decimal" step="0.1" placeholder="例: 5"/><div id="cospa-pill" class="cospa-pill" style="display:none"><span class="cospa-lbl">1KG あたり</span><span class="cospa-val" id="cospa-val">—</span></div></div><div class="f-block"><div class="f-lbl">🌲 薪の種類</div><div class="pill-row" id="wood-grp"></div></div><div class="f-block"><div class="f-lbl">🌡 乾燥具合</div><div class="dry-row" id="dry-grp"></div></div><div class="f-block"><div class="f-lbl">🔧 設備・ルール</div><div class="chk-grid" id="fac-grp"></div></div><div class="f-block"><div class="f-lbl">📷 写真 (任意)</div><div class="photo-drop" id="photo-drop"><div class="photo-drop-txt">📷 タップまたはドラッグ&ドロップ</div></div><img id="photo-prev" class="photo-prev" src="" alt="プレビュー"/><input type="file" id="photo-file" accept="image/*" style="display:none"/></div><div class="f-block"><div class="f-lbl">📝 メモ (任意)</div><textarea id="f-note" class="f-input" style="min-height:70px" placeholder="営業時間・支払い方法・駐車場など"></textarea></div><button class="submit-btn" id="post-btn">🪵  場所を登録する</button><div style="height:28px"></div></div></div>`;
-    rebindPostForm();
-  },2200);
-});
-
-function rebindPostForm(){
-  buildPostForm();
-  ['f-price','f-weight'].forEach(id=>{document.getElementById(id)?.addEventListener('input',calcCospa)});
-  const pd=document.getElementById('photo-drop'),pf=document.getElementById('photo-file');
-  if(pd&&pf){
-    pd.addEventListener('click',()=>pf.click());
-    pd.addEventListener('dragover',e=>{e.preventDefault();pd.classList.add('drag')});
-    pd.addEventListener('dragleave',()=>pd.classList.remove('drag'));
-    pd.addEventListener('drop',e=>{e.preventDefault();pd.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)readPhoto(f)});
-    pf.addEventListener('change',e=>{const f=e.target.files[0];if(f)readPhoto(f)});
-  }
-  document.getElementById('pin-open')?.addEventListener('click',openPinPicker);
-  document.getElementById('post-btn')?.addEventListener('click',arguments.callee);
-  // rebind post-btn properly
-  document.getElementById('post-btn')?.addEventListener('click',()=>document.getElementById('post-btn').click());
+    if(ok) ok.style.display='none';
+    if(formEl) formEl.style.display='';
+  },2300);
 }
+
+function resetPostForm(){
+  ['f-name','f-price','f-weight','f-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  const pp=document.getElementById('photo-prev');if(pp){pp.classList.remove('on');pp.src=''}
+  const cp=document.getElementById('cospa-pill');if(cp) cp.style.display='none';
+  photoB64=null;pickedLat=null;pickedLng=null;selFacs.clear();
+  document.querySelectorAll('.chk').forEach(c=>{c.classList.remove('on');const b=c.querySelector('.chk-box');if(b)b.textContent=''});
+  const pt=document.getElementById('pin-txt');if(pt) pt.textContent='タップして地図でピンを立てる';
+  // ピル選択もデフォルトに戻す
+  selType=SPOT_TYPES[0].key;selWood='広葉樹';selDry='乾燥';
+  buildPostForm();
+}
+
+document.getElementById('post-btn').addEventListener('click', doPostSubmit);
 
 // ── PIN PICKER ──
 function openPinPicker(){
@@ -1631,8 +1636,10 @@ window.addEventListener('DOMContentLoaded',()=>{
   initMap();
   initGPS();
   buildPostForm();
-  // bind cospa after DOM
+  // cospa & photo & pin-open は初回のみバインド (DOM要素が静的に存在するため)
   ['f-price','f-weight'].forEach(id=>{document.getElementById(id)?.addEventListener('input',calcCospa)});
+  bindPhotoHandlers();
+  document.getElementById('pin-open')?.addEventListener('click',openPinPicker);
   renderBoard();
   styleFilter();
   syncProfileUI();
