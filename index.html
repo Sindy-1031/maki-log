@@ -738,6 +738,60 @@ textarea.f-input{resize:none;line-height:1.5}
 
 /* ── ログ投稿モーダル ── */
 #log-modal{z-index:2800}
+
+/* ── SNSシェアボタン ── */
+.share-x-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;
+  border-radius:8px;padding:11px;background:#0A0A0A;border:1.5px solid #333;
+  color:#fff;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.5px;
+  cursor:pointer;transition:all 140ms;touch-action:manipulation;margin-top:8px}
+.share-x-btn:active{opacity:.8;transform:scale(.99)}
+.share-x-ico{font-size:14px;font-weight:900;font-family:'Arial Black',sans-serif;
+  background:#fff;color:#000;width:18px;height:18px;border-radius:3px;
+  display:flex;align-items:center;justify-content:center}
+
+/* ── ニックネーム固定 ── */
+.nick-locked-view{background:var(--surf2);border-radius:8px;border:1px solid var(--bd-g);
+  padding:11px 13px;color:var(--tx);font-size:14px;font-weight:700;
+  display:flex;align-items:center;gap:8px;min-height:44px}
+.nick-lock-ico{font-size:14px;flex-shrink:0}
+.nick-lock-name{flex:1;font-family:var(--mono);letter-spacing:.5px}
+.nick-lock-badge{background:var(--go-m);border:1px solid var(--go-d);border-radius:4px;
+  padding:2px 7px;font-family:var(--mono);font-size:9px;color:var(--gold);flex-shrink:0}
+.nick-lock-hint{font-family:var(--mono);font-size:9px;color:var(--tx-m);
+  margin-top:5px;letter-spacing:.3px;display:flex;align-items:center;gap:4px}
+
+/* ── 利用規約ボタン ── */
+.terms-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;
+  background:var(--ol-d);border:1px solid var(--ol-l);border-radius:8px;
+  padding:10px;color:var(--ol-l);font-family:var(--mono);font-size:11px;font-weight:700;
+  letter-spacing:.5px;cursor:pointer;transition:opacity 140ms;touch-action:manipulation;margin-bottom:8px}
+.terms-btn:active{opacity:.75}
+#terms-modal{z-index:3000}
+#terms-modal .sheet{max-height:88vh}
+.terms-body{font-size:13px;color:var(--tx-s);line-height:1.85;padding:4px 0 14px}
+.terms-art{font-family:var(--mono);font-size:12px;color:var(--ol-l);font-weight:700;
+  margin:14px 0 5px;letter-spacing:.5px}
+.terms-closing{text-align:center;font-family:var(--mono);font-size:14px;font-weight:900;
+  color:var(--gold);margin:18px 0 6px;letter-spacing:1.5px}
+
+/* ── 憲章バナー ── */
+.charter-banner{border:1.5px solid var(--gold);border-radius:8px;padding:10px 12px;
+  background:rgba(197,160,89,.06);margin-bottom:10px}
+.charter-title{font-family:var(--mono);font-size:10px;font-weight:900;color:var(--gold);
+  letter-spacing:1px;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.charter-txt{font-size:11px;color:var(--tx-s);line-height:1.6}
+
+/* ── 同意チェック ── */
+.agree-row{display:flex;align-items:center;gap:9px;background:var(--surf2);
+  border-radius:8px;padding:10px 12px;border:1.5px solid var(--bd);
+  margin-bottom:12px;cursor:pointer;touch-action:manipulation;transition:border-color 140ms}
+.agree-row.checked{border-color:var(--ol-l);background:var(--ol-m)}
+.agree-chk{width:18px;height:18px;border-radius:4px;border:2px solid var(--tx-m);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;transition:all 140ms}
+.agree-row.checked .agree-chk{background:var(--ol-l);border-color:var(--ol-l);color:#fff}
+.agree-txt{font-family:var(--mono);font-size:10px;color:var(--tx-s);line-height:1.4}
+.agree-row.checked .agree-txt{color:var(--tx)}
 </style>
 <body>
 <div id="root">
@@ -787,6 +841,10 @@ textarea.f-input{resize:none;line-height:1.5}
         <button class="act act-sos" id="d-sold" style="flex:1">✕ 売り切れ報告</button>
         <button class="act act-sos" id="d-del" style="flex:1;display:none">🗑 削除</button>
       </div>
+      <button class="share-x-btn" id="d-share-x">
+        <span class="share-x-ico">𝕏</span>
+        <span>X (Twitter) でシェア</span>
+      </button>
     </div>
   </div>
   <!-- Nearby panel -->
@@ -896,6 +954,10 @@ textarea.f-input{resize:none;line-height:1.5}
           <textarea id="f-note" class="f-input" style="min-height:70px" placeholder="営業時間・支払い方法・駐車場など"></textarea>
         </div>
 
+        <div class="charter-banner">
+          <div class="charter-title">⚔ MAKI-LOG 憲章</div>
+          <div class="charter-txt">誹謗中傷・アダルト・公序良俗に反する投稿は禁止です。<br>マナーを守って薪情報をシェアしましょう。</div>
+        </div>
         <button class="submit-btn" id="post-btn">🪵  場所を登録する</button>
         <div style="height:28px"></div>
       </div>
@@ -981,8 +1043,21 @@ textarea.f-input{resize:none;line-height:1.5}
       <div class="p-card">
         <div class="p-card-ttl">// プロフィール設定</div>
         <div class="p-field">
-          <label class="p-field-lbl" for="p-nick">🏷 ニックネーム</label>
+          <label class="p-field-lbl">🏷 ニックネーム <span id="nick-lock-label" style="display:none;color:var(--gold);font-size:8px">🔒 固定済み</span></label>
           <input id="p-nick" class="p-field-inp" type="text" placeholder="例: たぬきキャンパー" maxlength="20"/>
+          <div id="nick-locked-view" class="nick-locked-view" style="display:none">
+            <span class="nick-lock-ico">🔒</span>
+            <span class="nick-lock-name" id="nick-locked-name"></span>
+            <span class="nick-lock-badge">固定済み</span>
+          </div>
+          <div class="nick-lock-hint" id="nick-lock-hint" style="display:none">
+            <span>⚠️</span>
+            <span>ニックネームは一度保存すると変更できません</span>
+          </div>
+          <div class="nick-lock-hint" id="nick-fixed-hint" style="display:none;color:var(--tx-m)">
+            <span>🔒</span>
+            <span>このニックネームはすべての投稿に紐付いています</span>
+          </div>
         </div>
         <div class="p-field">
           <label class="p-field-lbl">⛺ キャンプ歴</label>
@@ -1013,6 +1088,14 @@ textarea.f-input{resize:none;line-height:1.5}
         </div>
       </div>
 
+      <!-- 利用規約同意 (ニックネーム未固定時のみ表示) -->
+      <div id="agree-zone" style="display:none">
+        <div class="agree-row" id="agree-row">
+          <div class="agree-chk" id="agree-chk"></div>
+          <span class="agree-txt">利用規約に同意して、ニックネームを固定します</span>
+        </div>
+      </div>
+      <button class="terms-btn" id="terms-open-btn">📜 利用規約を確認する</button>
       <button class="save-btn" id="save-btn">💾  設定を保存する</button>
       <div class="saved-toast" id="saved-toast">✦ プロフィールを保存しました ✦</div>
       <div style="height:14px"></div>
@@ -1246,7 +1329,7 @@ const INIT_BOARD=[
 ];
 
 // ── STATE ──
-let spots=[], board=[], prof={nickname:'',campHistory:'',campStyles:[],bio:'',avatarUrl:null};
+let spots=[], board=[], prof={nickname:'',campHistory:'',campStyles:[],bio:'',avatarUrl:null,nickLocked:false};
 let lmap=null, ppMap=null, ppInited=false;
 let curLat=36.2, curLng=138.2;
 let pickedLat=null, pickedLng=null;
@@ -1720,10 +1803,12 @@ function readPhoto(f){
 function doPostSubmit(){
   if(requireNickname()) return;
   const name=document.getElementById('f-name').value.trim();
+  const note=document.getElementById('f-note').value.trim();
   const price=document.getElementById('f-price').value.trim();
   if(!name){showSnack('施設名を入力してください');return}
   if(!price){showSnack('価格を入力してください');return}
   if(!pickedLat||!pickedLng){showSnack('地図で場所を指定してください');return}
+  if(checkNg(name, note)) return; // NGワードチェック
   const wt=parseFloat(document.getElementById('f-weight').value)||null;
   spots.push({
     id:`u_${Date.now()}`,name,type:selType,wood:selWood,dry:selDry,
@@ -2030,6 +2115,7 @@ document.getElementById('b-submit').addEventListener('click',()=>{
   const title=document.getElementById('b-title').value.trim();
   const body=document.getElementById('b-body').value.trim();
   if(!title){showSnack('タイトルを入力してください');return}
+  if(checkNg(title, body)) return; // NGワードチェック
   board.unshift({
     id:`b_${Date.now()}`,kind:newKind,
     author:prof.nickname,
@@ -2056,6 +2142,7 @@ function bindOverlayOutsideClick(){
 function syncProfileUI(){
   document.getElementById('p-nick').value=prof.nickname||'';
   document.getElementById('p-bio').value=prof.bio||'';
+  applyNickLockUI();
   document.querySelectorAll('.hist-btn').forEach(b=>b.classList.toggle('on',b.dataset.v===prof.campHistory));
   // キャンプスタイル（複数選択）
   document.querySelectorAll('#style-row .hist-btn').forEach(b=>{
@@ -2103,10 +2190,33 @@ document.querySelectorAll('#style-row .hist-btn').forEach(b=>b.addEventListener(
   b.classList.toggle('on');
 }));
 document.getElementById('save-btn').addEventListener('click',()=>{
-  prof.nickname=document.getElementById('p-nick').value.trim();
+  const isLocked=isNickLocked();
+  const newNick=isLocked ? prof.nickname : (document.getElementById('p-nick').value.trim());
+
+  // ニックネーム未固定の場合: 固定前チェック
+  if(!isLocked && newNick){
+    // 同意チェックボックスの確認
+    const agreeRow=document.getElementById('agree-row');
+    const agreed=agreeRow&&agreeRow.classList.contains('checked');
+    if(!agreed){
+      alert('「利用規約に同意して固定する」にチェックを入れてください。');
+      return;
+    }
+    // NGワード確認
+    if(checkNg(newNick)) return;
+    // 固定化の最終確認
+    if(!confirm(`「${newNick}」で固定します。\n一度保存すると変更できません。\n誹謗中傷等の行為を行うと信頼を失います。\n\nよろしいですか？`)) return;
+    prof.nickLocked=true;
+  } else if(!isLocked && !newNick){
+    alert('ニックネームを入力してください。');
+    return;
+  }
+
+  prof.nickname=newNick;
   prof.bio=document.getElementById('p-bio').value.trim();
   prof.campStyles=[...document.querySelectorAll('#style-row .hist-btn.on')].map(b=>b.dataset.s);
   save(SK.P,prof);
+  applyNickLockUI();
   const t=document.getElementById('saved-toast');t.classList.add('on');
   setTimeout(()=>t.classList.remove('on'),2400);
   updateStats();
@@ -2424,6 +2534,76 @@ function renderLogList(){
 // 機能5: ギア交換掲示板 (KINDSに追加)
 // ════════════════════════════════════════════════
 KINDS.gear={badge:'GEAR',color:'#8A5AAA',muted:'#2A1A40',border:'#6A40A0',icon:'🔧'};
+
+// ════════════════════════════════════════════════
+// NGワードリスト
+// ════════════════════════════════════════════════
+const NG_WORDS=[
+  'エロ','えろ','アダルト','naked','porn','sex','ちんこ','まんこ','おっぱい','AV',
+  'クソ','ゴミ','死ね','殺す','殺せ','死ねよ','バカ','馬鹿','アホ','カス','うせろ',
+  'キモい','キモ','消えろ','死んでください','くたばれ','ハゲ','デブ','キチガイ',
+  'チョン','支那','nigger','fuck','shit','bitch','asshole','damn'
+];
+
+function containsNgWord(text){
+  const t=text.toLowerCase().replace(/\s/g,'');
+  return NG_WORDS.some(w=>t.includes(w.toLowerCase()));
+}
+
+function checkNg(...texts){
+  for(const t of texts){
+    if(t && containsNgWord(t)){
+      alert('利用規約に基づき、不適切な言葉が含まれるため投稿できません。
+マナーを守った内容をお願いします。');
+      return true;
+    }
+  }
+  return false;
+}
+
+// ════════════════════════════════════════════════
+// SNSシェア
+// ════════════════════════════════════════════════
+function shareToX(spotName){
+  const url=location.href.split('?')[0];
+  const text=`${spotName} で薪情報をチェック！ #MAKILOG #焚き火 #キャンプ ${url}`;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,'_blank');
+}
+
+// ════════════════════════════════════════════════
+// ニックネーム固定ロジック
+// ════════════════════════════════════════════════
+function isNickLocked(){
+  return !!prof.nickLocked;
+}
+
+function applyNickLockUI(){
+  const locked=isNickLocked();
+  const inp=document.getElementById('p-nick');
+  const lockedView=document.getElementById('nick-locked-view');
+  const lockedName=document.getElementById('nick-locked-name');
+  const lockLabel=document.getElementById('nick-lock-label');
+  const lockHint=document.getElementById('nick-lock-hint');
+  const fixedHint=document.getElementById('nick-fixed-hint');
+  const agreeZone=document.getElementById('agree-zone');
+
+  if(locked){
+    if(inp) inp.style.display='none';
+    if(lockedView) lockedView.style.display='flex';
+    if(lockedName) lockedName.textContent=prof.nickname;
+    if(lockLabel) lockLabel.style.display='';
+    if(lockHint) lockHint.style.display='none';
+    if(fixedHint) fixedHint.style.display='flex';
+    if(agreeZone) agreeZone.style.display='none';
+  } else {
+    if(inp) inp.style.display='';
+    if(lockedView) lockedView.style.display='none';
+    if(lockLabel) lockLabel.style.display='none';
+    if(lockHint) lockHint.style.display=prof.nickname?'none':'flex';
+    if(fixedHint) fixedHint.style.display='none';
+    if(agreeZone) agreeZone.style.display=prof.nickname?'flex':'none';
+  }
+}
 // ── INIT (DOMContentLoaded でまとめて初期化) ──
 window.addEventListener('DOMContentLoaded',()=>{
   initData();
@@ -2480,6 +2660,25 @@ window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('av-change-btn')?.addEventListener('click',e=>{e.stopPropagation();avFile.click()});
   document.getElementById('av-delete-btn')?.addEventListener('click',e=>{e.stopPropagation();deleteAvatar()});
   if(prof.avatarUrl) document.getElementById('av-delete-btn').style.display='';
+
+  // ── 利用規約モーダル ──
+  document.getElementById('terms-open-btn')?.addEventListener('click',()=>openOverlay('terms-modal'));
+  document.getElementById('terms-close-btn')?.addEventListener('click',()=>closeOverlay('terms-modal'));
+
+  // ── 同意チェックボックス ──
+  document.getElementById('agree-row')?.addEventListener('click',()=>{
+    document.getElementById('agree-row').classList.toggle('checked');
+    document.getElementById('agree-chk').textContent=
+      document.getElementById('agree-row').classList.contains('checked')?'✓':'';
+  });
+
+  // ── SNSシェアボタン (detail card) ──
+  document.getElementById('d-share-x')?.addEventListener('click',()=>{
+    if(navSpot) shareToX(navSpot.name);
+  });
+
+  // ── ニックネーム固定UI適用 ──
+  applyNickLockUI();
 
   // ── レビューモーダル ──
   // 星タップ
@@ -2641,6 +2840,38 @@ function readLogPhoto(file){
       <button class="submit-btn" style="flex:2;margin-top:0;padding:12px" id="log-submit">📔 記録する</button>
     </div>
     <div style="height:10px"></div>
+  </div>
+</div>
+
+<!-- ══ TERMS MODAL ══ -->
+<div class="overlay" id="terms-modal">
+  <div class="sheet">
+    <div class="card-handle"></div>
+    <div class="f-sec" style="margin-bottom:12px"><div class="f-sec-txt">// MAKI-LOG 利用規約</div></div>
+    <div class="terms-body">
+      <div class="terms-art">第1条（目的）</div>
+      MAKI-LOG（以下「本サービス」）は、キャンパー同士が薪情報を安全・快適にシェアするためのプラットフォームです。すべてのユーザーが気持ちよく使えるよう、本規約を定めます。
+
+      <div class="terms-art">第2条（禁止事項）</div>
+      以下の行為を厳禁とします。<br>
+      ・アダルト・わせつ・性的コンテンツの投稿<br>
+      ・特定の個人・団体への誹謗中傷・ハラスメント<br>
+      ・事実と異なる虚偽の薪情報の投稿<br>
+      ・スパム・商業目的の宣伝投稿<br>
+      ・公序良俗に反するいかなる行為
+
+      <div class="terms-art">第3条（ニックネームの固定）</div>
+      一度設定・保存したニックネームはすべての投稿と紐付けられ、変更できません。責任ある言動をお願いします。
+
+      <div class="terms-art">第4条（免責事項）</div>
+      本サービスが提供する薪情報・気象情報は参考情報です。実際の在庫・状況との差異について、運営は責任を負いません。
+
+      <div class="terms-art">第5条（投稿の削除権限）</div>
+      運営は利用規約に違反すると判断した投稿を、予告なく削除する権限を有します。
+
+      <div class="terms-closing">🔥 マナーを守って、最高の焚き火を。 🔥</div>
+    </div>
+    <button class="act act-pri" style="width:100%;padding:13px" id="terms-close-btn">✅ 確認しました</button>
   </div>
 </div>
 <!-- ══ NICKNAME PROMPT MODAL ══ -->
