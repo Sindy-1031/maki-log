@@ -452,7 +452,7 @@ textarea.f-input{resize:none;line-height:1.5}
 /* Nav modal */
 #nav-modal .sheet{padding:17px 16px calc(16px + var(--sbot))}
 /* Install toast */
-#toast{position:fixed;bottom:calc(72px + var(--sbot));left:14px;right:14px;z-index:3000;
+#toast{position:fixed;bottom:calc(72px + var(--sbot));left:14px;right:14px;z-index:650;
   background:var(--bg-card);border:1px solid var(--gold);border-radius:12px;padding:12px 14px;
   display:flex;align-items:center;gap:10px;box-shadow:0 4px 18px rgba(197,160,89,.18);
   transform:translateY(130%);transition:transform 270ms ease;pointer-events:all}
@@ -1403,20 +1403,20 @@ function initMap(){
 }
 function positionNearby(){
   const sb=document.getElementById('search-bar');
-  const ms=document.getElementById('map-screen');
-  if(!sb||!ms) return;
+  if(!sb) return;
   const sbH=sb.getBoundingClientRect().height||72;
   document.getElementById('nearby').style.bottom=sbH+'px';
   document.getElementById('gps-btn').style.bottom=(sbH+8)+'px';
   document.getElementById('detail').style.bottom=sbH+'px';
-  // lmap の高さを明示的にセット（flex child の height:100% が効かない環境対策）
+  // lmap の高さはウィンドウ基準で計算（map-screen のBCRは display切り替えで0になることがある）
   const lmapEl=document.getElementById('lmap');
   if(lmapEl){
-    const msH=ms.getBoundingClientRect().height;
-    if(msH>0) lmapEl.style.height=msH+'px';
+    const tabH=document.getElementById('tabs')?.getBoundingClientRect().height||58;
+    const h=window.innerHeight-tabH;
+    if(h>0) lmapEl.style.height=h+'px';
   }
   // Leaflet のサイズを再計算
-  if(lmap) setTimeout(()=>lmap.invalidateSize(),50);
+  if(lmap) setTimeout(()=>lmap.invalidateSize(),80);
 }
 
 function mkIcon(s,sel){
@@ -1463,6 +1463,9 @@ function closeDetail(){
   document.getElementById('nearby').classList.remove('hide');
   if(selId&&mkrs[selId]){const p=spots.find(s=>s.id===selId);if(p)mkrs[selId].setIcon(mkIcon(p,false))}
   selId=null;
+  // トーストのポインターイベントを復元
+  const toastEl=document.getElementById('toast');
+  if(toastEl) toastEl.style.pointerEvents='';
 }
 
 function openDetail(s){
@@ -1529,6 +1532,9 @@ function openDetail(s){
   renderFireCalendar(s.lat, s.lng, calDiv);
 
   document.getElementById('detail').classList.add('on');
+  // トーストが詳細カードの操作を妨げないようにする
+  const toastEl=document.getElementById('toast');
+  if(toastEl) toastEl.style.pointerEvents='none';
 }
 
 function doSoldOut(id){
@@ -1696,7 +1702,14 @@ function goTab(t){
   if(t==='rescue'){document.getElementById('rescue-dot').classList.remove('on');renderBoard()}
   if(t==='mypage'){syncProfileUI();updateStats()}
   if(t==='log'){renderLogList()}
-  if(t==='map'&&lmap) setTimeout(()=>{lmap.invalidateSize();positionNearby()},60);
+  if(t==='map'&&lmap) setTimeout(()=>{
+    // lmap の高さをウィンドウ基準で確実にセット
+    const lEl=document.getElementById('lmap');
+    const tabH=document.getElementById('tabs')?.getBoundingClientRect().height||58;
+    if(lEl) lEl.style.height=(window.innerHeight-tabH)+'px';
+    lmap.invalidateSize();
+    positionNearby();
+  },80);
 }
 document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>goTab(b.dataset.t)));
 // Close button binding (DOMContentLoaded 内で呼ぶ)
