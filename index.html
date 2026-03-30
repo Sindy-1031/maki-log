@@ -186,8 +186,8 @@ textarea.f-input{resize:none;line-height:1.5}
 /* ════════════════════════════
    MAP SCREEN
 ════════════════════════════ */
-#map-screen{position:relative;overflow:hidden;min-height:0;height:100%}
-#lmap{width:100%;height:100%;z-index:1;flex-shrink:0}
+#map-screen{position:relative;overflow:hidden;min-height:0}
+#lmap{width:100%;height:0;z-index:1}
 .leaflet-tile-pane{filter:brightness(.70) saturate(.5) hue-rotate(8deg)}
 .leaflet-control-attribution{background:rgba(13,13,11,.85)!important;color:var(--tx-m)!important;font-size:8px!important}
 .leaflet-control-attribution a{color:var(--tx-m)!important}
@@ -454,9 +454,8 @@ textarea.f-input{resize:none;line-height:1.5}
 /* Install toast */
 #toast{position:fixed;bottom:calc(72px + var(--sbot));left:14px;right:14px;z-index:650;
   background:var(--bg-card);border:1px solid var(--gold);border-radius:12px;padding:12px 14px;
-  display:flex;align-items:center;gap:10px;box-shadow:0 4px 18px rgba(197,160,89,.18);
-  transform:translateY(130%);transition:transform 270ms ease;pointer-events:all}
-#toast.on{transform:translateY(0)}
+  display:none;align-items:center;gap:10px;box-shadow:0 4px 18px rgba(197,160,89,.18)}
+#toast.on{display:flex}
 .toast-txt{flex:1;font-size:12px;color:var(--tx);line-height:1.4}
 .toast-txt strong{font-family:var(--mono);color:var(--gold)}
 .toast-add{background:var(--olive);border-radius:6px;padding:7px 12px;
@@ -1375,47 +1374,39 @@ function spotColor(s){
 }
 
 // ── MAP INIT ──
+function setLmapHeight(){
+  const lEl=document.getElementById('lmap');
+  const tabEl=document.getElementById('tabs');
+  if(!lEl) return;
+  const tabH=tabEl ? tabEl.getBoundingClientRect().height : 58;
+  const h=window.innerHeight - tabH;
+  lEl.style.height=(h>0?h:window.innerHeight*0.8)+'px';
+}
+
 function initMap(){
-  // lmap の高さを先にセット（Leaflet は height:0 だと地図が表示されない）
-  const lmapEl=document.getElementById('lmap');
-  const msEl=document.getElementById('map-screen');
-  if(lmapEl&&msEl){
-    // map-screen の高さ = ウィンドウ高さ - tab-bar の高さ
-    const tabH=document.getElementById('tabs')?.getBoundingClientRect().height||58;
-    const h=window.innerHeight-tabH;
-    lmapEl.style.height=h+'px';
-  }
+  setLmapHeight(); // Leaflet初期化前に高さを確保
   lmap=L.map('lmap',{center:[curLat,curLng],zoom:6,zoomControl:false});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:'© <a href="https://www.openstreetmap.org/copyright">OSM</a>',maxZoom:19
   }).addTo(lmap);
   L.control.zoom({position:'bottomright'}).addTo(lmap);
   lmap.on('click',closeDetail);
-  // 遅延実行で正確な高さに更新
-  setTimeout(positionNearby,100);
-  window.addEventListener('resize',()=>{
-    const tabH=document.getElementById('tabs')?.getBoundingClientRect().height||58;
-    const lEl=document.getElementById('lmap');
-    if(lEl) lEl.style.height=(window.innerHeight-tabH)+'px';
-    positionNearby();
-  });
+  window.addEventListener('resize',()=>{ setLmapHeight(); if(lmap) lmap.invalidateSize(); positionNearby(); });
+  // 初回描画後に再計算
+  setTimeout(()=>{ setLmapHeight(); lmap.invalidateSize(); positionNearby(); },200);
   renderMarkers();
 }
 function positionNearby(){
   const sb=document.getElementById('search-bar');
   if(!sb) return;
   const sbH=sb.getBoundingClientRect().height||72;
-  document.getElementById('nearby').style.bottom=sbH+'px';
-  document.getElementById('gps-btn').style.bottom=(sbH+8)+'px';
-  document.getElementById('detail').style.bottom=sbH+'px';
-  // lmap の高さはウィンドウ基準で計算（map-screen のBCRは display切り替えで0になることがある）
-  const lmapEl=document.getElementById('lmap');
-  if(lmapEl){
-    const tabH=document.getElementById('tabs')?.getBoundingClientRect().height||58;
-    const h=window.innerHeight-tabH;
-    if(h>0) lmapEl.style.height=h+'px';
-  }
-  // Leaflet のサイズを再計算
+  const nearbyEl=document.getElementById('nearby');
+  const gpsEl=document.getElementById('gps-btn');
+  const detailEl=document.getElementById('detail');
+  if(nearbyEl) nearbyEl.style.bottom=sbH+'px';
+  if(gpsEl) gpsEl.style.bottom=(sbH+8)+'px';
+  if(detailEl) detailEl.style.bottom=sbH+'px';
+  setLmapHeight();
   if(lmap) setTimeout(()=>lmap.invalidateSize(),80);
 }
 
@@ -1463,9 +1454,7 @@ function closeDetail(){
   document.getElementById('nearby').classList.remove('hide');
   if(selId&&mkrs[selId]){const p=spots.find(s=>s.id===selId);if(p)mkrs[selId].setIcon(mkIcon(p,false))}
   selId=null;
-  // トーストのポインターイベントを復元
-  const toastEl=document.getElementById('toast');
-  if(toastEl) toastEl.style.pointerEvents='';
+
 }
 
 function openDetail(s){
@@ -1532,9 +1521,7 @@ function openDetail(s){
   renderFireCalendar(s.lat, s.lng, calDiv);
 
   document.getElementById('detail').classList.add('on');
-  // トーストが詳細カードの操作を妨げないようにする
-  const toastEl=document.getElementById('toast');
-  if(toastEl) toastEl.style.pointerEvents='none';
+
 }
 
 function doSoldOut(id){
@@ -1702,14 +1689,7 @@ function goTab(t){
   if(t==='rescue'){document.getElementById('rescue-dot').classList.remove('on');renderBoard()}
   if(t==='mypage'){syncProfileUI();updateStats()}
   if(t==='log'){renderLogList()}
-  if(t==='map'&&lmap) setTimeout(()=>{
-    // lmap の高さをウィンドウ基準で確実にセット
-    const lEl=document.getElementById('lmap');
-    const tabH=document.getElementById('tabs')?.getBoundingClientRect().height||58;
-    if(lEl) lEl.style.height=(window.innerHeight-tabH)+'px';
-    lmap.invalidateSize();
-    positionNearby();
-  },80);
+  if(t==='map'&&lmap) setTimeout(()=>{ setLmapHeight(); lmap.invalidateSize(); positionNearby(); },80);
 }
 document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>goTab(b.dataset.t)));
 // Close button binding (DOMContentLoaded 内で呼ぶ)
@@ -2566,8 +2546,7 @@ function containsNgWord(text){
 function checkNg(...texts){
   for(const t of texts){
     if(t && containsNgWord(t)){
-      alert('利用規約に基づき、不適切な言葉が含まれるため投稿できません。
-マナーを守った内容をお願いします。');
+      alert('利用規約に基づき、不適切な言葉が含まれるため投稿できません。\nマナーを守った内容をお願いします。');
       return true;
     }
   }
@@ -2641,11 +2620,10 @@ window.addEventListener('DOMContentLoaded',()=>{
   function hideToast(){
     if(!toast) return;
     toast.classList.remove('on');
-    setTimeout(()=>{toast.style.display='none'},350);
   }
   window.addEventListener('beforeinstallprompt',e=>{
     e.preventDefault();deferInstall=e;
-    setTimeout(()=>{toast.style.display='';toast.classList.add('on')},5000);
+    setTimeout(()=>{toast.classList.add('on')},5000);
   });
   document.getElementById('toast-add').addEventListener('click',()=>{
     if(!deferInstall) return;
