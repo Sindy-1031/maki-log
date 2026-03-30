@@ -272,10 +272,12 @@ textarea.f-input{resize:none;line-height:1.5}
 #detail{position:absolute;left:0;right:0;z-index:620;background:var(--bg-card);
   border-top-left-radius:18px;border-top-right-radius:18px;
   border-top:1.5px solid var(--bd-g);border-left:1px solid var(--bd-g);border-right:1px solid var(--bd-g);
-  padding:17px 16px;box-shadow:0 -4px 20px rgba(197,160,89,.07);
+  box-shadow:0 -4px 20px rgba(197,160,89,.07);
   transform:translateY(100%);transition:transform 270ms cubic-bezier(.34,1.56,.64,1);
-  max-height:80vh;overflow-y:auto}
+  display:flex;flex-direction:column;max-height:76vh}
 #detail.on{transform:translateY(0)}
+#detail-fixed{flex-shrink:0;padding:17px 16px 0}
+#detail-body{flex:1;overflow-y:auto;padding:0 16px 24px;-webkit-overflow-scrolling:touch}
 .d-hdr{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px}
 .d-hdr-l{flex:1;min-width:0}
 .d-badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:5px}
@@ -463,6 +465,24 @@ textarea.f-input{resize:none;line-height:1.5}
 .toast-x{color:var(--tx-m);font-size:20px;flex-shrink:0;width:32px;height:32px;
   display:flex;align-items:center;justify-content:center;border-radius:50%;
   background:var(--surf);pointer-events:all;touch-action:manipulation;cursor:pointer}
+
+/* ── NICKNAME PROMPT MODAL ── */
+#nick-prompt{z-index:3500}
+#nick-prompt .sheet{text-align:center;padding:26px 20px calc(22px + var(--sbot))}
+.np-icon{font-size:48px;margin-bottom:10px}
+.np-title{font-family:var(--mono);font-size:17px;font-weight:900;color:var(--tx);letter-spacing:1px;margin-bottom:8px}
+.np-body{font-size:13px;color:var(--tx-s);line-height:1.7;margin-bottom:18px}
+.np-body strong{color:var(--gold);font-family:var(--mono)}
+.np-acts{display:flex;flex-direction:column;gap:9px}
+.np-go-btn{width:100%;background:var(--olive);border-radius:10px;padding:14px;
+  border:1.5px solid var(--gold);color:#fff;font-family:var(--mono);font-size:13px;
+  font-weight:900;letter-spacing:2px;box-shadow:0 3px 10px rgba(197,160,89,.15);
+  transition:opacity 140ms;touch-action:manipulation}
+.np-go-btn:active{opacity:.82}
+.np-cancel-btn{width:100%;background:var(--surf);border-radius:10px;padding:12px;
+  border:1px solid var(--bd);color:var(--tx-m);font-family:var(--mono);font-size:12px;
+  transition:opacity 140ms;touch-action:manipulation}
+.np-cancel-btn:active{opacity:.75}
 </style>
 <body>
 <div id="root">
@@ -486,26 +506,32 @@ textarea.f-input{resize:none;line-height:1.5}
   <button id="gps-btn" title="現在地へ移動">📡</button>
   <!-- Detail card -->
   <div id="detail">
-    <div class="card-handle"></div>
-    <div class="d-hdr">
-      <div class="d-hdr-l">
-        <div class="d-badges" id="d-badges"></div>
-        <div class="d-title" id="d-title"></div>
+    <!-- 固定ヘッダー: ハンドル + タイトル + ×ボタン (スクロール対象外) -->
+    <div id="detail-fixed">
+      <div class="card-handle"></div>
+      <div class="d-hdr">
+        <div class="d-hdr-l">
+          <div class="d-badges" id="d-badges"></div>
+          <div class="d-title" id="d-title"></div>
+        </div>
+        <button class="close-x" id="d-close" style="position:relative;z-index:10;touch-action:manipulation">✕</button>
       </div>
-      <button class="close-x" id="d-close">✕</button>
     </div>
-    <img id="d-photo" class="d-photo" src="" alt=""/>
-    <div class="gold-div"><div class="gold-div-line"></div><span class="gold-div-ico">✦</span><div class="gold-div-line"></div></div>
-    <div class="weather-strip" id="wx-strip"></div>
-    <div class="info-grid" id="d-info" style="margin-bottom:10px"></div>
-    <div class="fac-chips" id="d-fac"></div>
-    <div class="nav-row">
-      <button class="act act-pri" id="d-nav-g" style="flex:1">🗺 Googleマップ</button>
-      <button class="act act-sec" id="d-nav-y" style="flex:1">🚗 Yahoo!カーナビ</button>
-    </div>
-    <div class="acts">
-      <button class="act act-sos" id="d-sold" style="flex:1">✕ 売り切れ報告</button>
-      <button class="act act-sos" id="d-del" style="flex:1;display:none">🗑 削除</button>
+    <!-- スクロール可能ボディ -->
+    <div id="detail-body">
+      <img id="d-photo" class="d-photo" src="" alt=""/>
+      <div class="gold-div"><div class="gold-div-line"></div><span class="gold-div-ico">✦</span><div class="gold-div-line"></div></div>
+      <div class="weather-strip" id="wx-strip"></div>
+      <div class="info-grid" id="d-info" style="margin-bottom:10px"></div>
+      <div class="fac-chips" id="d-fac"></div>
+      <div class="nav-row">
+        <button class="act act-pri" id="d-nav-g" style="flex:1">🗺 Googleマップ</button>
+        <button class="act act-sec" id="d-nav-y" style="flex:1">🚗 Yahoo!カーナビ</button>
+      </div>
+      <div class="acts">
+        <button class="act act-sos" id="d-sold" style="flex:1">✕ 売り切れ報告</button>
+        <button class="act act-sos" id="d-del" style="flex:1;display:none">🗑 削除</button>
+      </div>
     </div>
   </div>
   <!-- Nearby panel -->
@@ -942,17 +968,18 @@ function initMap(){
   }).addTo(lmap);
   L.control.zoom({position:'bottomright'}).addTo(lmap);
   lmap.on('click',closeDetail);
-  // position nearby panel above search bar
-  positionNearby();
+  // position nearby panel above search bar — delay to ensure layout is complete
+  setTimeout(positionNearby, 80);
+  window.addEventListener('resize', positionNearby);
   renderMarkers();
 }
 function positionNearby(){
   const sb=document.getElementById('search-bar');
-  const nb=document.getElementById('nearby');
-  const sbH=sb.offsetHeight||72;
-  nb.style.bottom=sbH+'px';
+  if(!sb) return;
+  // Force a reflow to get accurate height
+  const sbH=sb.getBoundingClientRect().height||72;
+  document.getElementById('nearby').style.bottom=sbH+'px';
   document.getElementById('gps-btn').style.bottom=(sbH+8)+'px';
-  // detail card also above search bar
   document.getElementById('detail').style.bottom=sbH+'px';
 }
 
@@ -992,7 +1019,11 @@ function pickSpot(id){
 }
 
 function closeDetail(){
-  document.getElementById('detail').classList.remove('on');
+  const det=document.getElementById('detail');
+  det.classList.remove('on');
+  // Reset scroll position so next open starts from top
+  const body=document.getElementById('detail-body');
+  if(body) body.scrollTop=0;
   document.getElementById('nearby').classList.remove('hide');
   if(selId&&mkrs[selId]){const p=spots.find(s=>s.id===selId);if(p)mkrs[selId].setIcon(mkIcon(p,false))}
   selId=null;
@@ -1170,7 +1201,12 @@ async function doSearch(){
     sRes.innerHTML=`<div class="s-item"><div class="s-item-name">検索に失敗しました</div></div>`;
   }
 }
-document.addEventListener('click',e=>{if(!e.target.closest('#search-bar')) sRes.classList.remove('on')});
+document.addEventListener('click',e=>{
+  // Only close search results; never interfere with other buttons
+  if(!e.target.closest('#search-bar') && !e.target.closest('#detail')) {
+    sRes.classList.remove('on');
+  }
+});
 
 // ── TAB NAV ──
 function goTab(t){
@@ -1183,7 +1219,13 @@ function goTab(t){
   if(t==='map'&&lmap) setTimeout(()=>{lmap.invalidateSize();positionNearby()},60);
 }
 document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>goTab(b.dataset.t)));
-document.getElementById('d-close').addEventListener('click',closeDetail);
+// Close button: bind click + touchend for bulletproof mobile support
+(function(){
+  const btn = document.getElementById('d-close');
+  function onClose(e){ e.preventDefault(); e.stopPropagation(); closeDetail(); }
+  btn.addEventListener('click',    onClose, { passive:false });
+  btn.addEventListener('touchend', onClose, { passive:false });
+})();
 document.getElementById('nav-cancel').addEventListener('click',()=>closeOverlay('nav-modal'));
 
 // ── POST FORM ──
@@ -1274,13 +1316,15 @@ function readPhoto(f){
 
 // submit
 document.getElementById('post-btn').addEventListener('click',()=>{
+  // ニックネーム未設定はブロック
+  if(requireNickname()) return;
   const name=document.getElementById('f-name').value.trim();
   const price=document.getElementById('f-price').value.trim();
   if(!name){showSnack('施設名を入力してください');return}
   if(!price){showSnack('価格を入力してください');return}
   if(!pickedLat||!pickedLng){showSnack('地図で場所を指定してください');return}
   const wt=parseFloat(document.getElementById('f-weight').value)||null;
-  const nick=prof.nickname||'匿名';
+  const nick=prof.nickname; // requireNickname()で保証済み
   spots.push({
     id:`u_${Date.now()}`,name,type:selType,wood:selWood,dry:selDry,
     price,weight:wt,lat:pickedLat,lng:pickedLng,
@@ -1440,6 +1484,8 @@ document.getElementById('reply-send').addEventListener('click',()=>{
 // new board post
 let newKind='rescue';
 document.getElementById('new-post-btn').addEventListener('click',()=>{
+  // ニックネーム未設定はブロック
+  if(requireNickname()) return;
   document.getElementById('b-title').value='';
   document.getElementById('b-body').value='';
   newKind='rescue';
@@ -1459,12 +1505,13 @@ document.querySelectorAll('.k-sel-btn').forEach(b=>{
 });
 document.getElementById('b-cancel').addEventListener('click',()=>closeOverlay('new-post-modal'));
 document.getElementById('b-submit').addEventListener('click',()=>{
+  if(requireNickname()) return;
   const title=document.getElementById('b-title').value.trim();
   const body=document.getElementById('b-body').value.trim();
   if(!title){showSnack('タイトルを入力してください');return}
   board.unshift({
     id:`b_${Date.now()}`,kind:newKind,
-    author:prof.nickname||'匿名',av:'👤',title,
+    author:prof.nickname,av:'👤',title,
     body:body||'詳細は返信でご連絡ください。',
     postedAt:Date.now(),replies:0,loc:'現在地付近',isSample:false,
   });
@@ -1531,6 +1578,32 @@ function readAvatar(f){
 // ── SNACK ──
 function showSnack(msg){alert(msg)}
 
+// ── NICKNAME GUARD ──
+// ニックネーム未設定の場合はポップアップを出してtrueを返す（呼び出し元はreturnする）
+function requireNickname(){
+  if(prof.nickname && prof.nickname.trim()!=='') return false; // OK
+  openOverlay('nick-prompt');
+  return true; // blocked
+}
+
+// ── NICK PROMPT MODAL BINDINGS ──
+(function(){
+  document.getElementById('np-go').addEventListener('click',()=>{
+    closeOverlay('nick-prompt');
+    // 一時的に投稿モーダルも閉じてマイページへ遷移
+    closeOverlay('new-post-modal');
+    goTab('mypage');
+    // マイページのニックネーム入力欄にフォーカス
+    setTimeout(()=>{
+      const el=document.getElementById('p-nick');
+      if(el){el.focus();el.scrollIntoView({behavior:'smooth',block:'center'})}
+    },300);
+  });
+  document.getElementById('np-cancel').addEventListener('click',()=>{
+    closeOverlay('nick-prompt');
+  });
+})();
+
 // ── PWA ──
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
@@ -1566,5 +1639,23 @@ window.addEventListener('DOMContentLoaded',()=>{
   updateStats();
 });
 </script>
+
+<!-- ══ NICKNAME PROMPT MODAL ══ -->
+<div class="overlay" id="nick-prompt">
+  <div class="sheet">
+    <div class="card-handle"></div>
+    <div class="np-icon">🏷</div>
+    <div class="np-title">ニックネームを登録してください</div>
+    <div class="np-body">
+      投稿するには <strong>マイページ</strong> でニックネームを設定する必要があります。<br>
+      ニックネームがないと投稿の削除ができなくなります。
+    </div>
+    <div class="np-acts">
+      <button class="np-go-btn" id="np-go">👤  マイページでニックネームを設定</button>
+      <button class="np-cancel-btn" id="np-cancel">あとで設定する（キャンセル）</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
