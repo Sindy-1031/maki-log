@@ -1,1834 +1,1569 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <title>MAKI-LOG — 薪シェアアプリ</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#4B5320" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="MAKI-LOG" />
-  <link rel="apple-touch-icon" href="./assets/icon.png" />
-  <link rel="icon" type="image/png" href="./assets/icon.png" />
-
-  <!-- SEO -->
-  <meta name="description" content="キャンパー同士で薪情報をシェアするフィールドアプリ。近くの薪販売所を地図で探して、レスキュー掲示板で助け合おう。" />
-  <meta property="og:title" content="MAKI-LOG — 薪シェアアプリ" />
-  <meta property="og:description" content="キャンパー同士で薪情報をシェア" />
-  <meta property="og:type" content="website" />
-
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-
-  <!-- Google Fonts: Courier Prime (MONO代替) + Noto Sans JP -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet" />
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no"/>
+<title>MAKI-LOG — 薪フィールドアプリ</title>
+<link rel="manifest" href="./manifest.json"/>
+<meta name="theme-color" content="#4B5320"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="MAKI-LOG"/>
+<link rel="apple-touch-icon" href="./assets/icon.png"/>
+<link rel="icon" href="./assets/icon.png"/>
+<meta name="description" content="全国の薪販売スポットをキャンパーがシェアするフィールドアプリ"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet"/>
 <style>
-/* ═══════════════════════════════════════════
-   CSS Variables — ミリタリーギアカタログ
-═══════════════════════════════════════════ */
-:root {
-  --bg:           #0F0F0D;
-  --bg-card:      #171714;
-  --surface:      #1E1E1A;
-  --surface-alt:  #252521;
-  --olive:        #4B5320;
-  --olive-light:  #6B7530;
-  --olive-muted:  #3A4118;
-  --gold:         #C5A059;
-  --gold-light:   #D4B06A;
-  --gold-dark:    #8A6E35;
-  --gold-muted:   #4A3C1E;
-  --ember:        #C94A14;
-  --ember-light:  #E05E20;
-  --rescue:       #B84040;
-  --rescue-muted: #3A1010;
-  --rescue-border:#6B2424;
-  --give:         #4B7A3A;
-  --give-muted:   #1A3010;
-  --give-border:  #2E5A22;
-  --text-pri:     #E2DDD0;
-  --text-sec:     #8A8478;
-  --text-muted:   #5C574F;
-  --text-ph:      #46433C;
-  --border:       #2E2D27;
-  --border-gold:  #4A3C1E;
-  --border-focus: #6B7530;
-  --camp-blue:    #3A5C7A;
-  --mono:         'Courier Prime', 'Courier New', monospace;
-  --sans:         'Noto Sans JP', sans-serif;
-  --safe-bottom:  env(safe-area-inset-bottom, 0px);
-  --safe-top:     env(safe-area-inset-top, 0px);
+/* ═══════════════════════════════════
+   ROOT TOKENS — Military Field Gear
+═══════════════════════════════════ */
+:root{
+  --bg:#0D0D0B; --bg-card:#161613; --surf:#1C1C18; --surf2:#232320;
+  --olive:#4B5320; --ol-l:#6B7530; --ol-m:#3A4118; --ol-d:#252D10;
+  --gold:#C5A059; --go-l:#D4B06A; --go-d:#8A6E35; --go-m:#3E3018;
+  --ember:#C94A14; --em-l:#E05E20;
+  --sos:#B84040; --sos-m:#3A1010; --sos-b:#6B2424;
+  --give:#4A7A38; --gi-m:#182E10; --gi-b:#2C5820;
+  --broad:#7A5230; --needle:#2E6020; --unk:#524E46;
+  --camp:#2E5070;
+  --tx:#E2DDD0; --tx-s:#888278; --tx-m:#585248; --tx-ph:#423E38;
+  --bd:#2A2924; --bd-g:#3E3018; --bd-f:#6B7530;
+  --mono:'Courier Prime','Courier New',monospace;
+  --sans:'Noto Sans JP',sans-serif;
+  --sbot:env(safe-area-inset-bottom,0px);
+  --stop:env(safe-area-inset-top,0px);
+  --tab-h:60px;
 }
 
-/* ── Reset & Base ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  height: 100%; overflow: hidden;
-  background: var(--bg); color: var(--text-pri);
-  font-family: var(--sans); -webkit-tap-highlight-color: transparent;
-  -webkit-text-size-adjust: 100%;
-}
-input, textarea, button { font-family: inherit; outline: none; border: none; background: none; }
-button { cursor: pointer; }
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border-gold); border-radius: 2px; }
+/* BASE */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--sans);
+  -webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;touch-action:manipulation}
+input,textarea,button,select{font-family:inherit;outline:none;border:none;background:none}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+img{max-width:100%;display:block}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd-g);border-radius:2px}
 
-/* ── App Shell ── */
-#app {
-  display: flex; flex-direction: column;
-  height: 100dvh; /* dynamic viewport height for mobile */
-  padding-top: var(--safe-top);
-  overflow: hidden;
-}
+/* ── SHELL ── */
+#root{display:flex;flex-direction:column;height:100dvh;padding-top:var(--stop)}
+.screen{flex:1;min-height:0;display:none;flex-direction:column;overflow:hidden}
+.screen.on{display:flex;animation:fi 200ms ease}
+@keyframes fi{from{opacity:0}to{opacity:1}}
 
-/* ── Screen management ── */
-.screen { flex: 1; overflow: hidden; position: relative; display: none; flex-direction: column; }
-.screen.active { display: flex; animation: fadeIn 220ms ease; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* ── TAB BAR ── */
+#tabs{display:flex;flex-shrink:0;background:var(--bg);border-top:1px solid var(--bd-g);
+  padding-bottom:max(var(--sbot),6px);padding-top:8px;z-index:900}
+.tb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:3px 0;
+  position:relative;background:none;color:inherit;touch-action:manipulation}
+.tb-ico{font-size:20px;opacity:.26;transition:opacity 140ms}
+.tb-lbl{font-family:var(--mono);font-size:9px;color:var(--tx-m);letter-spacing:.5px;transition:color 140ms}
+.tb.on .tb-ico{opacity:1}
+.tb.on .tb-lbl{color:var(--gold);font-weight:700}
+.tb-bar{display:none;position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:22px;height:2px;border-radius:1px;background:var(--gold)}
+.tb.on .tb-bar{display:block}
+.tb-dot{position:absolute;top:1px;right:calc(50% - 16px);width:7px;height:7px;
+  border-radius:50%;background:var(--sos);border:1.5px solid var(--bg);display:none}
+.tb-dot.on{display:block}
 
-/* ── Tab Bar ── */
-#tab-bar {
-  display: flex; flex-shrink: 0;
-  background: var(--bg);
-  border-top: 1px solid var(--border-gold);
-  padding-bottom: max(var(--safe-bottom), 6px);
-  padding-top: 8px;
-  z-index: 1000;
-}
-.tab-item {
-  flex: 1; display: flex; flex-direction: column; align-items: center;
-  gap: 3px; padding: 4px 0; position: relative;
-  background: none; color: inherit;
-}
-.tab-icon { font-size: 21px; opacity: 0.30; transition: opacity 150ms; }
-.tab-label {
-  font-family: var(--mono); font-size: 9px; color: var(--text-muted);
-  letter-spacing: 0.5px; transition: color 150ms;
-}
-.tab-item.active .tab-icon  { opacity: 1; }
-.tab-item.active .tab-label { color: var(--gold); font-weight: 700; }
-.tab-indicator {
-  display: none; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 24px; height: 2px; border-radius: 1px; background: var(--gold);
-}
-.tab-item.active .tab-indicator { display: block; }
-.tab-badge {
-  position: absolute; top: 2px; right: calc(50% - 18px);
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--rescue); border: 1.5px solid var(--bg);
-}
+/* ── SHARED LAYOUT ── */
+.hdr{display:flex;align-items:center;gap:8px;padding:12px 16px;
+  border-bottom:1px solid var(--bd-g);background:var(--bg);flex-shrink:0}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-fire{font-size:16px}
+.logo-txt{font-family:var(--mono);font-size:16px;font-weight:700;letter-spacing:5px;color:var(--tx)}
+.logo-badge{background:var(--go-m);border:1px solid var(--go-d);border-radius:3px;
+  padding:2px 7px;font-family:var(--mono);font-size:8px;font-weight:700;color:var(--gold);letter-spacing:1px}
+.scroller{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pad{padding:14px}
 
-/* ════════════════════════════════════════
+/* ── FORM PRIMITIVES ── */
+.f-block{margin-bottom:16px}
+.f-lbl{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--tx-s);
+  text-transform:uppercase;letter-spacing:1.5px;margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.req{color:var(--gold)}
+.f-input{width:100%;background:var(--surf2);border-radius:8px;border:1px solid var(--bd);
+  color:var(--tx);font-size:14px;padding:11px 13px;transition:border-color 150ms}
+.f-input:focus{border-color:var(--bd-f)}
+.f-input::placeholder{color:var(--tx-ph)}
+textarea.f-input{resize:none;line-height:1.5}
+.f-sec{background:var(--ol-m);border-radius:6px;padding:11px 15px;
+  border:1px solid var(--ol-l);border-left:3px solid var(--ol-l);margin-bottom:16px}
+.f-sec-txt{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ol-l);letter-spacing:1.5px}
+.pill-row{display:flex;flex-wrap:wrap;gap:7px}
+.pill{border-radius:6px;padding:7px 12px;border:1.5px solid var(--bd);background:var(--surf2);
+  font-family:var(--mono);font-size:11px;font-weight:700;color:var(--tx-s);
+  transition:all 140ms;cursor:pointer;touch-action:manipulation}
+.pill.on{color:#fff}
+.dry-row{display:flex;gap:7px}
+.dry-btn{flex:1;border-radius:8px;padding:9px 6px;border:1.5px solid var(--bd);
+  background:var(--surf2);display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:all 140ms;cursor:pointer;touch-action:manipulation}
+.dry-btn.on{border-color:var(--gold);background:var(--go-m)}
+.dry-lbl{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--tx-s)}
+.dry-stars{font-size:9px;color:var(--tx-m)}
+.dry-btn.on .dry-lbl{color:var(--tx)}
+.dry-btn.on .dry-stars{color:var(--gold)}
+.chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.chk{display:flex;align-items:center;gap:7px;background:var(--surf2);
+  border-radius:6px;padding:8px 10px;border:1.5px solid var(--bd);cursor:pointer;
+  transition:all 140ms;touch-action:manipulation}
+.chk.on{border-color:var(--ol-l);background:var(--ol-m)}
+.chk-box{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--tx-m);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:900;color:transparent;transition:all 140ms}
+.chk.on .chk-box{background:var(--ol-l);border-color:var(--ol-l);color:#fff}
+.chk-txt{font-family:var(--mono);font-size:10px;color:var(--tx-s);font-weight:700;line-height:1.3}
+.chk.on .chk-txt{color:var(--tx)}
+.price-row{display:flex;gap:8px;align-items:stretch}
+.price-row .f-input{flex:1;font-family:var(--mono)}
+.price-unit{background:var(--go-m);border-radius:8px;border:1px solid var(--go-d);
+  padding:11px 11px;font-family:var(--mono);font-size:12px;color:var(--gold);
+  white-space:nowrap;display:flex;align-items:center}
+.cospa-pill{display:inline-flex;align-items:center;gap:6px;background:var(--go-m);
+  border:1px solid var(--go-d);border-radius:20px;padding:5px 12px;margin-top:7px}
+.cospa-lbl{font-family:var(--mono);font-size:9px;color:var(--tx-m);letter-spacing:.8px}
+.cospa-val{font-family:var(--mono);font-size:13px;font-weight:900;color:var(--gold)}
+.photo-drop{border:1.5px dashed var(--bd-g);border-radius:8px;padding:16px;
+  text-align:center;cursor:pointer;transition:all 150ms;touch-action:manipulation}
+.photo-drop:hover,.photo-drop.drag{border-color:var(--gold);background:var(--go-m)}
+.photo-drop-txt{font-family:var(--mono);font-size:10px;color:var(--tx-m);letter-spacing:.5px}
+.photo-prev{width:100%;max-height:160px;border-radius:8px;object-fit:cover;
+  border:1px solid var(--bd-g);margin-top:7px;display:none}
+.photo-prev.on{display:block}
+.submit-btn{width:100%;background:var(--olive);border-radius:10px;padding:15px;
+  border:1.5px solid var(--gold);color:#fff;font-family:var(--mono);font-size:14px;
+  font-weight:900;letter-spacing:3px;box-shadow:0 3px 10px rgba(197,160,89,.15);
+  margin-top:8px;transition:opacity 150ms,transform 150ms;touch-action:manipulation}
+.submit-btn:active{opacity:.82;transform:scale(.99)}
+
+/* ── ACTION BUTTONS ── */
+.acts{display:flex;gap:8px}
+.act{flex:1;border-radius:8px;padding:12px 8px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.7px;gap:4px;
+  transition:opacity 140ms;touch-action:manipulation}
+.act:active{opacity:.75}
+.act-pri{background:var(--olive);border:1px solid var(--ol-l);color:#fff}
+.act-sec{background:var(--go-m);border:1px solid var(--go-d);color:var(--gold)}
+.act-sos{background:var(--sos-m);border:1px solid var(--sos-b);color:var(--sos)}
+.act-neu{background:var(--surf);border:1px solid var(--bd);color:var(--tx-s)}
+
+/* ── CARD & DIVIDER ── */
+.card-handle{width:34px;height:3px;border-radius:1.5px;background:var(--go-d);margin:0 auto 16px}
+.gold-div{display:flex;align-items:center;gap:8px;margin:10px 0 12px}
+.gold-div-line{flex:1;height:1px;background:var(--bd-g)}
+.gold-div-ico{color:var(--go-d);font-size:9px}
+.info-grid{display:flex;flex-direction:column;gap:6px}
+.info-row{display:flex;align-items:flex-start;gap:9px;background:var(--surf2);
+  border-radius:8px;padding:9px 10px;border:1px solid var(--bd)}
+.info-ico{font-size:15px;margin-top:1px;flex-shrink:0}
+.info-lbl{font-family:var(--mono);font-size:9px;color:var(--tx-m);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px}
+.info-val{font-size:12px;color:var(--tx);font-weight:600;line-height:1.4}
+.info-val.mono{font-family:var(--mono);color:var(--go-l)}
+.badge{display:inline-flex;align-items:center;border-radius:3px;padding:2px 7px;
+  font-family:var(--mono);font-size:9px;font-weight:700;color:#fff;letter-spacing:.5px}
+.close-x{width:28px;height:28px;border-radius:4px;background:var(--surf);border:1px solid var(--bd);
+  color:var(--tx-m);font-size:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  touch-action:manipulation}
+.freshness{font-family:var(--mono);font-size:9px;color:var(--tx-m);letter-spacing:.5px}
+.freshness.old{color:var(--sos)}
+
+/* ── SUCCESS ── */
+.ok-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;background:var(--bg);animation:fi 300ms ease}
+.ok-ico{font-size:54px;margin-bottom:10px}
+.ok-ttl{font-family:var(--mono);font-size:30px;font-weight:900;color:var(--tx);letter-spacing:8px}
+.ok-div{width:54px;height:1.5px;background:var(--gold);margin:8px 0}
+.ok-sub{font-family:var(--mono);font-size:13px;color:var(--ol-l);font-weight:700}
+.ok-hint{font-family:var(--mono);font-size:10px;color:var(--tx-m);letter-spacing:1px}
+
+/* ════════════════════════════
    MAP SCREEN
-════════════════════════════════════════ */
-#map-screen { background: var(--bg); }
-#leaflet-map { flex: 1; z-index: 1; }
-
-/* Leaflet dark tile override */
-.leaflet-tile-pane { filter: brightness(0.75) saturate(0.6) hue-rotate(5deg); }
-.leaflet-control-attribution { background: rgba(15,15,13,0.8) !important; color: var(--text-muted) !important; font-size: 9px !important; }
-.leaflet-control-attribution a { color: var(--text-muted) !important; }
-
-/* Custom marker */
-.maki-marker {
-  width: 40px; height: 40px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; border: 1.5px solid rgba(255,255,255,0.15);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-  transition: transform 180ms, box-shadow 180ms;
-}
-.maki-marker.selected {
-  border-color: var(--gold); box-shadow: 0 4px 18px rgba(197,160,89,0.4);
-  transform: scale(1.12);
-}
-.maki-marker-wrap { display: flex; flex-direction: column; align-items: center; }
-.maki-marker-tip {
-  width: 0; height: 0;
-  border-left: 5px solid transparent; border-right: 5px solid transparent;
-  border-top-width: 7px; border-top-style: solid; margin-top: -1px;
-}
-
-/* Map Top Overlay */
-#map-top {
-  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
-  z-index: 500; display: flex; flex-direction: column; align-items: center; gap: 6px;
-  pointer-events: none;
-}
-.logo-banner {
-  display: flex; align-items: center; gap: 8px;
-  background: rgba(15,15,13,0.92); border: 1px solid var(--border-gold);
-  border-radius: 8px; padding: 9px 16px;
-  box-shadow: 0 2px 12px rgba(197,160,89,0.12);
-  pointer-events: all;
-}
-.logo-flame { font-size: 17px; }
-.logo-text {
-  font-family: var(--mono); font-size: 17px; font-weight: 700;
-  letter-spacing: 5px; color: var(--text-pri);
-}
-.logo-badge {
-  background: var(--gold-muted); border-radius: 3px; padding: 2px 7px;
-  border: 1px solid var(--gold-dark);
-  font-family: var(--mono); font-size: 8px; font-weight: 700;
-  color: var(--gold); letter-spacing: 1px;
-}
-.legend-row {
-  display: flex; gap: 12px;
-  background: rgba(15,15,13,0.82); border-radius: 20px;
-  padding: 5px 14px; border: 1px solid var(--border);
-}
-.legend-item { display: flex; align-items: center; gap: 5px; }
-.legend-dot { width: 7px; height: 7px; border-radius: 2px; }
-.legend-text { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; }
-
+════════════════════════════ */
+#map-screen{position:relative}
+#lmap{flex:1;z-index:1;min-height:0}
+.leaflet-tile-pane{filter:brightness(.70) saturate(.5) hue-rotate(8deg)}
+.leaflet-control-attribution{background:rgba(13,13,11,.85)!important;color:var(--tx-m)!important;font-size:8px!important}
+.leaflet-control-attribution a{color:var(--tx-m)!important}
+.leaflet-control-zoom a{background:var(--bg-card)!important;color:var(--tx-s)!important;
+  border-color:var(--bd-g)!important;font-size:16px!important}
+/* Map overlay top */
+#map-top{position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  z-index:500;display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none;width:max-content}
+.map-logo{display:flex;align-items:center;gap:8px;background:rgba(13,13,11,.94);
+  border:1px solid var(--bd-g);border-radius:8px;padding:9px 15px;pointer-events:all;
+  box-shadow:0 2px 12px rgba(197,160,89,.1)}
+.legend{display:flex;gap:10px;background:rgba(13,13,11,.86);border-radius:20px;
+  padding:4px 13px;border:1px solid var(--bd)}
+.leg-item{display:flex;align-items:center;gap:4px}
+.leg-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.leg-txt{font-family:var(--mono);font-size:9px;color:var(--tx-m);letter-spacing:.4px}
 /* GPS button */
-#gps-btn {
-  position: absolute; right: 14px; bottom: 180px; z-index: 500;
-  width: 40px; height: 40px; border-radius: 8px;
-  background: rgba(15,15,13,0.92); border: 1px solid var(--border-gold);
-  font-size: 20px; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5); transition: background 150ms;
-}
-#gps-btn:active { background: var(--gold-muted); }
+#gps-btn{position:absolute;right:12px;z-index:501;width:38px;height:38px;
+  border-radius:8px;background:rgba(13,13,11,.94);border:1px solid var(--bd-g);
+  font-size:18px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.5);transition:background 140ms;touch-action:manipulation}
+#gps-btn:active{background:var(--go-m)}
+/* Search bar (bottom fixed) */
+#search-bar{position:absolute;bottom:0;left:0;right:0;z-index:600;
+  background:rgba(11,11,9,.97);border-top:1px solid var(--bd-g);padding:10px 12px 12px}
+.s-row{display:flex;gap:8px}
+.s-inp{flex:1;background:var(--surf2);border-radius:8px;border:1px solid var(--bd);
+  color:var(--tx);font-size:13px;padding:10px 12px;transition:border-color 150ms}
+.s-inp:focus{border-color:var(--bd-f)}
+.s-inp::placeholder{color:var(--tx-ph)}
+.s-btn{background:var(--olive);border-radius:8px;padding:10px 14px;
+  border:1px solid var(--ol-l);color:#fff;font-family:var(--mono);font-size:11px;
+  font-weight:700;white-space:nowrap;touch-action:manipulation}
+.s-results{max-height:150px;overflow-y:auto;margin-top:8px;display:none;
+  background:var(--surf);border-radius:8px;border:1px solid var(--bd)}
+.s-results.on{display:block}
+.s-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--bd);
+  transition:background 120ms;touch-action:manipulation}
+.s-item:last-child{border-bottom:none}
+.s-item:active,.s-item:hover{background:var(--surf2)}
+.s-item-name{font-weight:700;color:var(--tx);font-size:13px;margin-bottom:2px}
+.s-item-addr{font-family:var(--mono);font-size:9px;color:var(--tx-m);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Nearby panel (above search bar) */
+#nearby{position:absolute;left:0;right:0;z-index:500;
+  background:rgba(11,11,9,.97);border-top:1px solid var(--bd-g);
+  padding:12px 13px 14px;transition:transform 260ms ease}
+#nearby.hide{transform:translateY(100%)}
+.nearby-hd{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.nearby-acc{width:3px;height:13px;border-radius:1.5px;background:var(--gold)}
+.nearby-ttl{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:2px;
+  color:var(--tx-s);text-transform:uppercase;flex:1}
+.nearby-cnt{font-family:var(--mono);font-size:9px;color:var(--tx-m)}
+.sample-note{display:flex;align-items:center;gap:5px;background:var(--go-m);
+  border:1px solid var(--go-d);border-radius:5px;padding:4px 9px;margin-bottom:8px;
+  font-family:var(--mono);font-size:9px;color:var(--go-l);letter-spacing:.5px}
+.nearby-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.nearby-scroll::-webkit-scrollbar{display:none}
+.nc{flex-shrink:0;width:140px;background:var(--bg-card);border-radius:11px;
+  border:1px solid var(--bd-g);overflow:hidden;position:relative;
+  box-shadow:0 3px 10px rgba(0,0,0,.5);cursor:pointer;transition:transform 140ms;touch-action:manipulation}
+.nc:active{transform:scale(.97)}
+.nc-acc{position:absolute;top:0;left:0;bottom:0;width:4px}
+.nc-body{padding:10px 10px 10px 13px}
+.nc-name{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--tx);
+  letter-spacing:.3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nc-price{font-family:var(--mono);font-size:14px;color:var(--gold);font-weight:900}
+.nc-unit{font-size:9px;color:var(--tx-m);font-weight:400}
+.nc-sub{font-family:var(--mono);font-size:9px;color:var(--tx-m);margin-top:2px}
+.sold-x{position:absolute;top:-3px;right:-3px;width:15px;height:15px;border-radius:50%;
+  background:var(--sos);display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:900;color:#fff;border:1.5px solid var(--bg-card)}
+/* Custom marker */
+.mk-wrap{display:flex;flex-direction:column;align-items:center;position:relative}
+.mk{border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;border:1.5px solid rgba(255,255,255,.13);
+  box-shadow:0 4px 12px rgba(0,0,0,.65);transition:transform 170ms}
+.mk.sel{border-color:var(--gold);box-shadow:0 4px 18px rgba(197,160,89,.45);transform:scale(1.13)}
+.mk-tip{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;
+  border-top-width:7px;border-top-style:solid;margin-top:-1px}
+/* Detail card (slides up over search bar) */
+#detail{position:absolute;left:0;right:0;z-index:620;background:var(--bg-card);
+  border-top-left-radius:18px;border-top-right-radius:18px;
+  border-top:1.5px solid var(--bd-g);border-left:1px solid var(--bd-g);border-right:1px solid var(--bd-g);
+  padding:17px 16px;box-shadow:0 -4px 20px rgba(197,160,89,.07);
+  transform:translateY(100%);transition:transform 270ms cubic-bezier(.34,1.56,.64,1);
+  max-height:80vh;overflow-y:auto}
+#detail.on{transform:translateY(0)}
+.d-hdr{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px}
+.d-hdr-l{flex:1;min-width:0}
+.d-badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:5px}
+.d-title{font-family:var(--mono);font-size:18px;font-weight:900;color:var(--tx);
+  letter-spacing:.4px;line-height:1.2}
+.weather-strip{display:flex;gap:6px;margin-bottom:12px}
+.wx-cell{flex:1;background:var(--surf2);border-radius:8px;padding:8px 5px;
+  border:1px solid var(--bd);text-align:center}
+.wx-ico{font-size:19px}
+.wx-lbl{font-family:var(--mono);font-size:8px;color:var(--tx-m);letter-spacing:.7px;margin-top:2px}
+.wx-val{font-family:var(--mono);font-size:11px;color:var(--gold);font-weight:700;margin-top:1px}
+.fac-chips{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0 12px}
+.fac-chip{font-family:var(--mono);font-size:9px;border-radius:3px;padding:2px 6px}
+.fac-fac{background:var(--ol-m);border:1px solid var(--ol-l);color:var(--ol-l)}
+.fac-rule{background:var(--go-m);border:1px solid var(--go-d);color:var(--gold)}
+.fac-pay{background:var(--surf);border:1px solid var(--bd);color:var(--tx-m)}
+.nav-row{display:flex;gap:7px;margin-bottom:9px}
+.d-photo{width:100%;max-height:140px;object-fit:cover;border-radius:8px;
+  border:1px solid var(--bd-g);margin-bottom:10px;display:none}
+.d-photo.on{display:block}
 
-/* Nearby Panel */
-#nearby-panel {
-  position: absolute; bottom: 0; left: 0; right: 0; z-index: 400;
-  background: rgba(12,12,10,0.97); border-top: 1px solid var(--border-gold);
-  padding: 14px 16px 20px;
-  transition: transform 280ms ease;
-}
-#nearby-panel.hidden { transform: translateY(100%); }
-.nearby-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.nearby-accent { width: 3px; height: 14px; border-radius: 1.5px; background: var(--gold); }
-.nearby-title { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--text-sec); text-transform: uppercase; flex: 1; }
-.nearby-count { font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
-.nearby-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-.nearby-scroll::-webkit-scrollbar { display: none; }
-.nearby-card {
-  flex-shrink: 0; width: 148px; background: var(--bg-card);
-  border-radius: 12px; border: 1px solid var(--border-gold);
-  overflow: hidden; position: relative;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  cursor: pointer; transition: transform 150ms, box-shadow 150ms;
-}
-.nearby-card:active { transform: scale(0.97); }
-.nearby-card-accent { position: absolute; top: 0; left: 0; bottom: 0; width: 4px; }
-.nearby-card-body { padding: 12px 12px 12px 14px; }
-.type-badge {
-  display: inline-flex; align-items: center;
-  border-radius: 3px; padding: 2px 7px;
-  font-family: var(--mono); font-size: 9px; font-weight: 700;
-  color: #fff; letter-spacing: 0.5px; margin-bottom: 5px;
-}
-.nearby-card-name {
-  font-family: var(--mono); font-size: 13px; font-weight: 700;
-  color: var(--text-pri); letter-spacing: 0.3px; margin-bottom: 3px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.nearby-card-price { font-family: var(--mono); font-size: 16px; color: var(--gold); font-weight: 900; letter-spacing: 0.5px; }
-.nearby-card-unit  { font-size: 11px; color: var(--text-muted); font-weight: 400; }
-.nearby-card-wood  { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 3px; letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* ════════════════════════════
+   POST SCREEN
+════════════════════════════ */
+#post-screen{background:var(--bg)}
 
-/* Detail Card (bottom sheet) */
-#detail-card {
-  position: absolute; bottom: 0; left: 0; right: 0; z-index: 500;
-  background: var(--bg-card);
-  border-top-left-radius: 20px; border-top-right-radius: 20px;
-  border-top: 1.5px solid var(--border-gold);
-  border-left: 1px solid var(--border-gold);
-  border-right: 1px solid var(--border-gold);
-  padding: 20px 20px 32px;
-  box-shadow: 0 -4px 24px rgba(197,160,89,0.1);
-  transform: translateY(100%);
-  transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1);
-}
-#detail-card.open { transform: translateY(0); }
-.card-handle {
-  width: 36px; height: 3px; border-radius: 1.5px;
-  background: var(--gold-dark); margin: 0 auto 18px;
-}
-.card-header { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; }
-.card-header-left { flex: 1; }
-.card-badges { display: flex; gap: 6px; align-items: center; margin-bottom: 5px; }
-.card-title {
-  font-family: var(--mono); font-size: 20px; font-weight: 900;
-  color: var(--text-pri); letter-spacing: 0.5px; line-height: 1.2;
-}
-.close-btn {
-  width: 28px; height: 28px; border-radius: 4px;
-  background: var(--surface); border: 1px solid var(--border);
-  color: var(--text-muted); font-family: var(--mono); font-size: 12px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 2px;
-}
-.gold-divider { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-.gold-divider-line { flex: 1; height: 1px; background: var(--border-gold); }
-.gold-divider-icon { color: var(--gold-dark); font-size: 10px; }
-.info-grid { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
-.info-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  background: var(--surface-alt); border-radius: 8px;
-  padding: 10px; border: 1px solid var(--border);
-}
-.info-icon  { font-size: 16px; margin-top: 2px; flex-shrink: 0; }
-.info-label {
-  font-family: var(--mono); font-size: 9px; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 2px;
-}
-.info-value { font-size: 13px; color: var(--text-pri); font-weight: 600; }
-.info-value.mono { font-family: var(--mono); color: var(--gold-light); }
-.card-actions { display: flex; gap: 10px; }
-.action-btn {
-  flex: 1; border-radius: 8px; padding: 13px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: 13px; font-weight: 800;
-  letter-spacing: 0.8px; transition: opacity 150ms;
-}
-.action-btn:active { opacity: 0.75; }
-.action-btn-primary { background: var(--olive); border: 1px solid var(--olive-light); color: #fff; }
-.action-btn-secondary { background: var(--gold-muted); border: 1px solid var(--gold-dark); color: var(--gold); }
-
-/* ════════════════════════════════════════
-   POST SCREEN (薪スポット投稿)
-════════════════════════════════════════ */
-#post-screen { background: var(--bg); }
-.form-header {
-  display: flex; align-items: center; gap: 8px;
-  padding: 14px 20px; border-bottom: 1px solid var(--border-gold);
-  background: var(--bg); flex-shrink: 0;
-}
-.form-scroll { flex: 1; overflow-y: auto; padding: 16px; }
-.form-section-title {
-  background: var(--olive-muted); border-radius: 6px;
-  padding: 12px 16px; margin-bottom: 16px;
-  border: 1px solid var(--olive-light); border-left: 3px solid var(--olive-light);
-}
-.form-section-title-text {
-  font-family: var(--mono); font-size: 14px; font-weight: 700;
-  color: var(--olive-light); letter-spacing: 1.5px;
-}
-.form-block { margin-bottom: 18px; }
-.form-label {
-  font-family: var(--mono); font-size: 10px; font-weight: 700;
-  color: var(--text-sec); text-transform: uppercase; letter-spacing: 1.5px;
-  margin-bottom: 8px; display: block;
-}
-.required { color: var(--gold); }
-.gps-field {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--surface-alt); border-radius: 8px;
-  padding: 12px; border: 1px solid var(--border);
-}
-.gps-icon { font-size: 16px; }
-.gps-text { font-family: var(--mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; flex: 1; }
-.text-input {
-  width: 100%; background: var(--surface-alt); border-radius: 8px;
-  border: 1px solid var(--border); color: var(--text-pri); font-size: 15px;
-  padding: 12px 14px; transition: border-color 150ms;
-}
-.text-input:focus { border-color: var(--border-focus); }
-.text-input::placeholder { color: var(--text-ph); }
-.text-area { min-height: 90px; resize: none; }
-.price-row { display: flex; gap: 8px; align-items: center; }
-.price-row .text-input { flex: 1; font-family: var(--mono); }
-.price-unit {
-  background: var(--gold-muted); border-radius: 8px; border: 1px solid var(--gold-dark);
-  padding: 12px 14px; white-space: nowrap;
-  font-family: var(--mono); font-size: 13px; color: var(--gold);
-}
-.select-group { display: flex; flex-wrap: wrap; gap: 8px; }
-.select-btn {
-  border-radius: 6px; padding: 9px 14px;
-  border: 1.5px solid var(--border); background: var(--surface-alt);
-  font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--text-sec);
-  transition: all 150ms;
-}
-.select-btn.active { color: #fff; }
-.dry-group { display: flex; gap: 8px; }
-.dry-btn {
-  flex: 1; border-radius: 8px; padding: 10px;
-  border: 1.5px solid var(--border); background: var(--surface-alt);
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  transition: all 150ms;
-}
-.dry-btn-label { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--text-sec); }
-.dry-btn-stars { font-size: 11px; color: var(--text-muted); }
-.dry-btn.active { border-color: var(--gold); background: var(--gold-muted); }
-.dry-btn.active .dry-btn-label { color: var(--text-pri); }
-.dry-btn.active .dry-btn-stars { color: var(--gold); }
-.submit-btn {
-  width: 100%; background: var(--olive); border-radius: 10px; padding: 16px;
-  border: 1.5px solid var(--gold);
-  font-family: var(--mono); font-size: 15px; font-weight: 900;
-  letter-spacing: 3px; color: #fff;
-  box-shadow: 0 3px 12px rgba(197,160,89,0.2);
-  margin-top: 8px; transition: opacity 150ms, transform 150ms;
-}
-.submit-btn:active { opacity: 0.85; transform: scale(0.99); }
-
-/* Success screen */
-.success-screen {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 8px;
-  background: var(--bg); animation: fadeIn 300ms ease;
-}
-.success-icon  { font-size: 60px; margin-bottom: 12px; }
-.success-title { font-family: var(--mono); font-size: 36px; font-weight: 900; color: var(--text-pri); letter-spacing: 8px; }
-.success-divider { width: 60px; height: 1.5px; background: var(--gold); margin: 8px 0; }
-.success-sub  { font-family: var(--mono); font-size: 14px; color: var(--olive-light); font-weight: 700; }
-.success-hint { font-family: var(--mono); font-size: 11px; color: var(--text-muted); letter-spacing: 1px; }
-
-/* ════════════════════════════════════════
+/* ════════════════════════════
    RESCUE SCREEN
-════════════════════════════════════════ */
-#rescue-screen { background: var(--bg); }
-.rescue-header {
-  display: flex; align-items: center;
-  padding: 12px 16px 10px; border-bottom: 1px solid var(--border-gold);
-  flex-shrink: 0; gap: 12px;
-}
-.rescue-header-left { flex: 1; }
-.rescue-header-top  { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
-.rescue-header-title { font-family: var(--mono); font-size: 18px; font-weight: 900; color: var(--text-pri); letter-spacing: 1px; }
-.new-post-btn {
-  background: var(--olive); border-radius: 8px; padding: 9px 14px;
-  border: 1px solid var(--gold); color: #fff;
-  font-family: var(--mono); font-size: 13px; font-weight: 900; letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(197,160,89,0.18);
-  white-space: nowrap; transition: opacity 150ms;
-}
-.new-post-btn:active { opacity: 0.8; }
-.filter-row {
-  display: flex; border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.filter-btn {
-  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 10px; border-bottom: 2px solid transparent;
-  background: none; transition: border-color 150ms, color 150ms;
-}
-.filter-btn-text { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
-.filter-count {
-  border-radius: 10px; padding: 1px 6px;
-  background: var(--surface-alt);
-  font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--text-muted);
-  transition: background 150ms, color 150ms;
-}
-.filter-btn.active .filter-btn-text { color: var(--activeColor, var(--gold)); }
-.filter-btn.active .filter-count    { background: var(--activeColor, var(--gold)); color: #fff; }
-.filter-btn.active                  { border-bottom-color: var(--activeColor, var(--gold)); }
+════════════════════════════ */
+#rescue-screen{background:var(--bg)}
+.r-hdr{display:flex;align-items:center;padding:11px 14px 10px;border-bottom:1px solid var(--bd-g);flex-shrink:0;gap:10px}
+.r-hdr-l{flex:1}
+.r-hdr-top{display:flex;align-items:center;gap:5px;margin-bottom:2px}
+.r-hdr-ttl{font-family:var(--mono);font-size:17px;font-weight:900;color:var(--tx);letter-spacing:1px}
+.new-btn{background:var(--olive);border-radius:8px;padding:8px 13px;border:1px solid var(--gold);
+  color:#fff;font-family:var(--mono);font-size:12px;font-weight:900;white-space:nowrap;
+  transition:opacity 140ms;touch-action:manipulation}
+.new-btn:active{opacity:.78}
+.filter-bar{display:flex;border-bottom:1px solid var(--bd);flex-shrink:0}
+.f-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
+  padding:9px;border-bottom:2px solid transparent;background:none;transition:all 140ms;touch-action:manipulation}
+.f-btn-txt{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--tx-m)}
+.f-count{border-radius:10px;padding:1px 5px;background:var(--surf2);
+  font-family:var(--mono);font-size:9px;font-weight:700;color:var(--tx-m);transition:all 140ms}
+.board{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:9px;min-height:0}
+.b-sect{display:flex;align-items:center;gap:7px;padding:2px 0}
+.b-sect-line{flex:1;height:1px;background:var(--bd)}
+.b-sect-txt{font-family:var(--mono);font-size:9px;color:var(--tx-m);letter-spacing:1.5px;white-space:nowrap}
+.bc{background:var(--bg-card);border-radius:9px;border:1px solid var(--bd);
+  padding:12px 12px 12px 14px;box-shadow:0 3px 8px rgba(0,0,0,.4);
+  border-left:3px solid transparent;animation:sUp 250ms ease both}
+@keyframes sUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.bc:nth-child(1){animation-delay:0ms}.bc:nth-child(2){animation-delay:55ms}
+.bc:nth-child(3){animation-delay:110ms}.bc:nth-child(4){animation-delay:165ms}
+.bc:nth-child(5){animation-delay:220ms}
+.bc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.bc-av-row{display:flex;align-items:center;gap:7px}
+.bc-av{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;border:1px solid;flex-shrink:0}
+.bc-author{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--tx);letter-spacing:.3px}
+.bc-time{font-family:var(--mono);font-size:9px;color:var(--tx-m);margin-top:1px}
+.k-badge{display:inline-flex;align-items:center;gap:3px;border-radius:4px;padding:2px 7px;border:1px solid}
+.k-badge-ico{font-size:10px}
+.k-badge-txt{font-family:var(--mono);font-size:9px;font-weight:900;letter-spacing:1px}
+.bc-title{font-family:var(--mono);font-size:13px;font-weight:900;color:var(--tx);
+  letter-spacing:.3px;margin-bottom:5px;line-height:1.3}
+.bc-body{font-size:12px;color:var(--tx-s);line-height:1.55;margin-bottom:8px;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.bc-foot{display:flex;align-items:center;justify-content:space-between;gap:7px}
+.bc-loc{display:flex;align-items:center;gap:3px;flex:1;min-width:0}
+.bc-loc-ico{font-size:10px;flex-shrink:0}
+.bc-loc-txt{font-family:var(--mono);font-size:9px;color:var(--tx-m);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bc-foot-r{display:flex;gap:5px;flex-shrink:0}
+.reply-btn{border-radius:4px;padding:5px 9px;border:1px solid;
+  font-family:var(--mono);font-size:10px;font-weight:700;white-space:nowrap;
+  transition:opacity 140ms;touch-action:manipulation}
+.reply-btn:active{opacity:.7}
+.del-btn{border-radius:4px;padding:5px 8px;border:1px solid var(--sos-b);
+  background:var(--sos-m);font-family:var(--mono);font-size:10px;font-weight:700;
+  color:var(--sos);transition:opacity 140ms;touch-action:manipulation}
+.del-btn:active{opacity:.7}
+.empty{display:flex;flex-direction:column;align-items:center;padding:42px 0;gap:7px}
+.empty-ico{font-size:36px;opacity:.3}
+.empty-txt{font-family:var(--mono);font-size:11px;color:var(--tx-m);letter-spacing:1px}
 
-.board-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-.board-section-header {
-  display: flex; align-items: center; gap: 8px; padding: 4px 0;
-}
-.board-section-line { flex: 1; height: 1px; background: var(--border); }
-.board-section-text { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 1.5px; white-space: nowrap; }
+/* ════════════════════════════
+   MYPAGE SCREEN
+════════════════════════════ */
+#mypage-screen{background:var(--bg)}
+.mp-scroll{padding:16px 14px;display:flex;flex-direction:column;gap:16px}
+.av-zone{display:flex;flex-direction:column;align-items:center;gap:9px}
+.av-area{width:88px;height:88px;border-radius:14px;border:2px dashed var(--bd-g);
+  background:var(--surf);display:flex;align-items:center;justify-content:center;
+  overflow:hidden;position:relative;cursor:pointer;transition:all 190ms;touch-action:manipulation}
+.av-area:hover,.av-area.drag{border-color:var(--gold);background:var(--go-m)}
+.av-ph{display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none}
+.av-ph-ico{font-size:26px;opacity:.4}
+.av-ph-txt{font-family:var(--mono);font-size:8px;color:var(--tx-m);letter-spacing:.8px;text-align:center}
+.av-hint{font-family:var(--mono);font-size:9px;color:var(--tx-m);letter-spacing:.5px}
+.stats{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--bd-g)}
+.stat{flex:1;background:var(--bg-card);padding:10px 5px;text-align:center;border-right:1px solid var(--bd)}
+.stat:last-child{border-right:none}
+.stat-val{font-family:var(--mono);font-size:17px;font-weight:900;color:var(--gold)}
+.stat-lbl{font-family:var(--mono);font-size:8px;color:var(--tx-m);letter-spacing:.8px;margin-top:1px}
+.p-card{background:var(--bg-card);border-radius:12px;border:1px solid var(--bd-g);padding:15px}
+.p-card-ttl{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--tx-m);
+  text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;
+  display:flex;align-items:center;gap:7px}
+.p-card-ttl::after{content:'';flex:1;height:1px;background:var(--bd-g)}
+.p-field{margin-bottom:11px}
+.p-field:last-child{margin-bottom:0}
+.p-field-lbl{font-family:var(--mono);font-size:9px;color:var(--tx-m);letter-spacing:1.2px;
+  text-transform:uppercase;margin-bottom:5px;display:block}
+.p-field-inp{width:100%;background:var(--surf2);border-radius:8px;border:1px solid var(--bd);
+  color:var(--tx);font-size:14px;padding:10px 12px;transition:border-color 150ms}
+.p-field-inp:focus{border-color:var(--bd-f)}
+.p-field-inp::placeholder{color:var(--tx-ph)}
+.hist-row{display:flex;flex-wrap:wrap;gap:6px}
+.hist-btn{border-radius:20px;padding:6px 11px;border:1.5px solid var(--bd);
+  background:var(--surf2);font-family:var(--mono);font-size:10px;font-weight:700;
+  color:var(--tx-s);transition:all 140ms;cursor:pointer;touch-action:manipulation}
+.hist-btn.on{background:var(--olive);border-color:var(--ol-l);color:#fff}
+.save-btn{width:100%;background:var(--olive);border-radius:10px;padding:14px;
+  border:1.5px solid var(--gold);color:#fff;font-family:var(--mono);font-size:13px;
+  font-weight:900;letter-spacing:3px;box-shadow:0 3px 10px rgba(197,160,89,.15);
+  transition:all 140ms;touch-action:manipulation}
+.save-btn:active{opacity:.82;transform:scale(.99)}
+.saved-toast{text-align:center;font-family:var(--mono);font-size:11px;color:var(--ol-l);
+  letter-spacing:1px;height:0;overflow:hidden;transition:height 190ms}
+.saved-toast.on{height:26px}
 
-/* Board card — ビンテージミリタリータグ */
-.board-card {
-  background: var(--bg-card); border-radius: 10px;
-  border: 1px solid var(--border); padding: 14px 14px 14px 16px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
-  border-left: 3px solid transparent;
-  animation: slideUp 280ms ease forwards;
-  opacity: 0;
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0);    }
-}
-.board-card:nth-child(1) { animation-delay: 0ms; }
-.board-card:nth-child(2) { animation-delay: 70ms; }
-.board-card:nth-child(3) { animation-delay: 140ms; }
-.board-card:nth-child(4) { animation-delay: 210ms; }
-.board-card:nth-child(5) { animation-delay: 280ms; }
-
-.board-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.board-author-row  { display: flex; align-items: center; gap: 8px; }
-.board-avatar {
-  width: 34px; height: 34px; border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; border: 1px solid;
-  flex-shrink: 0;
-}
-.board-author { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--text-pri); letter-spacing: 0.3px; }
-.board-time   { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 1px; }
-.kind-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  border-radius: 4px; padding: 3px 8px; border: 1px solid;
-}
-.kind-badge-icon { font-size: 12px; }
-.kind-badge-text { font-family: var(--mono); font-size: 10px; font-weight: 900; letter-spacing: 1px; }
-.board-title { font-family: var(--mono); font-size: 14px; font-weight: 900; color: var(--text-pri); letter-spacing: 0.3px; margin-bottom: 6px; line-height: 1.3; }
-.board-body  { font-size: 13px; color: var(--text-sec); line-height: 1.6; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.board-card-footer { display: flex; align-items: center; justify-content: space-between; }
-.board-location { display: flex; align-items: center; gap: 4px; flex: 1; margin-right: 8px; min-width: 0; }
-.board-location-icon { font-size: 11px; flex-shrink: 0; }
-.board-location-text { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.reply-btn {
-  border-radius: 5px; padding: 6px 12px; border: 1px solid;
-  font-family: var(--mono); font-size: 11px; font-weight: 700;
-  letter-spacing: 0.5px; white-space: nowrap; transition: opacity 150ms;
-  flex-shrink: 0;
-}
-.reply-btn:active { opacity: 0.7; }
-.empty-board { display: flex; flex-direction: column; align-items: center; padding: 48px 0; gap: 8px; }
-.empty-board-icon { font-size: 40px; opacity: 0.4; }
-.empty-board-text { font-family: var(--mono); font-size: 13px; color: var(--text-muted); letter-spacing: 1px; }
-
-/* ════════════════════════════════════════
+/* ════════════════════════════
    MODALS
-════════════════════════════════════════ */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 2000;
-  background: rgba(0,0,0,0.72);
-  display: flex; flex-direction: column; justify-content: flex-end;
-  opacity: 0; pointer-events: none; transition: opacity 200ms;
-}
-.modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal-sheet {
-  background: var(--bg-card);
-  border-top-left-radius: 20px; border-top-right-radius: 20px;
-  border-top: 1.5px solid var(--border-gold);
-  border-left: 1px solid var(--border-gold);
-  border-right: 1px solid var(--border-gold);
-  padding: 20px 20px calc(20px + var(--safe-bottom));
-  box-shadow: 0 -4px 24px rgba(197,160,89,0.12);
-  transform: translateY(100%);
-  transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1);
-  max-height: 90vh; overflow-y: auto;
-}
-.modal-overlay.open .modal-sheet { transform: translateY(0); }
-
-.reply-original {
-  display: flex; gap: 10px; background: var(--surface-alt);
-  border-radius: 8px; padding: 10px; border: 1px solid var(--border); margin-bottom: 14px;
-}
-.reply-original-avatar { font-size: 22px; flex-shrink: 0; }
-.reply-original-author { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--text-sec); margin-bottom: 2px; }
-.reply-original-body   { font-size: 12px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.reply-input-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
-.reply-input-avatar { font-size: 24px; margin-top: 4px; }
-.reply-input {
-  flex: 1; background: var(--surface-alt); border-radius: 8px;
-  border: 1px solid var(--border-focus); color: var(--text-pri);
-  font-size: 14px; padding: 10px 14px; min-height: 80px; resize: none;
-}
-.modal-actions { display: flex; gap: 10px; margin-top: 12px; }
-
-.kind-select-row { display: flex; gap: 10px; }
-.kind-select-btn {
-  flex: 1; border-radius: 8px; padding: 12px;
-  border: 1.5px solid var(--border); background: var(--surface-alt);
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  transition: all 150ms; cursor: pointer;
-}
-.kind-select-btn.active { }
-.kind-select-icon  { font-size: 22px; }
-.kind-select-label { font-family: var(--mono); font-size: 12px; font-weight: 900; color: var(--text-sec); letter-spacing: 0.5px; }
-.kind-select-desc  { font-size: 10px; color: var(--text-muted); }
-
-/* ── Sample notice badge ── */
-.sample-notice {
-  display: inline-flex; align-items: center; gap: 5px;
-  background: var(--gold-muted); border: 1px solid var(--gold-dark);
-  border-radius: 4px; padding: 3px 8px; margin-top: 6px;
-  font-family: var(--mono); font-size: 9px; color: var(--gold);
-  letter-spacing: 0.8px;
-}
-.sample-notice-icon { font-size: 10px; }
-
-/* ── Map pin picker modal ── */
-#pin-picker-modal { z-index: 2500; }
-#pin-picker-map   { width: 100%; height: 280px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-gold); }
-.pin-picker-hint  {
-  font-family: var(--mono); font-size: 11px; color: var(--text-muted);
-  text-align: center; padding: 8px 0 4px; letter-spacing: 0.5px;
-}
-.pin-picker-coord {
-  font-family: var(--mono); font-size: 12px; color: var(--gold);
-  text-align: center; padding: 4px 0 10px; letter-spacing: 1px;
-}
-.pin-set-btn {
-  width: 100%; background: var(--olive); border-radius: 8px; padding: 12px;
-  border: 1px solid var(--gold); color: #fff;
-  font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: 1px;
-  transition: opacity 150ms;
-}
-.pin-set-btn:active { opacity: 0.8; }
-/* crosshair overlay */
-.pin-crosshair {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  pointer-events: none; z-index: 1000; font-size: 28px; line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
-}
-#pin-picker-map-wrap { position: relative; }
-/* ════════════════════════════════════════
-   MY PAGE SCREEN — full implementation
-════════════════════════════════════════ */
-#mypage-screen { background: var(--bg); overflow-y: auto; flex-direction: column; }
-#mypage-screen.active { display: flex; }
-.mypage-header {
-  display: flex; align-items: center; gap: 8px;
-  padding: 14px 20px; border-bottom: 1px solid var(--border-gold);
-  background: var(--bg); flex-shrink: 0;
-}
-.mypage-scroll { padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; }
-.avatar-zone { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.avatar-drop-area {
-  width: 100px; height: 100px; border-radius: 16px;
-  border: 2px dashed var(--border-gold); background: var(--surface);
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden; position: relative; cursor: pointer;
-  transition: border-color 200ms, background 200ms;
-}
-.avatar-drop-area:hover, .avatar-drop-area.drag-over { border-color: var(--gold); background: var(--gold-muted); }
-.avatar-drop-area img { width: 100%; height: 100%; object-fit: cover; }
-.avatar-drop-placeholder { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.avatar-drop-icon { font-size: 32px; opacity: 0.5; }
-.avatar-drop-text { font-family: var(--mono); font-size: 9px; color: var(--text-muted); letter-spacing: 0.8px; text-align: center; }
-.avatar-change-hint { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; }
-#avatar-file-input { display: none; }
-.profile-card { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-gold); padding: 18px; }
-.profile-card-title {
-  font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px;
-  display: flex; align-items: center; gap: 8px;
-}
-.profile-card-title::after { content: ''; flex: 1; height: 1px; background: var(--border-gold); }
-.profile-field { margin-bottom: 14px; }
-.profile-field:last-child { margin-bottom: 0; }
-.profile-field-label { font-family: var(--mono); font-size: 9px; color: var(--text-muted); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 6px; display: block; }
-.profile-field-input {
-  width: 100%; background: var(--surface-alt); border-radius: 8px;
-  border: 1px solid var(--border); color: var(--text-pri); font-size: 15px;
-  padding: 11px 14px; transition: border-color 150ms;
-}
-.profile-field-input:focus { border-color: var(--border-focus); }
-.profile-field-input::placeholder { color: var(--text-ph); }
-.camp-history-row { display: flex; flex-wrap: wrap; gap: 8px; }
-.camp-history-btn {
-  border-radius: 20px; padding: 7px 14px;
-  border: 1.5px solid var(--border); background: var(--surface-alt);
-  font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--text-sec);
-  transition: all 150ms; cursor: pointer;
-}
-.camp-history-btn.active { background: var(--olive); border-color: var(--olive-light); color: #fff; }
-.stats-strip { display: flex; gap: 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-gold); }
-.stat-cell { flex: 1; background: var(--bg-card); padding: 12px 8px; text-align: center; border-right: 1px solid var(--border); }
-.stat-cell:last-child { border-right: none; }
-.stat-value { font-family: var(--mono); font-size: 20px; font-weight: 900; color: var(--gold); }
-.stat-label { font-family: var(--mono); font-size: 9px; color: var(--text-muted); letter-spacing: 0.8px; margin-top: 2px; }
-.profile-save-btn {
-  width: 100%; background: var(--olive); border-radius: 10px; padding: 15px;
-  border: 1.5px solid var(--gold); color: #fff;
-  font-family: var(--mono); font-size: 14px; font-weight: 900; letter-spacing: 3px;
-  box-shadow: 0 3px 12px rgba(197,160,89,0.2); transition: opacity 150ms, transform 150ms;
-}
-.profile-save-btn:active { opacity: 0.85; transform: scale(0.99); }
-.profile-saved-toast { text-align: center; font-family: var(--mono); font-size: 12px; color: var(--olive-light); letter-spacing: 1px; height: 0; overflow: hidden; transition: height 200ms; }
-.profile-saved-toast.show { height: 28px; }
-.placeholder-icon { font-size: 48px; opacity: 0.3; }
-.placeholder-text { font-family: var(--mono); font-size: 20px; font-weight: 900; color: var(--text-sec); letter-spacing: 4px; }
-.placeholder-divider { width: 40px; height: 1px; background: var(--border-gold); margin: 6px 0; }
-.placeholder-sub { font-family: var(--mono); font-size: 12px; color: var(--text-muted); letter-spacing: 1px; }
-
-/* ════════════════════════════════════════
-   INSTALL PROMPT TOAST
-════════════════════════════════════════ */
-#install-toast {
-  position: fixed; bottom: calc(80px + var(--safe-bottom)); left: 16px; right: 16px;
-  z-index: 3000; background: var(--bg-card); border: 1px solid var(--gold);
-  border-radius: 12px; padding: 14px 16px;
-  display: flex; align-items: center; gap: 12px;
-  box-shadow: 0 4px 20px rgba(197,160,89,0.2);
-  transform: translateY(120%); transition: transform 300ms ease;
-  /* ✅ Fix: allow all child button taps to register */
-  pointer-events: all; touch-action: manipulation;
-}
-#install-toast.show { transform: translateY(0); }
-.toast-text { flex: 1; font-size: 13px; color: var(--text-pri); line-height: 1.4; }
-.toast-text strong { font-family: var(--mono); color: var(--gold); }
-.toast-btn {
-  background: var(--olive); border-radius: 6px; padding: 8px 14px;
-  border: 1px solid var(--gold); color: #fff;
-  font-family: var(--mono); font-size: 12px; font-weight: 700;
-  white-space: nowrap; flex-shrink: 0;
-}
-.toast-close {
-  color: var(--text-muted); font-size: 22px; flex-shrink: 0;
-  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; background: var(--surface);
-  /* ✅ Fix: ensure tap/click always fires on mobile */
-  pointer-events: all; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
-  cursor: pointer;
-}
+════════════════════════════ */
+.overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.74);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  opacity:0;pointer-events:none;transition:opacity 190ms}
+.overlay.on{opacity:1;pointer-events:all}
+.sheet{background:var(--bg-card);border-top-left-radius:18px;border-top-right-radius:18px;
+  border-top:1.5px solid var(--bd-g);border-left:1px solid var(--bd-g);border-right:1px solid var(--bd-g);
+  padding:17px 16px calc(18px + var(--sbot));
+  box-shadow:0 -4px 20px rgba(197,160,89,.09);
+  transform:translateY(100%);transition:transform 270ms cubic-bezier(.34,1.56,.64,1);
+  max-height:92vh;overflow-y:auto}
+.overlay.on .sheet{transform:translateY(0)}
+.modal-acts{display:flex;gap:8px;margin-top:10px}
+.reply-orig{display:flex;gap:8px;background:var(--surf2);border-radius:8px;
+  padding:9px;border:1px solid var(--bd);margin-bottom:11px}
+.reply-orig-av{font-size:19px;flex-shrink:0}
+.reply-orig-author{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--tx-s);margin-bottom:1px}
+.reply-orig-body{font-size:11px;color:var(--tx-m);line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.reply-inp-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:3px}
+.reply-inp-av{font-size:20px;margin-top:3px}
+.reply-inp{flex:1;background:var(--surf2);border-radius:8px;border:1px solid var(--bd-f);
+  color:var(--tx);font-size:13px;padding:9px 11px;min-height:68px;resize:none}
+.k-sel-row{display:flex;gap:9px}
+.k-sel-btn{flex:1;border-radius:8px;padding:11px;border:1.5px solid var(--bd);
+  background:var(--surf2);display:flex;flex-direction:column;align-items:center;
+  gap:3px;transition:all 140ms;cursor:pointer;touch-action:manipulation}
+.k-sel-ico{font-size:20px}
+.k-sel-lbl{font-family:var(--mono);font-size:11px;font-weight:900;color:var(--tx-s);letter-spacing:.5px}
+.k-sel-desc{font-size:10px;color:var(--tx-m)}
+/* Pin picker */
+#pin-modal{z-index:2500}
+#pp-map{width:100%;height:250px;border-radius:8px;overflow:hidden;border:1px solid var(--bd-g)}
+.pp-hint{font-family:var(--mono);font-size:10px;color:var(--tx-m);text-align:center;padding:6px 0 3px;letter-spacing:.5px}
+.pp-coord{font-family:var(--mono);font-size:12px;color:var(--gold);text-align:center;padding:3px 0 9px;letter-spacing:1px}
+.pp-wrap{position:relative}
+.pp-cross{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;z-index:1000;font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.8))}
+/* Nav modal */
+#nav-modal .sheet{padding:17px 16px calc(16px + var(--sbot))}
+/* Install toast */
+#toast{position:fixed;bottom:calc(72px + var(--sbot));left:14px;right:14px;z-index:3000;
+  background:var(--bg-card);border:1px solid var(--gold);border-radius:12px;padding:12px 14px;
+  display:flex;align-items:center;gap:10px;box-shadow:0 4px 18px rgba(197,160,89,.18);
+  transform:translateY(130%);transition:transform 270ms ease;pointer-events:all}
+#toast.on{transform:translateY(0)}
+.toast-txt{flex:1;font-size:12px;color:var(--tx);line-height:1.4}
+.toast-txt strong{font-family:var(--mono);color:var(--gold)}
+.toast-add{background:var(--olive);border-radius:6px;padding:7px 12px;
+  border:1px solid var(--gold);color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;
+  white-space:nowrap;flex-shrink:0;touch-action:manipulation}
+.toast-x{color:var(--tx-m);font-size:20px;flex-shrink:0;width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;border-radius:50%;
+  background:var(--surf);pointer-events:all;touch-action:manipulation;cursor:pointer}
 </style>
-</head>
-
 <body>
-<div id="app">
+<div id="root">
 
-  <!-- ════════════ MAP SCREEN ════════════ -->
-  <div id="map-screen" class="screen active">
-    <div id="leaflet-map"></div>
-
-    <!-- Top overlay -->
-    <div id="map-top">
-      <div class="logo-banner">
-        <span class="logo-flame">🔥</span>
-        <span class="logo-text">MAKI-LOG</span>
-        <span class="logo-badge">FIELD EDITION</span>
-      </div>
-      <div class="legend-row">
-        <div class="legend-item"><div class="legend-dot" style="background:#C94A14"></div><span class="legend-text">直売所</span></div>
-        <div class="legend-item"><div class="legend-dot" style="background:#6B7530"></div><span class="legend-text">無人販売</span></div>
-        <div class="legend-item"><div class="legend-dot" style="background:#3A5C7A"></div><span class="legend-text">キャンプ場</span></div>
-      </div>
+<!-- ══ MAP SCREEN ══ -->
+<div id="map-screen" class="screen on">
+  <div id="lmap"></div>
+  <div id="map-top">
+    <div class="map-logo">
+      <span class="logo-fire">🔥</span>
+      <span class="logo-txt">MAKI-LOG</span>
+      <span class="logo-badge">FIELD EDITION</span>
     </div>
-
-    <!-- GPS button -->
-    <button id="gps-btn" title="現在地へ移動">📡</button>
-
-    <!-- Nearby panel -->
-    <div id="nearby-panel">
-      <div class="nearby-header">
-        <div class="nearby-accent"></div>
-        <span class="nearby-title">NEARBY SPOTS</span>
-        <span class="nearby-count" id="nearby-count">3 locations</span>
-      </div>
-      <div class="sample-notice">
-        <span class="sample-notice-icon">📋</span>
-        以下はサンプルデータです。実際の投稿に差し替えてください。
-      </div>
-      <div class="nearby-scroll" id="nearby-scroll"></div>
-    </div>
-
-    <!-- Detail card -->
-    <div id="detail-card">
-      <div class="card-handle"></div>
-      <div class="card-header">
-        <div class="card-header-left">
-          <div class="card-badges" id="detail-badges"></div>
-          <div class="card-title" id="detail-title"></div>
-        </div>
-        <button class="close-btn" id="detail-close">✕</button>
-      </div>
-      <div class="gold-divider"><div class="gold-divider-line"></div><span class="gold-divider-icon">✦</span><div class="gold-divider-line"></div></div>
-      <div class="info-grid" id="detail-info"></div>
-      <div class="card-actions">
-        <button class="action-btn action-btn-primary" id="route-btn">🗺 ルート案内</button>
-        <button class="action-btn action-btn-secondary">★ 保存</button>
-      </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--broad)"></div><span class="leg-txt">広葉樹</span></div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--needle)"></div><span class="leg-txt">針葉樹</span></div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--camp)"></div><span class="leg-txt">キャンプ場</span></div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--unk)"></div><span class="leg-txt">その他</span></div>
     </div>
   </div>
-
-  <!-- ════════════ POST SCREEN ════════════ -->
-  <div id="post-screen" class="screen">
-    <div class="form-header">
-      <span class="logo-flame">🔥</span>
-      <span class="logo-text">MAKI-LOG</span>
+  <button id="gps-btn" title="現在地へ移動">📡</button>
+  <!-- Detail card -->
+  <div id="detail">
+    <div class="card-handle"></div>
+    <div class="d-hdr">
+      <div class="d-hdr-l">
+        <div class="d-badges" id="d-badges"></div>
+        <div class="d-title" id="d-title"></div>
+      </div>
+      <button class="close-x" id="d-close">✕</button>
     </div>
-    <div id="post-content" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-      <div class="form-scroll" id="post-form-scroll">
-        <div class="form-section-title">
-          <div class="form-section-title-text">// 薪スポットを登録</div>
+    <img id="d-photo" class="d-photo" src="" alt=""/>
+    <div class="gold-div"><div class="gold-div-line"></div><span class="gold-div-ico">✦</span><div class="gold-div-line"></div></div>
+    <div class="weather-strip" id="wx-strip"></div>
+    <div class="info-grid" id="d-info" style="margin-bottom:10px"></div>
+    <div class="fac-chips" id="d-fac"></div>
+    <div class="nav-row">
+      <button class="act act-pri" id="d-nav-g" style="flex:1">🗺 Googleマップ</button>
+      <button class="act act-sec" id="d-nav-y" style="flex:1">🚗 Yahoo!カーナビ</button>
+    </div>
+    <div class="acts">
+      <button class="act act-sos" id="d-sold" style="flex:1">✕ 売り切れ報告</button>
+      <button class="act act-sos" id="d-del" style="flex:1;display:none">🗑 削除</button>
+    </div>
+  </div>
+  <!-- Nearby panel -->
+  <div id="nearby">
+    <div class="nearby-hd">
+      <div class="nearby-acc"></div>
+      <span class="nearby-ttl">NEARBY SPOTS</span>
+      <span class="nearby-cnt" id="n-cnt">— locations</span>
+    </div>
+    <div class="sample-note" id="s-note">📋 表示中のデータはサンプルです。実際の情報を投稿して上書きできます。</div>
+    <div class="nearby-scroll" id="n-scroll"></div>
+  </div>
+  <!-- Search bar -->
+  <div id="search-bar">
+    <div class="s-row">
+      <input id="s-inp" class="s-inp" type="search" placeholder="🔍 施設名・地名で全国検索..." autocomplete="off"/>
+      <button id="s-btn" class="s-btn">検索</button>
+    </div>
+    <div class="s-results" id="s-res"></div>
+  </div>
+</div>
+
+<!-- ══ POST SCREEN ══ -->
+<div id="post-screen" class="screen">
+  <div class="hdr">
+    <div class="logo">
+      <span class="logo-fire">🔥</span>
+      <span class="logo-txt">MAKI-LOG</span>
+    </div>
+  </div>
+  <div id="post-inner" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div class="scroller">
+      <div class="pad">
+        <div class="f-sec"><div class="f-sec-txt">// 薪スポットを登録する</div></div>
+
+        <div class="f-block">
+          <div class="f-lbl">📍 スポット種別</div>
+          <div class="pill-row" id="type-grp"></div>
         </div>
 
-        <div class="form-block">
-          <label class="form-label">📍 スポット種別</label>
-          <div class="select-group" id="type-select"></div>
-        </div>
-
-        <div class="form-block">
-          <label class="form-label">🗺 場所</label>
-          <button type="button" id="open-pin-picker" class="gps-field" style="width:100%;text-align:left;cursor:pointer;transition:border-color 150ms;" onmouseover="this.style.borderColor='var(--border-focus)'" onmouseout="this.style.borderColor=''">
-            <span class="gps-icon">📍</span>
-            <span class="gps-text" id="gps-coord-text">タップして地図でピンを立てる</span>
-            <span style="font-family:var(--mono);font-size:11px;color:var(--gold);margin-left:auto;flex-shrink:0;">地図で指定 ›</span>
+        <div class="f-block">
+          <div class="f-lbl">🗺 場所 <span class="req">*</span></div>
+          <button id="pin-open" style="width:100%;display:flex;align-items:center;gap:9px;background:var(--surf2);border-radius:8px;border:1px solid var(--bd);padding:11px 13px;text-align:left;cursor:pointer;touch-action:manipulation">
+            <span style="font-size:15px;flex-shrink:0">📍</span>
+            <span style="font-family:var(--mono);font-size:11px;color:var(--tx-m);letter-spacing:.5px;flex:1" id="pin-txt">タップして地図でピンを立てる</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--gold)">指定 ›</span>
           </button>
         </div>
 
-        <div class="form-block">
-          <label class="form-label">🏪 店舗名 <span class="required">*</span></label>
-          <input id="shop-name" class="text-input" type="text" placeholder="例: 杉山製材所" />
+        <div class="f-block">
+          <div class="f-lbl">🏪 施設名 <span class="req">*</span></div>
+          <input id="f-name" class="f-input" type="text" placeholder="例: カインズ 富士吉田店"/>
         </div>
 
-        <div class="form-block">
-          <label class="form-label">💰 価格 (円/束) <span class="required">*</span></label>
+        <div class="f-block">
+          <div class="f-lbl">💰 価格 (円/束) <span class="req">*</span></div>
           <div class="price-row">
-            <input id="price-input" class="text-input" type="number" inputmode="numeric" placeholder="500" />
-            <div class="price-unit">¥ / 束</div>
+            <input id="f-price" class="f-input" type="number" inputmode="numeric" placeholder="500"/>
+            <div class="price-unit">円/束</div>
           </div>
         </div>
 
-        <div class="form-block">
-          <label class="form-label">🌲 薪の種類</label>
-          <div class="select-group" id="wood-select"></div>
-        </div>
-
-        <div class="form-block">
-          <label class="form-label">🌡 乾燥具合</label>
-          <div class="dry-group" id="dry-select"></div>
-        </div>
-
-        <div class="form-block">
-          <label class="form-label">📝 メモ (任意)</label>
-          <textarea id="post-note" class="text-input text-area" placeholder="営業時間、支払い方法など..."></textarea>
-        </div>
-
-        <button class="submit-btn" id="post-submit-btn">🪵  SUBMIT SPOT</button>
-        <div style="height:32px"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ════════════ RESCUE SCREEN ════════════ -->
-  <div id="rescue-screen" class="screen">
-    <div class="rescue-header">
-      <div class="rescue-header-left">
-        <div class="rescue-header-top">
-          <span class="logo-flame">🔥</span>
-          <span class="logo-text" style="font-size:14px;letter-spacing:3px">MAKI-LOG</span>
-        </div>
-        <div class="rescue-header-title">キャンパーズ・ログ</div>
-      </div>
-      <button class="new-post-btn" id="new-board-post-btn">＋ 投稿</button>
-    </div>
-
-    <div class="filter-row" id="filter-row">
-      <button class="filter-btn active" data-filter="all" style="--activeColor:var(--gold)">
-        <span class="filter-btn-text">全体</span>
-        <span class="filter-count" id="fc-all">4</span>
-      </button>
-      <button class="filter-btn" data-filter="rescue" style="--activeColor:var(--rescue)">
-        <span class="filter-btn-text">レスキュー</span>
-        <span class="filter-count" id="fc-rescue">3</span>
-      </button>
-      <button class="filter-btn" data-filter="give" style="--activeColor:var(--give)">
-        <span class="filter-btn-text">ギブ</span>
-        <span class="filter-count" id="fc-give">1</span>
-      </button>
-    </div>
-    <!-- Sample data notice -->
-    <div style="padding:8px 16px 0;">
-      <div class="sample-notice" style="width:100%;justify-content:center;">
-        <span class="sample-notice-icon">📋</span>
-        以下はサンプル投稿です。実際の投稿に差し替えてください。
-      </div>
-    </div>
-
-    <div class="board-list" id="board-list"></div>
-  </div>
-
-  <!-- ════════════ MYPAGE SCREEN ════════════ -->
-  <div id="mypage-screen" class="screen">
-    <div class="mypage-header">
-      <span class="logo-flame">🔥</span>
-      <span class="logo-text">MAKI-LOG</span>
-    </div>
-    <div class="mypage-scroll">
-
-      <!-- Avatar drop zone -->
-      <div class="avatar-zone">
-        <div class="avatar-drop-area" id="avatar-drop-area" title="クリックまたはドラッグ&ドロップで画像変更">
-          <div class="avatar-drop-placeholder" id="avatar-placeholder">
-            <span class="avatar-drop-icon">🏕</span>
-            <span class="avatar-drop-text">画像をドラッグ<br>またはタップ</span>
+        <div class="f-block">
+          <div class="f-lbl">⚖️ 重量 (kg/束) <span style="color:var(--tx-m);font-size:9px;font-weight:400">— コスパ自動計算</span></div>
+          <input id="f-weight" class="f-input" type="number" inputmode="decimal" step="0.1" placeholder="例: 5  (未入力でもOK)"/>
+          <div id="cospa-pill" class="cospa-pill" style="display:none">
+            <span class="cospa-lbl">1KG あたり</span>
+            <span class="cospa-val" id="cospa-val">—</span>
           </div>
         </div>
-        <span class="avatar-change-hint">// DRAG & DROP or TAP TO CHANGE</span>
-        <input type="file" id="avatar-file-input" accept="image/*" />
-      </div>
 
-      <!-- Stats strip -->
-      <div class="stats-strip">
-        <div class="stat-cell">
-          <div class="stat-value" id="stat-posts">0</div>
-          <div class="stat-label">投稿数</div>
+        <div class="f-block">
+          <div class="f-lbl">🌲 薪の種類</div>
+          <div class="pill-row" id="wood-grp"></div>
         </div>
-        <div class="stat-cell">
-          <div class="stat-value" id="stat-rescues">0</div>
-          <div class="stat-label">レスキュー</div>
-        </div>
-        <div class="stat-cell">
-          <div class="stat-value" id="stat-gives">0</div>
-          <div class="stat-label">ギブ</div>
-        </div>
-      </div>
 
-      <!-- Profile fields -->
-      <div class="profile-card">
-        <div class="profile-card-title">// プロフィール</div>
-        <div class="profile-field">
-          <label class="profile-field-label">🏷 ニックネーム</label>
-          <input id="profile-nickname" class="profile-field-input" type="text" placeholder="例: たぬきキャンパー" maxlength="20" />
+        <div class="f-block">
+          <div class="f-lbl">🌡 乾燥具合</div>
+          <div class="dry-row" id="dry-grp"></div>
         </div>
-        <div class="profile-field">
-          <label class="profile-field-label">⛺ キャンプ歴</label>
-          <div class="camp-history-row" id="camp-history-row">
-            <button class="camp-history-btn" data-val="初心者 (1年未満)">初心者 (1年未満)</button>
-            <button class="camp-history-btn" data-val="1〜3年">1〜3年</button>
-            <button class="camp-history-btn" data-val="3〜5年">3〜5年</button>
-            <button class="camp-history-btn" data-val="5〜10年">5〜10年</button>
-            <button class="camp-history-btn" data-val="10年以上のベテラン">10年以上のベテラン</button>
+
+        <div class="f-block">
+          <div class="f-lbl">🔧 設備・ルール</div>
+          <div class="chk-grid" id="fac-grp"></div>
+        </div>
+
+        <div class="f-block">
+          <div class="f-lbl">📷 写真 (任意)</div>
+          <div class="photo-drop" id="photo-drop">
+            <div class="photo-drop-txt">📷 タップまたはドラッグ&ドロップ</div>
           </div>
+          <img id="photo-prev" class="photo-prev" src="" alt="プレビュー"/>
+          <input type="file" id="photo-file" accept="image/*" style="display:none"/>
         </div>
-        <div class="profile-field">
-          <label class="profile-field-label">🌲 好きな薪の種類</label>
-          <input id="profile-wood-pref" class="profile-field-input" type="text" placeholder="例: ナラ・クヌギ" />
+
+        <div class="f-block">
+          <div class="f-lbl">📝 メモ (任意)</div>
+          <textarea id="f-note" class="f-input" style="min-height:70px" placeholder="営業時間・支払い方法・駐車場など"></textarea>
         </div>
-        <div class="profile-field">
-          <label class="profile-field-label">📝 ひとこと</label>
-          <input id="profile-bio" class="profile-field-input" type="text" placeholder="例: 焚き火大好き！薪は広葉樹派" maxlength="40" />
-        </div>
+
+        <button class="submit-btn" id="post-btn">🪵  場所を登録する</button>
+        <div style="height:28px"></div>
       </div>
-
-      <button class="profile-save-btn" id="profile-save-btn">💾  SAVE PROFILE</button>
-      <div class="profile-saved-toast" id="profile-saved-toast">✦ プロフィールを保存しました ✦</div>
-      <div style="height:16px"></div>
-    </div>
-  </div>
-
-  <!-- ════════════ TAB BAR ════════════ -->
-  <div id="tab-bar">
-    <button class="tab-item active" data-tab="map">
-      <div class="tab-indicator"></div>
-      <span class="tab-icon">🗺</span>
-      <span class="tab-label">マップ</span>
-    </button>
-    <button class="tab-item" data-tab="post">
-      <div class="tab-indicator"></div>
-      <span class="tab-icon">✏️</span>
-      <span class="tab-label">投稿</span>
-    </button>
-    <button class="tab-item" data-tab="rescue">
-      <div class="tab-indicator"></div>
-      <div style="position:relative">
-        <span class="tab-icon">🏕</span>
-        <div class="tab-badge" id="rescue-badge"></div>
-      </div>
-      <span class="tab-label">レスキュー</span>
-    </button>
-    <button class="tab-item" data-tab="mypage">
-      <div class="tab-indicator"></div>
-      <span class="tab-icon">👤</span>
-      <span class="tab-label">マイページ</span>
-    </button>
-  </div>
-</div>
-
-<!-- ════════════ REPLY MODAL ════════════ -->
-<div class="modal-overlay" id="reply-modal">
-  <div class="modal-sheet" id="reply-sheet">
-    <div class="card-handle"></div>
-    <div id="reply-kind-badge" style="margin-bottom:6px"></div>
-    <div class="card-title" id="reply-title" style="font-size:15px;margin-bottom:12px"></div>
-    <div class="gold-divider"><div class="gold-divider-line"></div><span class="gold-divider-icon">✦</span><div class="gold-divider-line"></div></div>
-    <div class="reply-original" id="reply-original"></div>
-    <div class="reply-input-row">
-      <span class="reply-input-avatar">👤</span>
-      <textarea class="reply-input" id="reply-textarea" placeholder="返信を入力..."></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="action-btn action-btn-secondary" style="flex:1" id="reply-cancel">✕ キャンセル</button>
-      <button class="action-btn action-btn-primary" style="flex:2" id="reply-send">↩ 返信する</button>
     </div>
   </div>
 </div>
 
-<!-- ════════════ NEW BOARD POST MODAL ════════════ -->
-<div class="modal-overlay" id="new-post-modal">
-  <div class="modal-sheet">
-    <div class="card-handle"></div>
-    <div class="form-section-title" style="margin-bottom:16px">
-      <div class="form-section-title-text">// キャンパーズ・ログ 投稿</div>
+<!-- ══ RESCUE SCREEN ══ -->
+<div id="rescue-screen" class="screen">
+  <div class="r-hdr">
+    <div class="r-hdr-l">
+      <div class="r-hdr-top">
+        <span class="logo-fire">🔥</span>
+        <span class="logo-txt" style="font-size:13px;letter-spacing:3px">MAKI-LOG</span>
+      </div>
+      <div class="r-hdr-ttl">キャンパーズ・ログ</div>
     </div>
+    <button class="new-btn" id="new-post-btn">＋ 投稿</button>
+  </div>
+  <div class="filter-bar">
+    <button class="f-btn on" data-f="all" style="--ac:var(--gold)">
+      <span class="f-btn-txt">全体</span><span class="f-count" id="fc-all">0</span>
+    </button>
+    <button class="f-btn" data-f="rescue" style="--ac:var(--sos)">
+      <span class="f-btn-txt">レスキュー</span><span class="f-count" id="fc-sos">0</span>
+    </button>
+    <button class="f-btn" data-f="give" style="--ac:var(--give)">
+      <span class="f-btn-txt">ギブ</span><span class="f-count" id="fc-give">0</span>
+    </button>
+  </div>
+  <div style="padding:7px 12px 0;flex-shrink:0">
+    <div class="sample-note" id="board-s-note">📋 初期投稿はサンプルです。</div>
+  </div>
+  <div class="board" id="board"></div>
+</div>
 
-    <div class="form-block">
-      <label class="form-label">📡 投稿種別</label>
-      <div class="kind-select-row" id="kind-select-row">
-        <button class="kind-select-btn active" data-kind="rescue"
-          style="--kc:var(--rescue);--km:var(--rescue-muted);--kb:var(--rescue-border)">
-          <span class="kind-select-icon">🆘</span>
-          <span class="kind-select-label">レスキュー</span>
-          <span class="kind-select-desc">困りごと・SOS</span>
+<!-- ══ MYPAGE SCREEN ══ -->
+<div id="mypage-screen" class="screen">
+  <div class="hdr">
+    <div class="logo">
+      <span class="logo-fire">🔥</span>
+      <span class="logo-txt">MAKI-LOG</span>
+    </div>
+  </div>
+  <div class="scroller">
+    <div class="mp-scroll">
+      <div class="av-zone">
+        <div class="av-area" id="av-area">
+          <div class="av-ph" id="av-ph">
+            <span class="av-ph-ico">🏕</span>
+            <span class="av-ph-txt">画像をタップ</span>
+          </div>
+        </div>
+        <span class="av-hint">// ドラッグ＆ドロップまたはタップで変更</span>
+        <input type="file" id="av-file" accept="image/*" style="display:none"/>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="stat-val" id="st-spots">0</div><div class="stat-lbl">マップ投稿</div></div>
+        <div class="stat"><div class="stat-val" id="st-sos">0</div><div class="stat-lbl">レスキュー</div></div>
+        <div class="stat"><div class="stat-val" id="st-give">0</div><div class="stat-lbl">ギブ</div></div>
+      </div>
+
+      <div class="p-card">
+        <div class="p-card-ttl">// プロフィール設定</div>
+        <div class="p-field">
+          <label class="p-field-lbl" for="p-nick">🏷 ニックネーム</label>
+          <input id="p-nick" class="p-field-inp" type="text" placeholder="例: たぬきキャンパー" maxlength="20"/>
+        </div>
+        <div class="p-field">
+          <label class="p-field-lbl">⛺ キャンプ歴</label>
+          <div class="hist-row" id="hist-row">
+            <button class="hist-btn" data-v="初心者 (1年未満)">初心者</button>
+            <button class="hist-btn" data-v="1〜3年">1〜3年</button>
+            <button class="hist-btn" data-v="3〜5年">3〜5年</button>
+            <button class="hist-btn" data-v="5〜10年">5〜10年</button>
+            <button class="hist-btn" data-v="ベテラン (10年以上)">ベテラン</button>
+          </div>
+        </div>
+        <div class="p-field">
+          <label class="p-field-lbl" for="p-wood">🌲 好きな薪</label>
+          <input id="p-wood" class="p-field-inp" type="text" placeholder="例: ナラ・クヌギ"/>
+        </div>
+        <div class="p-field">
+          <label class="p-field-lbl" for="p-bio">📝 ひとこと</label>
+          <input id="p-bio" class="p-field-inp" type="text" placeholder="例: 焚き火大好き！" maxlength="40"/>
+        </div>
+      </div>
+
+      <button class="save-btn" id="save-btn">💾  設定を保存する</button>
+      <div class="saved-toast" id="saved-toast">✦ プロフィールを保存しました ✦</div>
+      <div style="height:14px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB BAR ══ -->
+<div id="tabs">
+  <button class="tb on" data-t="map"><div class="tb-bar"></div><span class="tb-ico">🗺</span><span class="tb-lbl">マップ</span></button>
+  <button class="tb" data-t="post"><div class="tb-bar"></div><span class="tb-ico">✏️</span><span class="tb-lbl">投稿</span></button>
+  <button class="tb" data-t="rescue"><div class="tb-bar"></div><div style="position:relative"><span class="tb-ico">🏕</span><div class="tb-dot" id="rescue-dot"></div></div><span class="tb-lbl">レスキュー</span></button>
+  <button class="tb" data-t="mypage"><div class="tb-bar"></div><span class="tb-ico">👤</span><span class="tb-lbl">マイページ</span></button>
+</div>
+</div><!-- #root -->
+
+<!-- ══ REPLY MODAL ══ -->
+<div class="overlay" id="reply-modal">
+  <div class="sheet">
+    <div class="card-handle"></div>
+    <div id="reply-badge" style="margin-bottom:5px"></div>
+    <div id="reply-title" style="font-family:var(--mono);font-size:14px;font-weight:900;color:var(--tx);margin-bottom:10px;line-height:1.3"></div>
+    <div class="gold-div"><div class="gold-div-line"></div><span class="gold-div-ico">✦</span><div class="gold-div-line"></div></div>
+    <div class="reply-orig" id="reply-orig"></div>
+    <div class="reply-inp-row">
+      <span class="reply-inp-av">👤</span>
+      <textarea class="reply-inp" id="reply-inp" placeholder="返信を入力..."></textarea>
+    </div>
+    <div class="modal-acts">
+      <button class="act act-neu" style="flex:1" id="reply-cancel">✕ キャンセル</button>
+      <button class="act act-pri" style="flex:2" id="reply-send">↩ 返信する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NEW BOARD POST MODAL ══ -->
+<div class="overlay" id="new-post-modal">
+  <div class="sheet">
+    <div class="card-handle"></div>
+    <div class="f-sec" style="margin-bottom:14px"><div class="f-sec-txt">// キャンパーズ・ログ 投稿</div></div>
+    <div class="f-block">
+      <div class="f-lbl">📡 投稿種別</div>
+      <div class="k-sel-row" id="k-sel-row">
+        <button class="k-sel-btn" data-k="rescue">
+          <span class="k-sel-ico">🆘</span>
+          <span class="k-sel-lbl">レスキュー</span>
+          <span class="k-sel-desc">困りごと・SOS</span>
         </button>
-        <button class="kind-select-btn" data-kind="give"
-          style="--kc:var(--give);--km:var(--give-muted);--kb:var(--give-border)">
-          <span class="kind-select-icon">🎁</span>
-          <span class="kind-select-label">ギブ</span>
-          <span class="kind-select-desc">譲ります・シェア</span>
+        <button class="k-sel-btn" data-k="give">
+          <span class="k-sel-ico">🎁</span>
+          <span class="k-sel-lbl">ギブ</span>
+          <span class="k-sel-desc">譲ります・シェア</span>
         </button>
       </div>
     </div>
-
-    <div class="form-block">
-      <label class="form-label">📝 タイトル <span class="required">*</span></label>
-      <input id="board-title-input" class="text-input" type="text" placeholder="例: OD缶を忘れました！" />
+    <div class="f-block">
+      <div class="f-lbl">📝 タイトル <span class="req">*</span></div>
+      <input id="b-title" class="f-input" type="text" placeholder="例: OD缶を忘れました！"/>
     </div>
-
-    <div class="form-block">
-      <label class="form-label">💬 詳細</label>
-      <textarea id="board-body-input" class="text-input text-area" placeholder="状況や場所など詳しく..." style="min-height:100px"></textarea>
+    <div class="f-block">
+      <div class="f-lbl">💬 詳細</div>
+      <textarea id="b-body" class="f-input" style="min-height:80px" placeholder="状況や場所など詳しく..."></textarea>
     </div>
-
-    <div style="display:flex;gap:10px">
-      <button class="action-btn action-btn-secondary" style="flex:1" id="new-post-cancel">✕ キャンセル</button>
-      <button class="submit-btn" style="flex:2;margin-top:0;padding:13px" id="new-post-submit">📡 SEND</button>
+    <div style="display:flex;gap:8px">
+      <button class="act act-neu" style="flex:1" id="b-cancel">✕ キャンセル</button>
+      <button class="submit-btn" style="flex:2;margin-top:0;padding:12px" id="b-submit">📡 投稿する</button>
     </div>
-    <div style="height:16px"></div>
+    <div style="height:14px"></div>
   </div>
 </div>
 
-<!-- ════════════ PIN PICKER MODAL ════════════ -->
-<div class="modal-overlay" id="pin-picker-modal">
-  <div class="modal-sheet" style="padding-bottom:max(20px, var(--safe-bottom))">
+<!-- ══ PIN PICKER MODAL ══ -->
+<div class="overlay" id="pin-modal">
+  <div class="sheet" style="padding-bottom:max(16px,var(--sbot))">
     <div class="card-handle"></div>
-    <div class="form-section-title" style="margin-bottom:10px">
-      <div class="form-section-title-text">// 地図でピンを立てる</div>
+    <div class="f-sec" style="margin-bottom:9px"><div class="f-sec-txt">// 地図でピンを立てる</div></div>
+    <p class="pp-hint">地図を動かして中央 📍 に場所を合わせてください</p>
+    <div class="pp-wrap">
+      <div id="pp-map"></div>
+      <div class="pp-cross">📍</div>
     </div>
-    <p class="pin-picker-hint">地図をドラッグして中央に場所を合わせてください</p>
-    <div id="pin-picker-map-wrap">
-      <div id="pin-picker-map"></div>
-      <div class="pin-crosshair">📍</div>
-    </div>
-    <p class="pin-picker-coord" id="pin-picker-coord">—</p>
-    <div style="display:flex;gap:10px">
-      <button class="action-btn action-btn-secondary" style="flex:1" id="pin-picker-cancel">✕ キャンセル</button>
-      <button class="pin-set-btn" style="flex:2" id="pin-picker-confirm">✅ この場所に決定</button>
+    <p class="pp-coord" id="pp-coord">—</p>
+    <div style="display:flex;gap:8px">
+      <button class="act act-neu" style="flex:1" id="pp-cancel">✕ キャンセル</button>
+      <button class="pin-set-btn act act-pri" style="flex:2" id="pp-confirm">✅ この場所に決定</button>
     </div>
   </div>
 </div>
 
-<!-- ════════════ INSTALL TOAST ════════════ -->
-<div id="install-toast">
-  <span class="toast-text">📲 <strong>MAKI-LOG</strong> をホーム画面に追加して、アプリとして使えます！</span>
-  <button class="toast-btn" id="install-btn">追加</button>
-  <button class="toast-close" id="install-close">✕</button>
+<!-- ══ NAV MODAL ══ -->
+<div class="overlay" id="nav-modal">
+  <div class="sheet">
+    <div class="card-handle"></div>
+    <div class="f-sec" style="margin-bottom:14px"><div class="f-sec-txt">// ナビアプリを選択</div></div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button class="act act-pri" id="nav-g" style="font-size:14px;padding:15px">🗺 Googleマップで開く</button>
+      <button class="act act-sec" id="nav-y" style="font-size:14px;padding:15px">🚗 Yahoo!カーナビで開く</button>
+      <button class="act act-neu" id="nav-cancel" style="font-size:13px;padding:12px">✕ キャンセル</button>
+    </div>
+    <div style="height:8px"></div>
+  </div>
 </div>
 
+<!-- ══ INSTALL TOAST ══ -->
+<div id="toast">
+  <span class="toast-txt">📲 <strong>MAKI-LOG</strong> をホーム画面に追加してアプリとして使えます！</span>
+  <button class="toast-add" id="toast-add">追加</button>
+  <button class="toast-x" id="toast-x">✕</button>
+</div>
 <script>
-/* ══════════════════════════════════════════════════════
-   MAKI-LOG PWA — メインスクリプト
-   Leaflet + navigator.geolocation + PWA
-══════════════════════════════════════════════════════ */
+'use strict';
+/* ═══════════════════════════════════════════════════════════
+   MAKI-LOG v4 — Complete App Logic
+   Leaflet + Open-Meteo + Nominatim + LocalStorage + PWA
+═══════════════════════════════════════════════════════════ */
 
-// ── デザイントークン (CSS変数と同期) ──
-const C = {
-  bg:'#0F0F0D', bgCard:'#171714', surface:'#1E1E1A', surfaceAlt:'#252521',
-  olive:'#4B5320', oliveLight:'#6B7530', oliveMuted:'#3A4118',
-  gold:'#C5A059', goldLight:'#D4B06A', goldDark:'#8A6E35', goldMuted:'#4A3C1E',
-  ember:'#C94A14', emberLight:'#E05E20',
-  rescue:'#B84040', rescueMuted:'#3A1010', rescueBorder:'#6B2424',
-  give:'#4B7A3A',  giveMuted:'#1A3010',   giveBorder:'#2E5A22',
-  campBlue:'#3A5C7A', border:'#2E2D27', borderGold:'#4A3C1E',
-  textPri:'#E2DDD0', textSec:'#8A8478', textMuted:'#5C574F',
+// ── TOKENS (mirrors CSS vars) ──
+const C={
+  broad:'#7A5230',needle:'#2E6020',unk:'#524E46',camp:'#2E5070',
+  ember:'#C94A14',olive:'#4B5320',oliveL:'#6B7530',
+  gold:'#C5A059',goldD:'#8A6E35',goldM:'#3E3018',goldL:'#D4B06A',
+  sos:'#B84040',sosM:'#3A1010',sosB:'#6B2424',
+  give:'#4A7A38',giveM:'#182E10',giveB:'#2C5820',
+  surf:'#1C1C18',surf2:'#232320',bg:'#0D0D0B',bgCard:'#161613',bd:'#2A2924',bdG:'#3E3018',
+  tx:'#E2DDD0',txS:'#888278',txM:'#585248',
 };
 
-const SPOT_TYPES = [
-  { key:'直売所',       color:C.ember      },
-  { key:'無人販売',     color:C.oliveLight },
-  { key:'ホームセンター',color:'#7A6030'   },
-  { key:'キャンプ場',   color:C.campBlue   },
+// ── MASTER DATA ──
+const SPOT_TYPES=[
+  {key:'ホームセンター',color:C.ember},
+  {key:'直売所',color:'#7A5230'},
+  {key:'無人販売',color:C.oliveL},
+  {key:'キャンプ場',color:C.camp},
+  {key:'道の駅',color:'#5A7A8A'},
+  {key:'製材所',color:'#6B5230'},
 ];
-const WOOD_TYPES = ['広葉樹','針葉樹','混合'];
-const DRY_LEVELS = [
-  { label:'乾燥',    stars:'★★★★★' },
-  { label:'やや乾燥', stars:'★★★☆☆' },
-  { label:'未乾燥',  stars:'★☆☆☆☆' },
+const WOOD_TYPES=['広葉樹','針葉樹','混合','不明'];
+const DRY_LEVELS=[
+  {label:'完全乾燥',stars:'★★★★★'},
+  {label:'乾燥',stars:'★★★★☆'},
+  {label:'やや乾燥',stars:'★★★☆☆'},
+  {label:'未乾燥',stars:'★☆☆☆☆'},
 ];
-const POST_KINDS = {
-  rescue:{ badge:'RESCUE', color:C.rescue,  muted:C.rescueMuted, border:C.rescueBorder, icon:'🆘' },
-  give:  { badge:'GIVE',   color:C.give,    muted:C.giveMuted,   border:C.giveBorder,   icon:'🎁' },
+const FACS=[
+  {k:'ax',label:'薪割機あり',cat:'fac'},
+  {k:'block',label:'薪割り台あり',cat:'fac'},
+  {k:'rent',label:'斧・鉈レンタル可',cat:'fac'},
+  {k:'ash',label:'灰捨て場あり',cat:'fac'},
+  {k:'fire',label:'直火OK',cat:'rule'},
+  {k:'ban',label:'持込薪制限あり',cat:'rule'},
+  {k:'card',label:'クレカ・QR可',cat:'pay'},
+  {k:'coin',label:'無人・小銭必須',cat:'pay'},
+];
+const KINDS={
+  rescue:{badge:'RESCUE',color:C.sos,muted:C.sosM,border:C.sosB,icon:'🆘'},
+  give:{badge:'GIVE',color:C.give,muted:C.giveM,border:C.giveB,icon:'🎁'},
 };
 
-// ── 状態 ──
-let spots = [
-  { id:'1', name:'杉山製材所',     type:'直売所',   typeColor:C.ember,      price:'500', wood:'広葉樹・針葉樹', dry:'乾燥 ★★★★★',     lat:35.3606, lng:138.7274, note:'予約不要。現地払いのみ。',   isUserPost:false },
-  { id:'2', name:'道の駅 まきのさと',type:'無人販売', typeColor:C.oliveLight, price:'380', wood:'針葉樹',         dry:'やや乾燥 ★★★☆☆',lat:35.3720, lng:138.7410, note:'24時間購入可。釣り銭注意。', isUserPost:false },
-  { id:'3', name:'富士見キャンプ場', type:'キャンプ場',typeColor:C.campBlue,  price:'600', wood:'広葉樹 (ナラ)',  dry:'完全乾燥 ★★★★★',  lat:35.3490, lng:138.7150, note:'チェックイン時に購入可。',   isUserPost:false },
+// ── 全国25スポット プリセット ──
+const PRESET=[
+  {id:'p01',name:'ふもとっぱら キャンプ場',type:'キャンプ場',wood:'広葉樹',dry:'完全乾燥',price:'600',weight:5,lat:35.3609,lng:138.6025,note:'富士山麓の人気キャンプ場。ナラ材メイン。',facs:['ash','fire'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p02',name:'カインズ 富士吉田店',type:'ホームセンター',wood:'混合',dry:'乾燥',price:'398',weight:5,lat:35.4738,lng:138.7951,note:'薪コーナーあり。針葉樹・広葉樹両方取扱い。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p03',name:'スノーピーク箕面自然館',type:'キャンプ場',wood:'広葉樹',dry:'完全乾燥',price:'700',weight:5,lat:34.8432,lng:135.4768,note:'スノーピーク直営。質の高い乾燥薪。',facs:['card','ash'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p04',name:'コメリ パワー 山梨昭和店',type:'ホームセンター',wood:'広葉樹',dry:'乾燥',price:'498',weight:5,lat:35.5837,lng:138.5234,note:'広葉樹メイン。まとめ買い可。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p05',name:'コーナン 八王子めじろ台店',type:'ホームセンター',wood:'針葉樹',dry:'乾燥',price:'298',weight:4,lat:35.6572,lng:139.3146,note:'針葉樹薪が安い。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p06',name:'DCMカーマ 浜松志都呂店',type:'ホームセンター',wood:'混合',dry:'やや乾燥',price:'348',weight:4,lat:34.7108,lng:137.7002,note:'針葉樹・広葉樹選べる。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p07',name:'杉山製材所（山梨）',type:'製材所',wood:'広葉樹',dry:'完全乾燥',price:'480',weight:6,lat:35.3606,lng:138.7274,note:'地元の製材所。ナラ・クヌギ。要事前連絡。',facs:['block','ax'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p08',name:'道の駅 まきのさと',type:'道の駅',wood:'針葉樹',dry:'やや乾燥',price:'380',weight:4,lat:35.3720,lng:138.7410,note:'24時間購入可。釣り銭注意。',facs:['coin'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p09',name:'ACNほったらかしキャンプ場',type:'キャンプ場',wood:'広葉樹',dry:'乾燥',price:'650',weight:5,lat:35.6374,lng:138.7158,note:'山梨・温泉隣接。富士山ビュー。',facs:['ash','card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p10',name:'カインズ 前橋南インター店',type:'ホームセンター',wood:'混合',dry:'乾燥',price:'388',weight:5,lat:36.3392,lng:139.0543,note:'群馬県。キャンプ用品充実。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p11',name:'コメリ 釧路武佐店',type:'ホームセンター',wood:'針葉樹',dry:'乾燥',price:'298',weight:4,lat:43.0089,lng:144.3939,note:'北海道。エゾ松薪あり。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p12',name:'有野実苑オートキャンプ場',type:'キャンプ場',wood:'広葉樹',dry:'乾燥',price:'600',weight:5,lat:35.6084,lng:140.2952,note:'千葉。ナラ材。場内販売。',facs:['card','ash'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p13',name:'ホーマック 帯広稲田店',type:'ホームセンター',wood:'針葉樹',dry:'乾燥',price:'280',weight:4,lat:42.9082,lng:143.2012,note:'北海道・十勝。トドマツ薪。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p14',name:'コーナン 仙台泉店',type:'ホームセンター',wood:'混合',dry:'乾燥',price:'348',weight:5,lat:38.3286,lng:140.8932,note:'東北。広葉樹・針葉樹両方。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p15',name:'カインズ 熊本御幸笛田店',type:'ホームセンター',wood:'混合',dry:'乾燥',price:'398',weight:5,lat:32.7737,lng:130.6852,note:'九州。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p16',name:'スノーピーク奥日田（大分）',type:'キャンプ場',wood:'広葉樹',dry:'完全乾燥',price:'720',weight:5,lat:33.3428,lng:130.9744,note:'九州・大分。',facs:['card','ash','fire'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p17',name:'フォレストアドベンチャー白馬',type:'キャンプ場',wood:'広葉樹',dry:'完全乾燥',price:'700',weight:5,lat:36.6968,lng:137.8602,note:'長野・白馬。ブナ・ナラ材。',facs:['ash','fire'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p18',name:'道の駅 那須高原 友愛の森',type:'道の駅',wood:'広葉樹',dry:'乾燥',price:'420',weight:5,lat:36.9452,lng:140.0428,note:'那須エリア。キャンプ用品も充実。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p19',name:'志賀高原山の駅 薪販売',type:'道の駅',wood:'針葉樹',dry:'乾燥',price:'320',weight:4,lat:36.7068,lng:138.5042,note:'長野・志賀高原。冬期も販売。',facs:['coin'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p20',name:'かわな野外活動センター',type:'キャンプ場',wood:'広葉樹',dry:'乾燥',price:'500',weight:5,lat:35.0923,lng:138.9041,note:'静岡市郊外。ファミリー向け。',facs:['ash'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p21',name:'DCMダイキ 高知大津店',type:'ホームセンター',wood:'針葉樹',dry:'やや乾燥',price:'298',weight:4,lat:33.5628,lng:133.5852,note:'四国。スギ・ヒノキ。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p22',name:'なっぷキャンプ村（長野）',type:'キャンプ場',wood:'広葉樹',dry:'乾燥',price:'550',weight:5,lat:36.2048,lng:137.9704,note:'北アルプス麓。標高高め。',facs:['ash','block'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p23',name:'ニワトリポッポ薪直売（北海道）',type:'直売所',wood:'広葉樹',dry:'完全乾燥',price:'350',weight:7,lat:43.1861,lng:141.0249,note:'北海道産ミズナラ。格安直売。',facs:['coin','ax'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p24',name:'いわみ薪直売（島根）',type:'直売所',wood:'広葉樹',dry:'完全乾燥',price:'400',weight:6,lat:34.6628,lng:131.9858,note:'島根県。クヌギ材メイン。大量購入可。',facs:['ax','block'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
+  {id:'p25',name:'カインズ 富士見店（長野）',type:'ホームセンター',wood:'混合',dry:'乾燥',price:'388',weight:5,lat:35.8988,lng:138.1762,note:'長野・諏訪エリア。キャンプ客多数。',facs:['card'],postedAt:'2025-01-10T09:00:00Z',postedBy:'MAKI-LOG'},
 ];
 
-let boardPosts = [
-  { id:'b1', kind:'rescue', author:'たぬきキャンパー', avatar:'🦝', title:'OD缶を忘れました！(ガス)',          body:'イレスペースには、こちらを忘れてください！CB缶用のアダプタでも大丈夫です。富士見エリアにいます。', time:'14分前', replies:2, location:'富士見キャンプ場 付近' },
-  { id:'b2', kind:'give',   author:'ひのきの人',       avatar:'🌲', title:'広葉樹の薪、余ったので譲ります',    body:'キャンプ場が混んで余ったのです。乾燥済み・ナラ材。道の駅まきのさと付近で受渡し可能です。',          time:'32分前', replies:5, location:'道の駅 まきのさと 付近' },
-  { id:'b3', kind:'rescue', author:'にわかソロ勢',     avatar:'⛺', title:'鉈薪！(ガス)',                       body:'針葉樹の細割りがあれば助かります。キャンプを楽しみたいのですがガスが足りません。',                 time:'1時間前', replies:1, location:'杉山製材所 付近' },
-  { id:'b4', kind:'rescue', author:'ファミキャン隊長', avatar:'🏕', title:'OD缶を忘れました',                  body:'イソブタン系のOD缶、どなたかお持ちでしたらお貸しいただけますか。家族4人でキャンプ中です。',         time:'2時間前', replies:0, location:'富士見キャンプ場 付近' },
+const INIT_BOARD=[
+  {id:'b1',kind:'rescue',author:'たぬきキャンパー',av:'🦝',title:'OD缶を忘れました！',body:'CB缶アダプタでも大丈夫です。富士見エリアにいます。どなたかお譲りください！',postedAt:Date.now()-840000,replies:2,loc:'富士見キャンプ場 付近',isSample:true},
+  {id:'b2',kind:'give',author:'ひのきの人',av:'🌲',title:'広葉樹の薪、余ったので譲ります',body:'乾燥済みナラ材。道の駅まきのさと付近で受渡し可能です。',postedAt:Date.now()-1920000,replies:5,loc:'道の駅 まきのさと 付近',isSample:true},
+  {id:'b3',kind:'rescue',author:'にわかソロ勢',av:'⛺',title:'着火剤が足りません！',body:'針葉樹の細割りがあれば助かります。キャンプを続けたいですが困っています。',postedAt:Date.now()-3600000,replies:1,loc:'杉山製材所 付近',isSample:true},
 ];
 
-let currentFilter = 'all';
-let currentLat    = 35.360;
-let currentLng    = 138.730;
-let selectedSpotId = null;
-let activeTab     = 'map';
-let leafletMap    = null;
-let leafletMarkers = {};
-let replyTarget   = null;
-let selectedPostKind = 'rescue';
-let selectedSpotType = '直売所';
-let selectedWoodType = '広葉樹';
-let selectedDryLevel = '乾燥';
-let deferredInstallPrompt = null;
+// ── STATE ──
+let spots=[], board=[], prof={nickname:'',campHistory:'',woodPref:'',bio:'',avatarUrl:null};
+let lmap=null, ppMap=null, ppInited=false;
+let curLat=36.2, curLng=138.2;
+let pickedLat=null, pickedLng=null;
+let selId=null, navSpot=null;
+let curFilter='all', curKind='rescue';
+let selType=SPOT_TYPES[0].key, selWood='広葉樹', selDry='乾燥';
+let selFacs=new Set(), photoB64=null;
+let deferInstall=null;
 
-/* ══════════════════════════════
-   MAP INITIALIZATION (Leaflet)
-══════════════════════════════ */
-function initMap() {
-  leafletMap = L.map('leaflet-map', {
-    center: [currentLat, currentLng],
-    zoom: 13,
-    zoomControl: false,
-    attributionControl: true,
-  });
+// ── STORAGE ──
+const SK={S:'maki_spots',B:'maki_board',P:'maki_prof'};
+const load=k=>{try{return JSON.parse(localStorage.getItem(k))}catch{return null}};
+const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
 
-  // OpenStreetMap タイル (APIキー不要)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
-  }).addTo(leafletMap);
-
-  // ズームコントロールを右下に
-  L.control.zoom({ position: 'bottomright' }).addTo(leafletMap);
-
-  // 地図クリックで詳細カードを閉じる
-  leafletMap.on('click', () => closeDetailCard());
-
-  renderMapMarkers();
+function initData(){
+  spots=load(SK.S)||PRESET.map(s=>({...s,soldOut:false,isUserPost:false,photo:null}));
+  board=load(SK.B)||INIT_BOARD.map(b=>({...b}));
+  prof={...prof,...(load(SK.P)||{})};
 }
 
-function makeMarkerIcon(spot, selected) {
-  const size  = selected ? 46 : 40;
-  const ring  = selected ? `box-shadow:0 0 0 2px ${spot.typeColor},0 4px 18px rgba(197,160,89,.4)` : '';
-  const emoji = spot.isUserPost ? '📍' : '🪵';
-  const html = `
-    <div class="maki-marker-wrap">
-      <div class="maki-marker${selected?' selected':''}"
-        style="background:${selected?C.goldDark:spot.typeColor};width:${size}px;height:${size}px;${ring}">
-        ${emoji}
+// ── FRESHNESS ──
+function freshness(postedAt){
+  if(!postedAt) return '';
+  const d=Math.floor((Date.now()-new Date(postedAt).getTime())/86400000);
+  if(d===0) return '本日の情報';
+  if(d<7)   return `${d}日前の情報`;
+  if(d<31)  return `${Math.floor(d/7)}週間前の情報`;
+  return `${Math.floor(d/30)}ヶ月前の情報`;
+}
+function freshOld(postedAt){
+  if(!postedAt) return false;
+  return Math.floor((Date.now()-new Date(postedAt).getTime())/86400000)>30;
+}
+
+// ── SPOT COLOR ──
+function spotColor(s){
+  if(s.type==='キャンプ場') return C.camp;
+  if(s.wood==='広葉樹') return C.broad;
+  if(s.wood==='針葉樹') return C.needle;
+  if(s.type==='直売所'||s.type==='製材所') return C.broad;
+  if(s.type==='ホームセンター') return C.ember;
+  return C.unk;
+}
+
+// ── MAP INIT ──
+function initMap(){
+  lmap=L.map('lmap',{center:[curLat,curLng],zoom:6,zoomControl:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© <a href="https://www.openstreetmap.org/copyright">OSM</a>',maxZoom:19
+  }).addTo(lmap);
+  L.control.zoom({position:'bottomright'}).addTo(lmap);
+  lmap.on('click',closeDetail);
+  // position nearby panel above search bar
+  positionNearby();
+  renderMarkers();
+}
+function positionNearby(){
+  const sb=document.getElementById('search-bar');
+  const nb=document.getElementById('nearby');
+  const sbH=sb.offsetHeight||72;
+  nb.style.bottom=sbH+'px';
+  document.getElementById('gps-btn').style.bottom=(sbH+8)+'px';
+  // detail card also above search bar
+  document.getElementById('detail').style.bottom=sbH+'px';
+}
+
+function mkIcon(s,sel){
+  const color=spotColor(s);
+  const sz=sel?44:38;
+  const emoji=s.isUserPost?'📍':'🪵';
+  const soldX=s.soldOut?`<div class="sold-x">✕</div>`:'';
+  const html=`<div class="mk-wrap"><div style="position:relative">${soldX}<div class="mk${sel?' sel':''}" style="background:${sel?C.goldD:color};width:${sz}px;height:${sz}px">${emoji}</div></div><div class="mk-tip" style="border-top-color:${sel?C.goldD:color}"></div></div>`;
+  return L.divIcon({html,className:'',iconSize:[sz,sz+7],iconAnchor:[sz/2,sz+7]});
+}
+
+let mkrs={};
+function renderMarkers(){
+  Object.values(mkrs).forEach(m=>m.remove());
+  mkrs={};
+  spots.forEach(s=>{
+    const m=L.marker([s.lat,s.lng],{icon:mkIcon(s,false),riseOnHover:true}).addTo(lmap);
+    m.on('click',e=>{L.DomEvent.stopPropagation(e);pickSpot(s.id)});
+    mkrs[s.id]=m;
+  });
+  renderNearby();
+  document.getElementById('n-cnt').textContent=`${spots.length} locations`;
+  // hide sample note once user has own spots
+  document.getElementById('s-note').style.display=spots.some(s=>s.isSample)?'flex':'none';
+}
+
+function pickSpot(id){
+  if(selId&&mkrs[selId]){const p=spots.find(s=>s.id===selId);if(p)mkrs[selId].setIcon(mkIcon(p,false))}
+  selId=id;
+  const s=spots.find(x=>x.id===id);
+  if(!s) return;
+  mkrs[id].setIcon(mkIcon(s,true));
+  lmap.flyTo([s.lat-0.002,s.lng],14,{duration:0.5});
+  document.getElementById('nearby').classList.add('hide');
+  openDetail(s);
+}
+
+function closeDetail(){
+  document.getElementById('detail').classList.remove('on');
+  document.getElementById('nearby').classList.remove('hide');
+  if(selId&&mkrs[selId]){const p=spots.find(s=>s.id===selId);if(p)mkrs[selId].setIcon(mkIcon(p,false))}
+  selId=null;
+}
+
+function openDetail(s){
+  const color=spotColor(s);
+  const frsh=freshness(s.postedAt);
+  const old=freshOld(s.postedAt);
+  // badges
+  const costStr=(s.price&&s.weight)?`¥${Math.round(Number(s.price)/Number(s.weight))}/kg`:'';
+  document.getElementById('d-badges').innerHTML=
+    `<span class="badge" style="background:${color}">${s.type}</span>`+
+    (s.wood?`<span class="badge" style="background:${spotColor({...s,type:''})};">${s.wood}</span>`:'')+
+    (s.soldOut?`<span class="badge" style="background:var(--sos)">売り切れ</span>`:'')+
+    (s.isUserPost?`<span class="badge" style="background:var(--go-m);border:1px solid var(--go-d);color:var(--go-l)">自分の投稿</span>`:'')+
+    (frsh?`<span class="freshness${old?' old':''}">${frsh}</span>`:'');
+  document.getElementById('d-title').textContent=s.name;
+  // photo
+  const ph=document.getElementById('d-photo');
+  if(s.photo){ph.src=s.photo;ph.classList.add('on')}else ph.classList.remove('on');
+  // weather
+  document.getElementById('wx-strip').innerHTML=`<div style="font-family:var(--mono);font-size:9px;color:var(--tx-m);padding:4px 0">気象データ取得中…</div>`;
+  fetchWeather(s.lat,s.lng);
+  // info
+  document.getElementById('d-info').innerHTML=
+    `<div class="info-row"><span class="info-ico">💰</span><div><div class="info-lbl">価格</div><div class="info-val mono">¥${s.price} / 束${s.weight?` (${s.weight}kg)`:''}</div></div></div>`+
+    (costStr?`<div class="info-row"><span class="info-ico">📊</span><div><div class="info-lbl">コスパ</div><div class="info-val mono">${costStr}</div></div></div>`:'')+
+    `<div class="info-row"><span class="info-ico">🌡</span><div><div class="info-lbl">乾燥具合</div><div class="info-val">${s.dry||'不明'}</div></div></div>`+
+    (s.note?`<div class="info-row"><span class="info-ico">📝</span><div><div class="info-lbl">メモ</div><div class="info-val">${s.note}</div></div></div>`:'')+
+    (s.postedBy?`<div class="info-row"><span class="info-ico">👤</span><div><div class="info-lbl">投稿者</div><div class="info-val">${s.postedBy}</div></div></div>`:'');
+  // facilities
+  const fc=document.getElementById('d-fac');
+  fc.innerHTML='';
+  (s.facs||[]).forEach(k=>{
+    const f=FACS.find(x=>x.k===k);
+    if(!f) return;
+    const cls=f.cat==='fac'?'fac-fac':f.cat==='rule'?'fac-rule':'fac-pay';
+    fc.innerHTML+=`<span class="fac-chip ${cls}">${f.label}</span>`;
+  });
+  fc.style.marginBottom=(s.facs&&s.facs.length)?'12px':'0';
+  // nav
+  navSpot=s;
+  document.getElementById('d-nav-g').onclick=()=>openOverlay('nav-modal');
+  document.getElementById('d-nav-y').onclick=()=>openOverlay('nav-modal');
+  document.getElementById('nav-g').onclick=()=>{window.open(`https://maps.google.com/maps?daddr=${s.lat},${s.lng}`,'_blank');closeOverlay('nav-modal')};
+  document.getElementById('nav-y').onclick=()=>{window.open(`https://map.yahoo.co.jp/route/car/?to_lat=${s.lat}&to_lon=${s.lng}`,'_blank');closeOverlay('nav-modal')};
+  // sold-out & delete
+  document.getElementById('d-sold').onclick=()=>doSoldOut(s.id);
+  const del=document.getElementById('d-del');
+  const canDel=prof.nickname&&s.postedBy===prof.nickname;
+  del.style.display=canDel?'flex':'none';
+  del.onclick=()=>doDelete(s.id);
+  document.getElementById('detail').classList.add('on');
+}
+
+function doSoldOut(id){
+  const s=spots.find(x=>x.id===id);
+  if(!s) return;
+  s.soldOut=true;save(SK.S,spots);
+  renderMarkers();closeDetail();
+  showSnack('売り切れ情報を報告しました');
+}
+function doDelete(id){
+  if(!confirm('このスポットを削除しますか？')) return;
+  spots=spots.filter(s=>s.id!==id);save(SK.S,spots);
+  renderMarkers();closeDetail();
+}
+
+// ── WEATHER (Open-Meteo free, no key) ──
+async function fetchWeather(lat,lng){
+  const strip=document.getElementById('wx-strip');
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m,weather_code&timezone=Asia%2FTokyo&forecast_days=1`;
+    const r=await fetch(url,{signal:AbortSignal.timeout(6000)});
+    if(!r.ok) throw 0;
+    const d=await r.json();
+    const t=d.current.temperature_2m,w=d.current.wind_speed_10m,wc=d.current.weather_code;
+    const emo=wc<=1?'☀️':wc<=3?'🌤':wc<=45?'☁️':wc<=67?'🌧':wc<=77?'❄️':'⛈';
+    const fire=w>7?'⚠️要注意':w>4?'普通':'🔥好条件';
+    strip.innerHTML=`
+      <div class="wx-cell"><div class="wx-ico">${emo}</div><div class="wx-lbl">天気</div><div class="wx-val">—</div></div>
+      <div class="wx-cell"><div class="wx-ico">🌡</div><div class="wx-lbl">気温</div><div class="wx-val">${t}°C</div></div>
+      <div class="wx-cell"><div class="wx-ico">💨</div><div class="wx-lbl">風速</div><div class="wx-val">${w}m/s</div></div>
+      <div class="wx-cell"><div class="wx-ico">🪵</div><div class="wx-lbl">焚き火</div><div class="wx-val">${fire}</div></div>`;
+  }catch{
+    strip.innerHTML=`<div style="font-family:var(--mono);font-size:9px;color:var(--tx-m);padding:4px 0">気象データを取得できませんでした</div>`;
+  }
+}
+
+// ── NEARBY CARDS ──
+function renderNearby(){
+  const cont=document.getElementById('n-scroll');
+  const sorted=[...spots].sort((a,b)=>Math.hypot(a.lat-curLat,a.lng-curLng)-Math.hypot(b.lat-curLat,b.lng-curLng)).slice(0,14);
+  cont.innerHTML=sorted.map(s=>{
+    const color=spotColor(s);
+    return `<div class="nc" data-id="${s.id}">
+      <div class="nc-acc" style="background:${color}"></div>
+      <div class="nc-body">
+        <div style="margin-bottom:4px">
+          <span class="badge" style="background:${color};font-size:8px">${s.type}</span>
+          ${s.soldOut?'<span class="badge" style="background:var(--sos);font-size:8px;margin-left:2px">売切</span>':''}
+        </div>
+        <div class="nc-name">${s.name}</div>
+        <div class="nc-price">¥${s.price}<span class="nc-unit">/束</span></div>
+        <div class="nc-sub">${s.wood||''}${s.weight?` · ${s.weight}kg`:''}</div>
       </div>
-      <div class="maki-marker-tip" style="border-top-color:${selected?C.goldDark:spot.typeColor}"></div>
     </div>`;
-  return L.divIcon({ html, className:'', iconSize:[size,size+7], iconAnchor:[size/2,size+7] });
+  }).join('');
+  cont.querySelectorAll('.nc').forEach(el=>el.addEventListener('click',()=>pickSpot(el.dataset.id)));
 }
 
-function renderMapMarkers() {
-  // 既存マーカー削除
-  Object.values(leafletMarkers).forEach(m => m.remove());
-  leafletMarkers = {};
-
-  spots.forEach(spot => {
-    const marker = L.marker([spot.lat, spot.lng], {
-      icon: makeMarkerIcon(spot, false),
-      riseOnHover: true,
-    }).addTo(leafletMap);
-
-    marker.on('click', (e) => {
-      L.DomEvent.stopPropagation(e);
-      selectSpot(spot.id);
-    });
-
-    leafletMarkers[spot.id] = marker;
-  });
-
-  renderNearbyCards();
-  document.getElementById('nearby-count').textContent = `${spots.length} locations`;
+// ── GPS ──
+function initGPS(){
+  if(!navigator.geolocation){setGPSTxt('GPS非対応');return}
+  navigator.geolocation.getCurrentPosition(pos=>{
+    curLat=pos.coords.latitude;curLng=pos.coords.longitude;
+    setGPSTxt(`${curLat.toFixed(4)}°N  ${curLng.toFixed(4)}°E`);
+    if(lmap) lmap.setView([curLat,curLng],10);
+    renderNearby();
+  },()=>setGPSTxt('位置情報を許可してください'),{enableHighAccuracy:true,timeout:10000});
 }
+function setGPSTxt(t){const el=document.getElementById('pin-txt');if(el) el.textContent=t}
 
-function selectSpot(id) {
-  // 前の選択解除
-  if (selectedSpotId && leafletMarkers[selectedSpotId]) {
-    const prev = spots.find(s => s.id === selectedSpotId);
-    if (prev) leafletMarkers[selectedSpotId].setIcon(makeMarkerIcon(prev, false));
-  }
-  selectedSpotId = id;
-  const spot = spots.find(s => s.id === id);
-  if (!spot) return;
-
-  // 新マーカー選択
-  leafletMarkers[id].setIcon(makeMarkerIcon(spot, true));
-
-  // 地図移動
-  leafletMap.flyTo([spot.lat - 0.003, spot.lng], 14, { duration: 0.5 });
-
-  // 近くのパネル非表示
-  document.getElementById('nearby-panel').classList.add('hidden');
-
-  // 詳細カード表示
-  openDetailCard(spot);
-}
-
-function closeDetailCard() {
-  document.getElementById('detail-card').classList.remove('open');
-  document.getElementById('nearby-panel').classList.remove('hidden');
-  if (selectedSpotId && leafletMarkers[selectedSpotId]) {
-    const prev = spots.find(s => s.id === selectedSpotId);
-    if (prev) leafletMarkers[selectedSpotId].setIcon(makeMarkerIcon(prev, false));
-  }
-  selectedSpotId = null;
-}
-
-function openDetailCard(spot) {
-  const badges  = document.getElementById('detail-badges');
-  const title   = document.getElementById('detail-title');
-  const info    = document.getElementById('detail-info');
-  const routeBtn= document.getElementById('route-btn');
-
-  badges.innerHTML = `
-    <span class="type-badge" style="background:${spot.typeColor}">${spot.type}</span>
-    ${spot.isUserPost ? `<span class="type-badge" style="background:${C.goldMuted};border:1px solid ${C.goldDark};color:${C.goldLight}">自分の投稿</span>` : ''}
-  `;
-  title.textContent = spot.name;
-
-  info.innerHTML = `
-    <div class="info-item"><span class="info-icon">💰</span><div><div class="info-label">価格</div><div class="info-value mono">¥${spot.price} / 束</div></div></div>
-    <div class="info-item"><span class="info-icon">🌲</span><div><div class="info-label">薪の種類</div><div class="info-value">${spot.wood}</div></div></div>
-    <div class="info-item"><span class="info-icon">🌡</span><div><div class="info-label">乾燥具合</div><div class="info-value">${spot.dry}</div></div></div>
-    <div class="info-item"><span class="info-icon">📝</span><div><div class="info-label">メモ</div><div class="info-value">${spot.note}</div></div></div>
-  `;
-
-  routeBtn.onclick = () => {
-    const url = `https://maps.google.com/maps?daddr=${spot.lat},${spot.lng}`;
-    window.open(url, '_blank');
-  };
-
-  document.getElementById('detail-card').classList.add('open');
-}
-
-/* ══════════════════════════════
-   NEARBY CARDS
-══════════════════════════════ */
-function renderNearbyCards() {
-  const container = document.getElementById('nearby-scroll');
-  container.innerHTML = spots.map(spot => `
-    <div class="nearby-card" data-id="${spot.id}" style="${spot.isUserPost?'border-color:'+C.oliveLight:''}">
-      <div class="nearby-card-accent" style="background:${spot.typeColor}"></div>
-      <div class="nearby-card-body">
-        <span class="type-badge" style="background:${spot.typeColor}">${spot.type}</span>
-        <div class="nearby-card-name">${spot.name}</div>
-        <div class="nearby-card-price">¥${spot.price}<span class="nearby-card-unit">/束</span></div>
-        <div class="nearby-card-wood">${spot.wood}</div>
-      </div>
-    </div>
-  `).join('');
-
-  container.querySelectorAll('.nearby-card').forEach(card => {
-    card.addEventListener('click', () => selectSpot(card.dataset.id));
-  });
-}
-
-/* ══════════════════════════════
-   GPS GEOLOCATION
-══════════════════════════════ */
-function initGPS() {
-  updateGPSText('GPS 取得中...');
-  if (!navigator.geolocation) {
-    updateGPSText(`35.360°N  138.730°E  (デフォルト)`);
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      currentLat = pos.coords.latitude;
-      currentLng = pos.coords.longitude;
-      updateGPSText(`${currentLat.toFixed(4)}°N  ${currentLng.toFixed(4)}°E`);
-      if (leafletMap) leafletMap.setView([currentLat, currentLng], 13);
-    },
-    () => {
-      updateGPSText(`35.360°N  138.730°E  (許可されていません)`);
-    },
-    { enableHighAccuracy: true, timeout: 8000 }
-  );
-}
-
-function updateGPSText(text) {
-  const el = document.getElementById('gps-coord-text');
-  if (el) el.textContent = text;
-}
-
-document.getElementById('gps-btn').addEventListener('click', () => {
-  if (!navigator.geolocation) return;
-  document.getElementById('gps-btn').textContent = '⏳';
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      currentLat = pos.coords.latitude;
-      currentLng = pos.coords.longitude;
-      leafletMap.flyTo([currentLat, currentLng], 14, { duration: 0.6 });
-      document.getElementById('gps-btn').textContent = '📡';
-      updateGPSText(`${currentLat.toFixed(4)}°N  ${currentLng.toFixed(4)}°E`);
-    },
-    () => { document.getElementById('gps-btn').textContent = '📡'; },
-    { enableHighAccuracy: true, timeout: 8000 }
-  );
+document.getElementById('gps-btn').addEventListener('click',()=>{
+  if(!navigator.geolocation) return;
+  document.getElementById('gps-btn').textContent='⏳';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    curLat=pos.coords.latitude;curLng=pos.coords.longitude;
+    lmap.flyTo([curLat,curLng],13,{duration:0.6});
+    document.getElementById('gps-btn').textContent='📡';
+    renderNearby();
+  },()=>{document.getElementById('gps-btn').textContent='📡'},{enableHighAccuracy:true,timeout:8000});
 });
 
-/* ══════════════════════════════
-   TAB NAVIGATION
-══════════════════════════════ */
-function switchTab(tab) {
-  activeTab = tab;
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-
-  document.getElementById(`${tab}-screen`).classList.add('active');
-  document.querySelector(`.tab-item[data-tab="${tab}"]`).classList.add('active');
-
-  // レスキュータブを見たらバッジを消す
-  if (tab === 'rescue') {
-    document.getElementById('rescue-badge').style.display = 'none';
-    renderBoardPosts();
-  }
-  // マップタブに戻ったら地図をリサイズ
-  if (tab === 'map' && leafletMap) {
-    setTimeout(() => leafletMap.invalidateSize(), 50);
-  }
-}
-
-document.querySelectorAll('.tab-item').forEach(btn => {
-  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-});
-
-document.getElementById('detail-close').addEventListener('click', closeDetailCard);
-
-/* ══════════════════════════════
-   POST FORM (薪スポット投稿)
-══════════════════════════════ */
-function buildPostForm() {
-  // スポット種別
-  const typeContainer = document.getElementById('type-select');
-  SPOT_TYPES.forEach(t => {
-    const btn = document.createElement('button');
-    btn.className = 'select-btn' + (t.key === selectedSpotType ? ' active' : '');
-    if (t.key === selectedSpotType) btn.style.cssText = `background:${t.color};border-color:${t.color};color:#fff`;
-    btn.textContent = t.key;
-    btn.addEventListener('click', () => {
-      selectedSpotType = t.key;
-      typeContainer.querySelectorAll('.select-btn').forEach(b => {
-        b.className = 'select-btn'; b.removeAttribute('style');
-      });
-      btn.className = 'select-btn active';
-      btn.style.cssText = `background:${t.color};border-color:${t.color};color:#fff`;
-    });
-    typeContainer.appendChild(btn);
-  });
-
-  // 薪の種類
-  const woodContainer = document.getElementById('wood-select');
-  WOOD_TYPES.forEach(w => {
-    const btn = document.createElement('button');
-    btn.className = 'select-btn' + (w === selectedWoodType ? ' active' : '');
-    if (w === selectedWoodType) btn.style.cssText = `background:${C.olive};border-color:${C.olive};color:#fff`;
-    btn.textContent = w;
-    btn.addEventListener('click', () => {
-      selectedWoodType = w;
-      woodContainer.querySelectorAll('.select-btn').forEach(b => {
-        b.className = 'select-btn'; b.removeAttribute('style');
-      });
-      btn.className = 'select-btn active';
-      btn.style.cssText = `background:${C.olive};border-color:${C.olive};color:#fff`;
-    });
-    woodContainer.appendChild(btn);
-  });
-
-  // 乾燥具合
-  const dryContainer = document.getElementById('dry-select');
-  DRY_LEVELS.forEach(d => {
-    const btn = document.createElement('button');
-    btn.className = 'dry-btn' + (d.label === selectedDryLevel ? ' active' : '');
-    btn.innerHTML = `<span class="dry-btn-label">${d.label}</span><span class="dry-btn-stars">${d.stars}</span>`;
-    btn.addEventListener('click', () => {
-      selectedDryLevel = d.label;
-      dryContainer.querySelectorAll('.dry-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-    dryContainer.appendChild(btn);
-  });
-}
-
-document.getElementById('post-submit-btn').addEventListener('click', () => {
-  const name  = document.getElementById('shop-name').value.trim();
-  const price = document.getElementById('price-input').value.trim();
-  const note  = document.getElementById('post-note').value.trim();
-
-  if (!name)  { alert('店舗名を入力してください 🪵'); return; }
-  if (!price) { alert('価格を入力してください 💰');   return; }
-
-  const typeInfo = SPOT_TYPES.find(t => t.key === selectedSpotType);
-  const dryInfo  = DRY_LEVELS.find(d => d.label === selectedDryLevel);
-
-  const newSpot = {
-    id: `user_${Date.now()}`,
-    name, type: selectedSpotType,
-    typeColor: typeInfo?.color ?? C.olive,
-    price, wood: selectedWoodType,
-    dry: `${selectedDryLevel} ${dryInfo?.stars ?? '★★★☆☆'}`,
-    lat: currentLat + (Math.random() - 0.5) * 0.008,
-    lng: currentLng + (Math.random() - 0.5) * 0.008,
-    note: note || '投稿された薪スポットです。',
-    isUserPost: true,
-  };
-
-  spots.push(newSpot);
-  renderMapMarkers();
-
-  // フォームリセット
-  document.getElementById('shop-name').value  = '';
-  document.getElementById('price-input').value = '';
-  document.getElementById('post-note').value   = '';
-
-  // 成功画面
-  const content = document.getElementById('post-content');
-  content.innerHTML = `
-    <div class="success-screen">
-      <span class="success-icon">🔥</span>
-      <span class="success-title">POSTED.</span>
-      <div class="success-divider"></div>
-      <span class="success-sub">地図にピンを追加しました</span>
-      <span class="success-hint">— MAP タブで確認できます —</span>
-    </div>`;
-
-  setTimeout(() => {
-    content.innerHTML = `
-      <div class="form-scroll" id="post-form-scroll">
-        ${content.innerHTML === '' ? '' : ''}
+// ── SEARCH (Nominatim) ──
+let searchTimer=null;
+const sInp=document.getElementById('s-inp');
+const sRes=document.getElementById('s-res');
+document.getElementById('s-btn').addEventListener('click',doSearch);
+sInp.addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});
+sInp.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(doSearch,650)});
+async function doSearch(){
+  const q=sInp.value.trim();
+  if(!q){sRes.classList.remove('on');return}
+  sRes.innerHTML=`<div class="s-item"><div class="s-item-name">検索中...</div></div>`;
+  sRes.classList.add('on');
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q+' 日本')}&limit=6&accept-language=ja&countrycodes=jp`,
+      {headers:{'Accept-Language':'ja'},signal:AbortSignal.timeout(8000)});
+    const data=await r.json();
+    if(!data.length){sRes.innerHTML=`<div class="s-item"><div class="s-item-name">見つかりませんでした</div></div>`;return}
+    sRes.innerHTML=data.map(item=>{
+      const name=item.namedetails?.name||item.display_name.split(',')[0];
+      return `<div class="s-item" data-lat="${item.lat}" data-lng="${item.lon}" data-name="${name.replace(/"/g,'')}">
+        <div class="s-item-name">${name}</div>
+        <div class="s-item-addr">${item.display_name}</div>
       </div>`;
-    // フォームを再構築
-    location.reload();  // 簡易リロードでフォームを再初期化
-  }, 2200);
-
-  setTimeout(() => switchTab('map'), 2300);
-});
-
-/* ══════════════════════════════
-   RESCUE BOARD
-══════════════════════════════ */
-function renderBoardPosts() {
-  const container = document.getElementById('board-list');
-  const filtered  = currentFilter === 'all'
-    ? boardPosts
-    : boardPosts.filter(p => p.kind === currentFilter);
-
-  const sectionLabel = currentFilter === 'all'    ? '// ALL TRANSMISSIONS'
-                     : currentFilter === 'rescue'  ? '// RESCUE CHANNEL'
-                     :                               '// GIVE CHANNEL';
-
-  container.innerHTML = `
-    <div class="board-section-header">
-      <div class="board-section-line"></div>
-      <span class="board-section-text">${sectionLabel}</span>
-      <div class="board-section-line"></div>
-    </div>
-    ${filtered.length === 0 ? `
-      <div class="empty-board">
-        <span class="empty-board-icon">📭</span>
-        <span class="empty-board-text">投稿がありません</span>
-      </div>` : filtered.map((post, i) => {
-      const k = POST_KINDS[post.kind];
-      return `
-        <div class="board-card" style="border-left-color:${k.color};animation-delay:${i*70}ms">
-          <div class="board-card-header">
-            <div class="board-author-row">
-              <div class="board-avatar" style="background:${k.muted};border-color:${k.border}">
-                <span>${post.avatar}</span>
-              </div>
-              <div>
-                <div class="board-author">${post.author}</div>
-                <div class="board-time">${post.time}</div>
-              </div>
-            </div>
-            <div class="kind-badge" style="background:${k.muted};border-color:${k.border}">
-              <span class="kind-badge-icon">${k.icon}</span>
-              <span class="kind-badge-text" style="color:${k.color}">${k.badge}</span>
-            </div>
-          </div>
-          <div class="board-title">${post.title}</div>
-          <div class="board-body">${post.body}</div>
-          <div class="board-card-footer">
-            <div class="board-location">
-              <span class="board-location-icon">📍</span>
-              <span class="board-location-text">${post.location}</span>
-            </div>
-            <button class="reply-btn"
-              style="border-color:${k.border};background:${k.muted};color:${k.color}"
-              data-postid="${post.id}">
-              ↩ 返信${post.replies > 0 ? ` (${post.replies})` : ''}
-            </button>
-          </div>
-        </div>`;
-    }).join('')}
-  `;
-
-  // 返信ボタン
-  container.querySelectorAll('.reply-btn').forEach(btn => {
-    btn.addEventListener('click', () => openReplyModal(btn.dataset.postid));
-  });
-
-  updateFilterCounts();
-}
-
-function updateFilterCounts() {
-  document.getElementById('fc-all').textContent    = boardPosts.length;
-  document.getElementById('fc-rescue').textContent = boardPosts.filter(p => p.kind === 'rescue').length;
-  document.getElementById('fc-give').textContent   = boardPosts.filter(p => p.kind === 'give').length;
-}
-
-// フィルター
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter;
-    renderBoardPosts();
-  });
-});
-
-/* ══════════════════════════════
-   REPLY MODAL
-══════════════════════════════ */
-function openReplyModal(postId) {
-  replyTarget = boardPosts.find(p => p.id === postId);
-  if (!replyTarget) return;
-  const k = POST_KINDS[replyTarget.kind];
-
-  document.getElementById('reply-kind-badge').innerHTML = `
-    <div class="kind-badge" style="background:${k.muted};border-color:${k.border};display:inline-flex">
-      <span class="kind-badge-icon">${k.icon}</span>
-      <span class="kind-badge-text" style="color:${k.color}">${k.badge}</span>
-    </div>`;
-  document.getElementById('reply-title').textContent = replyTarget.title;
-  document.getElementById('reply-original').innerHTML = `
-    <span class="reply-original-avatar">${replyTarget.avatar}</span>
-    <div>
-      <div class="reply-original-author">${replyTarget.author}</div>
-      <div class="reply-original-body">${replyTarget.body}</div>
-    </div>`;
-  document.getElementById('reply-send').style.background = k.color;
-  document.getElementById('reply-textarea').value = '';
-
-  openModal('reply-modal');
-}
-
-document.getElementById('reply-cancel').addEventListener('click', () => closeModal('reply-modal'));
-document.getElementById('reply-send').addEventListener('click', () => {
-  alert('返信しました！（UIデモ）');
-  if (replyTarget) {
-    const p = boardPosts.find(p => p.id === replyTarget.id);
-    if (p) p.replies++;
-    renderBoardPosts();
-  }
-  closeModal('reply-modal');
-});
-
-/* ══════════════════════════════
-   NEW BOARD POST MODAL
-══════════════════════════════ */
-document.getElementById('new-board-post-btn').addEventListener('click', () => {
-  document.getElementById('board-title-input').value = '';
-  document.getElementById('board-body-input').value  = '';
-  openModal('new-post-modal');
-});
-document.getElementById('new-post-cancel').addEventListener('click', () => closeModal('new-post-modal'));
-
-// 種別選択
-document.querySelectorAll('.kind-select-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    selectedPostKind = btn.dataset.kind;
-    document.querySelectorAll('.kind-select-btn').forEach(b => {
-      b.classList.remove('active');
-      b.style.cssText = '';
-    });
-    btn.classList.add('active');
-    const km = btn.style.getPropertyValue('--km') || (selectedPostKind === 'rescue' ? C.rescueMuted : C.giveMuted);
-    const kb = btn.style.getPropertyValue('--kb') || (selectedPostKind === 'rescue' ? C.rescueBorder : C.giveBorder);
-    const kc = selectedPostKind === 'rescue' ? C.rescue : C.give;
-    btn.style.cssText = `background:${kc}22;border-color:${kc}`;
-    // テキストカラー更新
-    btn.querySelector('.kind-select-label').style.color = kc;
-    btn.querySelector('.kind-select-desc').style.color   = kc;
-  });
-});
-
-document.getElementById('new-post-submit').addEventListener('click', () => {
-  const title = document.getElementById('board-title-input').value.trim();
-  const body  = document.getElementById('board-body-input').value.trim();
-  if (!title) { alert('タイトルを入力してください'); return; }
-
-  const newPost = {
-    id:      `board_${Date.now()}`,
-    kind:    selectedPostKind,
-    author:  'あなた',
-    avatar:  '👤',
-    title,
-    body:    body || '詳細は返信でご連絡ください。',
-    time:    'たった今',
-    replies: 0,
-    location:'現在地付近',
-  };
-
-  boardPosts.unshift(newPost);
-  closeModal('new-post-modal');
-  renderBoardPosts();
-  updateFilterCounts();
-});
-
-/* ══════════════════════════════
-   PIN PICKER MODAL
-══════════════════════════════ */
-let pinPickerMap = null;
-let pickedLat    = null;
-let pickedLng    = null;
-
-document.getElementById('open-pin-picker').addEventListener('click', openPinPicker);
-document.getElementById('open-pin-picker').addEventListener('touchend', (e) => {
-  e.preventDefault(); openPinPicker();
-}, { passive: false });
-
-function openPinPicker() {
-  openModal('pin-picker-modal');
-  // 初回のみ Leaflet map を生成
-  setTimeout(() => {
-    if (!pinPickerMap) {
-      pinPickerMap = L.map('pin-picker-map', {
-        center: [currentLat, currentLng],
-        zoom: 14,
-        zoomControl: true,
-        attributionControl: false,
+    }).join('');
+    sRes.querySelectorAll('.s-item').forEach(el=>{
+      el.addEventListener('click',()=>{
+        const lat=parseFloat(el.dataset.lat),lng=parseFloat(el.dataset.lng),name=el.dataset.name;
+        lmap.flyTo([lat,lng],15,{duration:0.6});
+        curLat=lat;curLng=lng;
+        sInp.value=name;
+        sRes.classList.remove('on');
+        // 投稿フォームへ自動引き継ぎ
+        document.getElementById('f-name').value=name;
+        pickedLat=lat;pickedLng=lng;
+        document.getElementById('pin-txt').textContent=`${lat.toFixed(5)}°N  ${lng.toFixed(5)}°E  ✅`;
+        renderNearby();
       });
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-      }).addTo(pinPickerMap);
-    } else {
-      pinPickerMap.setView([currentLat, currentLng], 14);
-    }
-    pinPickerMap.invalidateSize();
-    updatePinPickerCoord();
-
-    // 地図が動くたびに中心座標を更新
-    pinPickerMap.on('move', updatePinPickerCoord);
-    pinPickerMap.on('moveend', updatePinPickerCoord);
-  }, 160);
-}
-
-function updatePinPickerCoord() {
-  if (!pinPickerMap) return;
-  const c = pinPickerMap.getCenter();
-  pickedLat = c.lat;
-  pickedLng = c.lng;
-  const el = document.getElementById('pin-picker-coord');
-  if (el) el.textContent = `${c.lat.toFixed(5)}°N  ${c.lng.toFixed(5)}°E`;
-}
-
-document.getElementById('pin-picker-cancel').addEventListener('click', () => {
-  closeModal('pin-picker-modal');
-});
-
-document.getElementById('pin-picker-confirm').addEventListener('click', () => {
-  if (pickedLat !== null && pickedLng !== null) {
-    currentLat = pickedLat;
-    currentLng = pickedLng;
-    const coordText = document.getElementById('gps-coord-text');
-    if (coordText) coordText.textContent = `${pickedLat.toFixed(5)}°N  ${pickedLng.toFixed(5)}°E  ✅`;
-  }
-  closeModal('pin-picker-modal');
-});
-
-/* ══════════════════════════════
-   MY PAGE
-══════════════════════════════ */
-let profileData = {
-  nickname: '', campHistory: '', woodPref: '', bio: '', avatarUrl: null,
-};
-
-function loadProfile() {
-  try {
-    const saved = localStorage.getItem('maki_profile');
-    if (saved) profileData = { ...profileData, ...JSON.parse(saved) };
-  } catch(e) {}
-
-  const nn = document.getElementById('profile-nickname');
-  const wp = document.getElementById('profile-wood-pref');
-  const bi = document.getElementById('profile-bio');
-  if (nn) nn.value = profileData.nickname || '';
-  if (wp) wp.value = profileData.woodPref || '';
-  if (bi) bi.value = profileData.bio || '';
-
-  // キャンプ歴ボタン
-  if (profileData.campHistory) {
-    document.querySelectorAll('.camp-history-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.val === profileData.campHistory);
     });
+  }catch{
+    sRes.innerHTML=`<div class="s-item"><div class="s-item-name">検索に失敗しました</div></div>`;
   }
+}
+document.addEventListener('click',e=>{if(!e.target.closest('#search-bar')) sRes.classList.remove('on')});
 
-  // アバター
-  if (profileData.avatarUrl) showAvatar(profileData.avatarUrl);
+// ── TAB NAV ──
+function goTab(t){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+  document.getElementById(`${t}-screen`).classList.add('on');
+  document.querySelector(`.tb[data-t="${t}"]`).classList.add('on');
+  if(t==='rescue'){document.getElementById('rescue-dot').classList.remove('on');renderBoard()}
+  if(t==='mypage'){syncProfileUI();updateStats()}
+  if(t==='map'&&lmap) setTimeout(()=>{lmap.invalidateSize();positionNearby()},60);
+}
+document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>goTab(b.dataset.t)));
+document.getElementById('d-close').addEventListener('click',closeDetail);
+document.getElementById('nav-cancel').addEventListener('click',()=>closeOverlay('nav-modal'));
 
+// ── POST FORM ──
+function buildPostForm(){
+  // type pills
+  const tg=document.getElementById('type-grp');
+  tg.innerHTML='';
+  SPOT_TYPES.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='pill'+(t.key===selType?' on':'');
+    b.textContent=t.key;
+    if(t.key===selType) b.style.cssText=`background:${t.color};border-color:${t.color};color:#fff`;
+    b.addEventListener('click',()=>{
+      selType=t.key;
+      tg.querySelectorAll('.pill').forEach(x=>{x.classList.remove('on');x.removeAttribute('style')});
+      b.classList.add('on');b.style.cssText=`background:${t.color};border-color:${t.color};color:#fff`;
+    });
+    tg.appendChild(b);
+  });
+  // wood pills
+  const wg=document.getElementById('wood-grp');wg.innerHTML='';
+  WOOD_TYPES.forEach(w=>{
+    const b=document.createElement('button');
+    b.className='pill'+(w===selWood?' on':'');
+    if(w===selWood) b.style.cssText=`background:var(--olive);border-color:var(--ol-l);color:#fff`;
+    b.textContent=w;
+    b.addEventListener('click',()=>{
+      selWood=w;
+      wg.querySelectorAll('.pill').forEach(x=>{x.classList.remove('on');x.removeAttribute('style')});
+      b.classList.add('on');b.style.cssText=`background:var(--olive);border-color:var(--ol-l);color:#fff`;
+    });
+    wg.appendChild(b);
+  });
+  // dry
+  const dg=document.getElementById('dry-grp');dg.innerHTML='';
+  DRY_LEVELS.forEach(d=>{
+    const b=document.createElement('button');
+    b.className='dry-btn'+(d.label===selDry?' on':'');
+    b.innerHTML=`<span class="dry-lbl">${d.label}</span><span class="dry-stars">${d.stars}</span>`;
+    b.addEventListener('click',()=>{
+      selDry=d.label;
+      dg.querySelectorAll('.dry-btn').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+    });
+    dg.appendChild(b);
+  });
+  // facilities
+  const fg=document.getElementById('fac-grp');fg.innerHTML='';
+  FACS.forEach(f=>{
+    const div=document.createElement('div');div.className='chk';
+    div.innerHTML=`<div class="chk-box"></div><span class="chk-txt">${f.label}</span>`;
+    div.addEventListener('click',()=>{
+      if(selFacs.has(f.k)){selFacs.delete(f.k);div.classList.remove('on');div.querySelector('.chk-box').textContent=''}
+      else{selFacs.add(f.k);div.classList.add('on');div.querySelector('.chk-box').textContent='✓'}
+    });
+    fg.appendChild(div);
+  });
+}
+
+// cospa live calc
+function calcCospa(){
+  const p=parseFloat(document.getElementById('f-price').value);
+  const w=parseFloat(document.getElementById('f-weight').value);
+  const pill=document.getElementById('cospa-pill');
+  if(p>0&&w>0){
+    pill.style.display='inline-flex';
+    document.getElementById('cospa-val').textContent=`¥${Math.round(p/w).toLocaleString()} / kg`;
+  }else pill.style.display='none';
+}
+['f-price','f-weight'].forEach(id=>{
+  // attach after DOM ready
+  document.getElementById(id)?.addEventListener('input',calcCospa);
+});
+
+// photo
+const photoDropEl=document.getElementById('photo-drop');
+const photoFileEl=document.getElementById('photo-file');
+photoDropEl.addEventListener('click',()=>photoFileEl.click());
+photoDropEl.addEventListener('dragover',e=>{e.preventDefault();photoDropEl.classList.add('drag')});
+photoDropEl.addEventListener('dragleave',()=>photoDropEl.classList.remove('drag'));
+photoDropEl.addEventListener('drop',e=>{e.preventDefault();photoDropEl.classList.remove('drag');const f=e.dataTransfer.files[0];if(f) readPhoto(f)});
+photoFileEl.addEventListener('change',e=>{const f=e.target.files[0];if(f) readPhoto(f)});
+function readPhoto(f){
+  const r=new FileReader();
+  r.onload=ev=>{photoB64=ev.target.result;const p=document.getElementById('photo-prev');p.src=photoB64;p.classList.add('on')};
+  r.readAsDataURL(f);
+}
+
+// submit
+document.getElementById('post-btn').addEventListener('click',()=>{
+  const name=document.getElementById('f-name').value.trim();
+  const price=document.getElementById('f-price').value.trim();
+  if(!name){showSnack('施設名を入力してください');return}
+  if(!price){showSnack('価格を入力してください');return}
+  if(!pickedLat||!pickedLng){showSnack('地図で場所を指定してください');return}
+  const wt=parseFloat(document.getElementById('f-weight').value)||null;
+  const nick=prof.nickname||'匿名';
+  spots.push({
+    id:`u_${Date.now()}`,name,type:selType,wood:selWood,dry:selDry,
+    price,weight:wt,lat:pickedLat,lng:pickedLng,
+    note:document.getElementById('f-note').value.trim(),
+    facs:[...selFacs],photo:photoB64||null,
+    isUserPost:true,isSample:false,soldOut:false,
+    postedAt:new Date().toISOString(),postedBy:nick,
+  });
+  save(SK.S,spots);
+  renderMarkers();
+  // reset form
+  ['f-name','f-price','f-weight','f-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  document.getElementById('photo-prev').classList.remove('on');
+  document.getElementById('cospa-pill').style.display='none';
+  photoB64=null;pickedLat=null;pickedLng=null;selFacs.clear();
+  document.querySelectorAll('.chk').forEach(c=>{c.classList.remove('on');c.querySelector('.chk-box').textContent=''});
+  document.getElementById('pin-txt').textContent='タップして地図でピンを立てる';
+  // success UI
+  const inner=document.getElementById('post-inner');
+  inner.innerHTML=`<div class="ok-screen"><span class="ok-ico">🔥</span><span class="ok-ttl">POSTED.</span><div class="ok-div"></div><span class="ok-sub">地図にピンを追加しました</span><span class="ok-hint">— マップ タブで確認できます —</span></div>`;
+  setTimeout(()=>goTab('map'),2000);
+  setTimeout(()=>{
+    inner.innerHTML=`<div class="scroller"><div class="pad"><div class="f-sec"><div class="f-sec-txt">// 薪スポットを登録する</div></div><div class="f-block"><div class="f-lbl">📍 スポット種別</div><div class="pill-row" id="type-grp"></div></div><div class="f-block"><div class="f-lbl">🗺 場所 <span class="req">*</span></div><button id="pin-open" style="width:100%;display:flex;align-items:center;gap:9px;background:var(--surf2);border-radius:8px;border:1px solid var(--bd);padding:11px 13px;text-align:left;cursor:pointer;touch-action:manipulation"><span style="font-size:15px;flex-shrink:0">📍</span><span style="font-family:var(--mono);font-size:11px;color:var(--tx-m);letter-spacing:.5px;flex:1" id="pin-txt">タップして地図でピンを立てる</span><span style="font-family:var(--mono);font-size:10px;color:var(--gold)">指定 ›</span></button></div><div class="f-block"><div class="f-lbl">🏪 施設名 <span class="req">*</span></div><input id="f-name" class="f-input" type="text" placeholder="例: カインズ 富士吉田店"/></div><div class="f-block"><div class="f-lbl">💰 価格 (円/束) <span class="req">*</span></div><div class="price-row"><input id="f-price" class="f-input" type="number" inputmode="numeric" placeholder="500"/><div class="price-unit">円/束</div></div></div><div class="f-block"><div class="f-lbl">⚖️ 重量 (kg/束) <span style="color:var(--tx-m);font-size:9px;font-weight:400">— コスパ自動計算</span></div><input id="f-weight" class="f-input" type="number" inputmode="decimal" step="0.1" placeholder="例: 5"/><div id="cospa-pill" class="cospa-pill" style="display:none"><span class="cospa-lbl">1KG あたり</span><span class="cospa-val" id="cospa-val">—</span></div></div><div class="f-block"><div class="f-lbl">🌲 薪の種類</div><div class="pill-row" id="wood-grp"></div></div><div class="f-block"><div class="f-lbl">🌡 乾燥具合</div><div class="dry-row" id="dry-grp"></div></div><div class="f-block"><div class="f-lbl">🔧 設備・ルール</div><div class="chk-grid" id="fac-grp"></div></div><div class="f-block"><div class="f-lbl">📷 写真 (任意)</div><div class="photo-drop" id="photo-drop"><div class="photo-drop-txt">📷 タップまたはドラッグ&ドロップ</div></div><img id="photo-prev" class="photo-prev" src="" alt="プレビュー"/><input type="file" id="photo-file" accept="image/*" style="display:none"/></div><div class="f-block"><div class="f-lbl">📝 メモ (任意)</div><textarea id="f-note" class="f-input" style="min-height:70px" placeholder="営業時間・支払い方法・駐車場など"></textarea></div><button class="submit-btn" id="post-btn">🪵  場所を登録する</button><div style="height:28px"></div></div></div>`;
+    rebindPostForm();
+  },2200);
+});
+
+function rebindPostForm(){
+  buildPostForm();
+  ['f-price','f-weight'].forEach(id=>{document.getElementById(id)?.addEventListener('input',calcCospa)});
+  const pd=document.getElementById('photo-drop'),pf=document.getElementById('photo-file');
+  if(pd&&pf){
+    pd.addEventListener('click',()=>pf.click());
+    pd.addEventListener('dragover',e=>{e.preventDefault();pd.classList.add('drag')});
+    pd.addEventListener('dragleave',()=>pd.classList.remove('drag'));
+    pd.addEventListener('drop',e=>{e.preventDefault();pd.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)readPhoto(f)});
+    pf.addEventListener('change',e=>{const f=e.target.files[0];if(f)readPhoto(f)});
+  }
+  document.getElementById('pin-open')?.addEventListener('click',openPinPicker);
+  document.getElementById('post-btn')?.addEventListener('click',arguments.callee);
+  // rebind post-btn properly
+  document.getElementById('post-btn')?.addEventListener('click',()=>document.getElementById('post-btn').click());
+}
+
+// ── PIN PICKER ──
+function openPinPicker(){
+  openOverlay('pin-modal');
+  setTimeout(()=>{
+    if(!ppInited){
+      ppMap=L.map('pp-map',{center:[curLat,curLng],zoom:13,zoomControl:true,attributionControl:false});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(ppMap);
+      ppInited=true;
+    }else ppMap.setView([curLat,curLng],13);
+    ppMap.invalidateSize();
+    updatePPCoord();
+    ppMap.off('move');ppMap.on('move',updatePPCoord);
+  },160);
+}
+function updatePPCoord(){
+  if(!ppMap) return;
+  const c=ppMap.getCenter();
+  pickedLat=c.lat;pickedLng=c.lng;
+  document.getElementById('pp-coord').textContent=`${c.lat.toFixed(5)}°N  ${c.lng.toFixed(5)}°E`;
+}
+document.getElementById('pin-open').addEventListener('click',openPinPicker);
+document.getElementById('pp-cancel').addEventListener('click',()=>closeOverlay('pin-modal'));
+document.getElementById('pp-confirm').addEventListener('click',()=>{
+  if(pickedLat!==null) document.getElementById('pin-txt').textContent=`${pickedLat.toFixed(5)}°N  ${pickedLng.toFixed(5)}°E  ✅`;
+  closeOverlay('pin-modal');
+});
+
+// ── RESCUE BOARD ──
+function renderBoard(){
+  const cont=document.getElementById('board');
+  const filt=curFilter==='all'?board:board.filter(p=>p.kind===curFilter);
+  const sect=curFilter==='all'?'// ALL TRANSMISSIONS':curFilter==='rescue'?'// RESCUE CHANNEL':'// GIVE CHANNEL';
+  document.getElementById('board-s-note').style.display=filt.some(p=>p.isSample)?'flex':'none';
+  cont.innerHTML=`<div class="b-sect"><div class="b-sect-line"></div><span class="b-sect-txt">${sect}</span><div class="b-sect-line"></div></div>`+
+    (!filt.length?`<div class="empty"><span class="empty-ico">📭</span><span class="empty-txt">投稿がありません</span></div>`:
+    filt.map((p,i)=>{
+      const k=KINDS[p.kind];
+      const frsh=p.postedAt?freshness(p.postedAt):'';
+      const old=p.postedAt?freshOld(p.postedAt):false;
+      const canDel=prof.nickname&&p.author===prof.nickname;
+      return `<div class="bc" style="border-left-color:${k.color};animation-delay:${i*55}ms">
+        <div class="bc-hdr">
+          <div class="bc-av-row">
+            <div class="bc-av" style="background:${k.muted};border-color:${k.border}">${p.av||'👤'}</div>
+            <div>
+              <div class="bc-author">${p.author}</div>
+              <div class="bc-time">${frsh?`<span class="freshness${old?' old':''}">${frsh}</span>`:''}</div>
+            </div>
+          </div>
+          <div class="k-badge" style="background:${k.muted};border-color:${k.border}">
+            <span class="k-badge-ico">${k.icon}</span>
+            <span class="k-badge-txt" style="color:${k.color}">${k.badge}</span>
+          </div>
+        </div>
+        <div class="bc-title">${p.title}</div>
+        <div class="bc-body">${p.body}</div>
+        <div class="bc-foot">
+          <div class="bc-loc"><span class="bc-loc-ico">📍</span><span class="bc-loc-txt">${p.loc||''}</span></div>
+          <div class="bc-foot-r">
+            ${canDel?`<button class="del-btn" data-id="${p.id}">🗑</button>`:''}
+            <button class="reply-btn" style="border-color:${k.border};background:${k.muted};color:${k.color}" data-id="${p.id}">↩ 返信${p.replies>0?` (${p.replies})`:''}</button>
+          </div>
+        </div>
+      </div>`;
+    }).join(''));
+  cont.querySelectorAll('.reply-btn').forEach(b=>b.addEventListener('click',()=>openReplyModal(b.dataset.id)));
+  cont.querySelectorAll('.del-btn').forEach(b=>b.addEventListener('click',()=>{
+    if(!confirm('この投稿を削除しますか？')) return;
+    board=board.filter(p=>p.id!==b.dataset.id);save(SK.B,board);renderBoard();updFC();
+  }));
+  updFC();
+}
+function updFC(){
+  document.getElementById('fc-all').textContent=board.length;
+  document.getElementById('fc-sos').textContent=board.filter(p=>p.kind==='rescue').length;
+  document.getElementById('fc-give').textContent=board.filter(p=>p.kind==='give').length;
+}
+// filter buttons — style active
+function styleFilter(){
+  document.querySelectorAll('.f-btn').forEach(b=>{
+    const ac=b.dataset.f===curFilter;
+    b.classList.toggle('on',ac);
+    const clr=b.style.getPropertyValue('--ac');
+    b.querySelector('.f-btn-txt').style.color=ac?`var(--ac)`:'';
+    b.querySelector('.f-count').style.cssText=ac?`background:${clr};color:#fff`:'';
+    b.style.borderBottomColor=ac?`var(--ac)`:'transparent';
+  });
+}
+document.querySelectorAll('.f-btn').forEach(b=>b.addEventListener('click',()=>{
+  curFilter=b.dataset.f;styleFilter();renderBoard();
+}));
+
+// reply modal
+function openReplyModal(id){
+  const p=board.find(x=>x.id===id);if(!p) return;
+  const k=KINDS[p.kind];
+  document.getElementById('reply-badge').innerHTML=`<div class="k-badge" style="background:${k.muted};border-color:${k.border};display:inline-flex"><span class="k-badge-ico">${k.icon}</span><span class="k-badge-txt" style="color:${k.color}">${k.badge}</span></div>`;
+  document.getElementById('reply-title').textContent=p.title;
+  document.getElementById('reply-orig').innerHTML=`<span class="reply-orig-av">${p.av||'👤'}</span><div><div class="reply-orig-author">${p.author}</div><div class="reply-orig-body">${p.body}</div></div>`;
+  document.getElementById('reply-send').style.background=k.color;
+  document.getElementById('reply-send').dataset.id=id;
+  document.getElementById('reply-inp').value='';
+  openOverlay('reply-modal');
+}
+document.getElementById('reply-cancel').addEventListener('click',()=>closeOverlay('reply-modal'));
+document.getElementById('reply-send').addEventListener('click',()=>{
+  const id=document.getElementById('reply-send').dataset.id;
+  const p=board.find(x=>x.id===id);
+  if(p){p.replies=(p.replies||0)+1;save(SK.B,board);renderBoard()}
+  closeOverlay('reply-modal');
+});
+
+// new board post
+let newKind='rescue';
+document.getElementById('new-post-btn').addEventListener('click',()=>{
+  document.getElementById('b-title').value='';
+  document.getElementById('b-body').value='';
+  newKind='rescue';
+  document.querySelectorAll('.k-sel-btn').forEach(b=>{b.classList.remove('on');b.style.cssText='';b.querySelectorAll('.k-sel-lbl,.k-sel-desc').forEach(x=>x.style.color='')});
+  const rb=document.querySelector('.k-sel-btn[data-k="rescue"]');
+  if(rb){rb.classList.add('on');rb.style.cssText=`background:${C.sos}22;border-color:${C.sos}`;rb.querySelector('.k-sel-lbl').style.color=C.sos}
+  openOverlay('new-post-modal');
+});
+document.querySelectorAll('.k-sel-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    newKind=b.dataset.k;
+    const kc=newKind==='rescue'?C.sos:C.give;
+    document.querySelectorAll('.k-sel-btn').forEach(x=>{x.classList.remove('on');x.style.cssText='';x.querySelector('.k-sel-lbl').style.color='';x.querySelector('.k-sel-desc').style.color=''});
+    b.classList.add('on');b.style.cssText=`background:${kc}22;border-color:${kc}`;
+    b.querySelector('.k-sel-lbl').style.color=kc;b.querySelector('.k-sel-desc').style.color=kc;
+  });
+});
+document.getElementById('b-cancel').addEventListener('click',()=>closeOverlay('new-post-modal'));
+document.getElementById('b-submit').addEventListener('click',()=>{
+  const title=document.getElementById('b-title').value.trim();
+  const body=document.getElementById('b-body').value.trim();
+  if(!title){showSnack('タイトルを入力してください');return}
+  board.unshift({
+    id:`b_${Date.now()}`,kind:newKind,
+    author:prof.nickname||'匿名',av:'👤',title,
+    body:body||'詳細は返信でご連絡ください。',
+    postedAt:Date.now(),replies:0,loc:'現在地付近',isSample:false,
+  });
+  save(SK.B,board);closeOverlay('new-post-modal');renderBoard();updFC();
+  document.getElementById('rescue-dot').classList.add('on');
+});
+
+// ── OVERLAY HELPERS ──
+function openOverlay(id){document.getElementById(id).classList.add('on')}
+function closeOverlay(id){document.getElementById(id).classList.remove('on')}
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o) o.classList.remove('on')});
+});
+
+// ── MY PAGE ──
+function syncProfileUI(){
+  document.getElementById('p-nick').value=prof.nickname||'';
+  document.getElementById('p-wood').value=prof.woodPref||'';
+  document.getElementById('p-bio').value=prof.bio||'';
+  document.querySelectorAll('.hist-btn').forEach(b=>b.classList.toggle('on',b.dataset.v===prof.campHistory));
+  if(prof.avatarUrl) showAvatar(prof.avatarUrl);
+}
+function updateStats(){
+  const nick=prof.nickname;
+  document.getElementById('st-spots').textContent=nick?spots.filter(s=>s.postedBy===nick).length:0;
+  document.getElementById('st-sos').textContent=nick?board.filter(p=>p.author===nick&&p.kind==='rescue').length:0;
+  document.getElementById('st-give').textContent=nick?board.filter(p=>p.author===nick&&p.kind==='give').length:0;
+}
+function showAvatar(url){
+  const area=document.getElementById('av-area'),ph=document.getElementById('av-ph');
+  let img=area.querySelector('img');
+  if(!img){img=document.createElement('img');area.appendChild(img)}
+  img.src=url;img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px';
+  if(ph) ph.style.display='none';
+}
+document.querySelectorAll('.hist-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.hist-btn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');prof.campHistory=b.dataset.v;
+}));
+document.getElementById('save-btn').addEventListener('click',()=>{
+  prof.nickname=document.getElementById('p-nick').value.trim();
+  prof.woodPref=document.getElementById('p-wood').value.trim();
+  prof.bio=document.getElementById('p-bio').value.trim();
+  save(SK.P,prof);
+  const t=document.getElementById('saved-toast');t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2400);
   updateStats();
+});
+// avatar
+const avArea=document.getElementById('av-area'),avFile=document.getElementById('av-file');
+function tapAvatar(e){if(e) e.preventDefault();avFile.click()}
+avArea.addEventListener('click',tapAvatar);
+avArea.addEventListener('touchend',tapAvatar,{passive:false});
+avFile.addEventListener('change',e=>{const f=e.target.files[0];if(f) readAvatar(f)});
+avArea.addEventListener('dragover',e=>{e.preventDefault();avArea.classList.add('drag')});
+avArea.addEventListener('dragleave',()=>avArea.classList.remove('drag'));
+avArea.addEventListener('drop',e=>{e.preventDefault();avArea.classList.remove('drag');const f=e.dataTransfer.files[0];if(f) readAvatar(f)});
+function readAvatar(f){
+  const r=new FileReader();
+  r.onload=ev=>{prof.avatarUrl=ev.target.result;showAvatar(prof.avatarUrl);try{save(SK.P,prof)}catch{}}
+  r.readAsDataURL(f);
 }
 
-function updateStats() {
-  const userPosts    = spots.filter(s => s.isUserPost).length;
-  const userRescues  = boardPosts.filter(p => p.author === 'あなた' && p.kind === 'rescue').length;
-  const userGives    = boardPosts.filter(p => p.author === 'あなた' && p.kind === 'give').length;
-  const statPosts    = document.getElementById('stat-posts');
-  const statRescues  = document.getElementById('stat-rescues');
-  const statGives    = document.getElementById('stat-gives');
-  if (statPosts)   statPosts.textContent   = userPosts;
-  if (statRescues) statRescues.textContent = userRescues;
-  if (statGives)   statGives.textContent   = userGives;
-}
+// ── SNACK ──
+function showSnack(msg){alert(msg)}
 
-// キャンプ歴ボタン
-document.querySelectorAll('.camp-history-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.camp-history-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    profileData.campHistory = btn.dataset.val;
+// ── PWA ──
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferInstall=e;
+  setTimeout(()=>document.getElementById('toast').classList.add('on'),5000);
+});
+(()=>{
+  const toast=document.getElementById('toast');
+  function hideToast(){toast.classList.remove('on');setTimeout(()=>toast.style.display='none',350)}
+  document.getElementById('toast-add').addEventListener('click',()=>{
+    if(!deferInstall) return;
+    deferInstall.prompt();deferInstall.userChoice.then(()=>{deferInstall=null;hideToast()});
   });
-});
-
-// プロフィール保存
-document.getElementById('profile-save-btn').addEventListener('click', () => {
-  profileData.nickname   = document.getElementById('profile-nickname').value.trim();
-  profileData.woodPref   = document.getElementById('profile-wood-pref').value.trim();
-  profileData.bio        = document.getElementById('profile-bio').value.trim();
-  try { localStorage.setItem('maki_profile', JSON.stringify(profileData)); } catch(e) {}
-  const toast = document.getElementById('profile-saved-toast');
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2400);
-});
-
-// アバター画像表示
-function showAvatar(dataUrl) {
-  const area = document.getElementById('avatar-drop-area');
-  const placeholder = document.getElementById('avatar-placeholder');
-  if (!area) return;
-  let img = area.querySelector('img');
-  if (!img) { img = document.createElement('img'); area.appendChild(img); }
-  img.src = dataUrl;
-  img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:14px;';
-  if (placeholder) placeholder.style.display = 'none';
-}
-
-// ファイル選択（タップ）
-const avatarDropArea  = document.getElementById('avatar-drop-area');
-const avatarFileInput = document.getElementById('avatar-file-input');
-
-avatarDropArea.addEventListener('click', () => avatarFileInput.click());
-avatarDropArea.addEventListener('touchend', (e) => { e.preventDefault(); avatarFileInput.click(); }, { passive: false });
-
-avatarFileInput.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file || !file.type.startsWith('image/')) return;
-  readImageFile(file);
-});
-
-// ドラッグ&ドロップ
-avatarDropArea.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  avatarDropArea.classList.add('drag-over');
-});
-avatarDropArea.addEventListener('dragleave', () => avatarDropArea.classList.remove('drag-over'));
-avatarDropArea.addEventListener('drop', (e) => {
-  e.preventDefault();
-  avatarDropArea.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (!file || !file.type.startsWith('image/')) return;
-  readImageFile(file);
-});
-
-function readImageFile(file) {
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const dataUrl = ev.target.result;
-    profileData.avatarUrl = dataUrl;
-    showAvatar(dataUrl);
-    try { localStorage.setItem('maki_profile', JSON.stringify(profileData)); } catch(e) {}
-  };
-  reader.readAsDataURL(file);
-}
-
-function openModal(id) {
-  const el = document.getElementById(id);
-  el.classList.add('open');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-// オーバーレイクリックで閉じる
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.classList.remove('open');
+  ['click','touchstart'].forEach(ev=>{
+    document.getElementById('toast-x').addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();hideToast()},{passive:false});
   });
-});
-
-/* ══════════════════════════════
-   PWA — Service Worker & Install
-══════════════════════════════ */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  });
-}
-
-// インストールプロンプト
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  setTimeout(() => {
-    document.getElementById('install-toast').classList.add('show');
-  }, 3000);
-});
-
-document.getElementById('install-btn').addEventListener('click', () => {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  deferredInstallPrompt.userChoice.then(() => {
-    deferredInstallPrompt = null;
-    hideToast();
-  });
-});
-
-function hideToast() {
-  const toast = document.getElementById('install-toast');
-  toast.classList.remove('show');
-  // 完全に非表示にして再表示しないようにする
-  setTimeout(() => { toast.style.display = 'none'; }, 350);
-}
-
-// click / touchstart 両方で確実に反応させる
-(function() {
-  const closeBtn = document.getElementById('install-close');
-  function onClose(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    hideToast();
-  }
-  closeBtn.addEventListener('click',      onClose, { passive: false });
-  closeBtn.addEventListener('touchstart', onClose, { passive: false });
+  window.addEventListener('appinstalled',hideToast);
 })();
 
-window.addEventListener('appinstalled', () => {
-  document.getElementById('install-toast').classList.remove('show');
-});
-
-/* ══════════════════════════════
-   INIT
-══════════════════════════════ */
-window.addEventListener('DOMContentLoaded', () => {
+// ── INIT ──
+window.addEventListener('DOMContentLoaded',()=>{
+  initData();
   initMap();
   initGPS();
   buildPostForm();
-  renderBoardPosts();
-  loadProfile();
+  // bind cospa after DOM
+  ['f-price','f-weight'].forEach(id=>{document.getElementById(id)?.addEventListener('input',calcCospa)});
+  renderBoard();
+  styleFilter();
+  syncProfileUI();
+  updateStats();
 });
 </script>
 </body>
