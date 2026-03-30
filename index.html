@@ -548,6 +548,14 @@ textarea.f-input{resize:none;line-height:1.5}
 .up-style-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
 .up-style-tag{background:var(--ol-m);border:1px solid var(--ol-l);border-radius:4px;
   padding:2px 8px;font-family:var(--mono);font-size:9px;color:var(--ol-l)}
+
+/* ── avatar action buttons ── */
+.av-actions{display:flex;gap:8px;margin-top:4px}
+.av-act-btn{border-radius:7px;padding:7px 14px;font-family:var(--mono);font-size:10px;
+  font-weight:700;letter-spacing:.5px;cursor:pointer;transition:opacity 140ms;touch-action:manipulation}
+.av-act-btn:active{opacity:.75}
+.av-act-change{background:var(--ol-m);border:1px solid var(--ol-l);color:var(--ol-l)}
+.av-act-delete{background:var(--sos-m);border:1px solid var(--sos-b);color:var(--sos)}
 </style>
 <body>
 <div id="root">
@@ -759,7 +767,10 @@ textarea.f-input{resize:none;line-height:1.5}
             <span class="av-ph-txt">画像をタップ</span>
           </div>
         </div>
-        <span class="av-hint">// ドラッグ＆ドロップまたはタップで変更</span>
+        <div class="av-actions" id="av-actions">
+          <button class="av-act-btn av-act-change" id="av-change-btn">📷 変更</button>
+          <button class="av-act-btn av-act-delete" id="av-delete-btn" style="display:none">🗑 削除</button>
+        </div>
         <input type="file" id="av-file" accept="image/*" style="display:none"/>
       </div>
 
@@ -1843,6 +1854,23 @@ function showAvatar(url){
   if(!img){img=document.createElement('img');area.appendChild(img)}
   img.src=url;img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px';
   if(ph) ph.style.display='none';
+  // 削除ボタンを表示
+  const delBtn=document.getElementById('av-delete-btn');
+  if(delBtn) delBtn.style.display='';
+}
+function deleteAvatar(){
+  if(!confirm('プロフィール画像を削除しますか？')) return;
+  prof.avatarUrl=null;
+  try{save(SK.P,prof)}catch{}
+  // 画像を削除してプレースホルダーを復元
+  const area=document.getElementById('av-area');
+  const img=area.querySelector('img');
+  if(img) img.remove();
+  const ph=document.getElementById('av-ph');
+  if(ph) ph.style.display='';
+  // 削除ボタンを非表示
+  const delBtn=document.getElementById('av-delete-btn');
+  if(delBtn) delBtn.style.display='none';
 }
 // キャンプ歴は単一選択
 document.querySelectorAll('#camp-hist-row .hist-btn').forEach(b=>b.addEventListener('click',()=>{
@@ -1865,8 +1893,16 @@ document.getElementById('save-btn').addEventListener('click',()=>{
 // avatar
 const avArea=document.getElementById('av-area'),avFile=document.getElementById('av-file');
 function tapAvatar(e){if(e) e.preventDefault();avFile.click()}
-avArea.addEventListener('click',tapAvatar);
-avArea.addEventListener('touchend',tapAvatar,{passive:false});
+// av-area 全体クリック（プレースホルダー表示中のみ）
+avArea.addEventListener('click',e=>{
+  // ボタン自体のクリックは無視（ボタン側で処理）
+  if(e.target.closest('.av-act-btn')) return;
+  tapAvatar(e);
+});
+avArea.addEventListener('touchend',e=>{
+  if(e.target.closest('.av-act-btn')) return;
+  tapAvatar(e);
+},{passive:false});
 avFile.addEventListener('change',e=>{const f=e.target.files[0];if(f) readAvatar(f)});
 avArea.addEventListener('dragover',e=>{e.preventDefault();avArea.classList.add('drag')});
 avArea.addEventListener('dragleave',()=>avArea.classList.remove('drag'));
@@ -2027,6 +2063,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   initNickPrompt();
   // ユーザープロフィールモーダルの閉じるボタン
   document.getElementById('up-close')?.addEventListener('click',()=>closeOverlay('user-profile-modal'));
+  // アバター変更・削除ボタン
+  document.getElementById('av-change-btn')?.addEventListener('click',e=>{e.stopPropagation();avFile.click()});
+  document.getElementById('av-delete-btn')?.addEventListener('click',e=>{e.stopPropagation();deleteAvatar()});
+  // 画像設定済みなら削除ボタンを表示
+  if(prof.avatarUrl) document.getElementById('av-delete-btn').style.display='';
 });
 </script>
 
