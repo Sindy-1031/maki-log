@@ -556,6 +556,188 @@ textarea.f-input{resize:none;line-height:1.5}
 .av-act-btn:active{opacity:.75}
 .av-act-change{background:var(--ol-m);border:1px solid var(--ol-l);color:var(--ol-l)}
 .av-act-delete{background:var(--sos-m);border:1px solid var(--sos-b);color:var(--sos)}
+
+/* ── 在庫投票 ── */
+.stock-vote{display:flex;gap:6px;margin:10px 0 12px}
+.sv-btn{flex:1;border-radius:8px;padding:8px 4px;border:1.5px solid var(--bd);
+  background:var(--surf2);display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;transition:all 140ms;touch-action:manipulation}
+.sv-btn:active{opacity:.75}
+.sv-btn.active-ok{border-color:#4A7A38;background:#182E10}
+.sv-btn.active-low{border-color:#C5A059;background:#3E3018}
+.sv-btn.active-out{border-color:#B84040;background:#3A1010}
+.sv-ico{font-size:18px}
+.sv-lbl{font-family:var(--mono);font-size:9px;color:var(--tx-s);letter-spacing:.5px}
+.sv-cnt{font-family:var(--mono);font-size:10px;font-weight:700}
+.sv-btn.active-ok .sv-cnt{color:#4A7A38}
+.sv-btn.active-low .sv-cnt{color:var(--gold)}
+.sv-btn.active-out .sv-cnt{color:var(--sos)}
+.sv-reset{font-family:var(--mono);font-size:9px;color:var(--tx-m);text-align:right;
+  margin-top:-8px;margin-bottom:10px;letter-spacing:.5px}
+
+/* ── 星評価 ── */
+.star-row{display:flex;align-items:center;gap:6px;margin:10px 0 12px}
+.star-lbl{font-family:var(--mono);font-size:9px;color:var(--tx-m);letter-spacing:.8px;width:60px;flex-shrink:0}
+.stars{display:flex;gap:3px}
+.star{font-size:18px;cursor:pointer;transition:transform 130ms;touch-action:manipulation;line-height:1}
+.star:active{transform:scale(1.3)}
+.star-score{font-family:var(--mono);font-size:11px;color:var(--gold);font-weight:700;margin-left:4px}
+.star-count{font-family:var(--mono);font-size:9px;color:var(--tx-m);margin-left:2px}
+.review-list{display:flex;flex-direction:column;gap:7px;margin:10px 0 12px}
+.review-item{background:var(--surf2);border-radius:8px;padding:9px 10px;border:1px solid var(--bd)}
+.review-item-hdr{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.review-item-author{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--tx-s)}
+.review-item-stars{font-size:11px}
+.review-item-txt{font-size:12px;color:var(--tx-s);line-height:1.5}
+.review-write-btn{background:var(--go-m);border:1px solid var(--go-d);border-radius:8px;
+  padding:8px 14px;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--gold);
+  cursor:pointer;touch-action:manipulation;transition:opacity 140ms;width:100%;margin-top:4px}
+.review-write-btn:active{opacity:.75}
+
+/* ── 焚き火カレンダー ── */
+.fire-cal{margin:10px 0 12px}
+.fire-cal-ttl{font-family:var(--mono);font-size:9px;color:var(--tx-m);text-transform:uppercase;
+  letter-spacing:1.2px;margin-bottom:7px}
+.fire-cal-days{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:3px}
+.fire-cal-days::-webkit-scrollbar{display:none}
+.fc-day{flex-shrink:0;width:60px;background:var(--surf2);border-radius:8px;padding:8px 4px;
+  border:1px solid var(--bd);text-align:center}
+.fc-day-lbl{font-family:var(--mono);font-size:9px;color:var(--tx-m);margin-bottom:4px}
+.fc-day-ico{font-size:20px;margin-bottom:3px}
+.fc-day-fire{font-family:var(--mono);font-size:9px;font-weight:700;margin-bottom:2px}
+.fc-day-tmp{font-family:var(--mono);font-size:9px;color:var(--tx-m)}
+.fc-day.best{border-color:var(--ember);background:#2A1008}
+.fc-day.best .fc-day-fire{color:var(--ember)}
+.fc-day.good{border-color:var(--go-d);background:var(--go-m)}
+.fc-day.good .fc-day-fire{color:var(--gold)}
+.fc-day.bad{border-color:var(--bd);background:var(--surf)}
+.fc-day.bad .fc-day-fire{color:var(--tx-m)}
+
+/* ── キャンプログ画面 ── */
+#log-screen{background:var(--bg)}
+.log-hdr{display:flex;align-items:center;padding:12px 14px 10px;
+  border-bottom:1px solid var(--bd-g);flex-shrink:0;gap:10px}
+.log-hdr-ttl{font-family:var(--mono);font-size:17px;font-weight:900;color:var(--tx);letter-spacing:1px;flex:1}
+.log-list{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:10px;min-height:0}
+.log-card{background:var(--bg-card);border-radius:10px;border:1px solid var(--bd-g);
+  padding:13px 14px;box-shadow:0 3px 8px rgba(0,0,0,.4);cursor:pointer;transition:opacity 140ms}
+.log-card:active{opacity:.8}
+.log-card-date{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:1px;margin-bottom:4px}
+.log-card-site{font-family:var(--mono);font-size:14px;font-weight:900;color:var(--tx);margin-bottom:4px}
+.log-card-wood{font-size:12px;color:var(--tx-s)}
+.log-card-img{width:100%;max-height:120px;object-fit:cover;border-radius:6px;margin-top:8px;border:1px solid var(--bd)}
+.log-card-del{float:right;background:var(--sos-m);border:1px solid var(--sos-b);border-radius:5px;
+  padding:3px 8px;font-family:var(--mono);font-size:9px;color:var(--sos);cursor:pointer;touch-action:manipulation}
+.log-empty{display:flex;flex-direction:column;align-items:center;padding:44px 0;gap:7px}
+.log-empty-ico{font-size:40px;opacity:.3}
+.log-empty-txt{font-family:var(--mono);font-size:11px;color:var(--tx-m);letter-spacing:1px}
+
+/* ── ギア交換タブ ── */
+.gear-badge{background:#5A3A7A;border:1px solid #8A5AAA;display:inline-flex;align-items:center;
+  gap:3px;border-radius:4px;padding:2px 7px}
+.gear-badge-txt{font-family:var(--mono);font-size:9px;font-weight:900;letter-spacing:1px;color:#C090E0}
+.f-btn[data-f="gear"]{--ac:#8A5AAA}
+
+/* ── レビューモーダル ── */
+#review-modal{z-index:2800}
+.rv-stars-big{display:flex;gap:8px;justify-content:center;margin:12px 0}
+.rv-star-big{font-size:32px;cursor:pointer;transition:transform 130ms;touch-action:manipulation}
+.rv-star-big:active{transform:scale(1.2)}
+.rv-score-lbl{font-family:var(--mono);font-size:13px;color:var(--gold);text-align:center;margin-bottom:10px;font-weight:700}
+
+/* ── 在庫投票 ── */
+.stock-vote{display:flex;gap:6px;margin:10px 0 12px}
+.sv-btn{flex:1;border-radius:8px;padding:8px 4px;border:1.5px solid var(--bd);
+  background:var(--surf2);display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;transition:all 140ms;touch-action:manipulation}
+.sv-btn:active{opacity:.75}
+.sv-ok.voted{border-color:#4A7A38;background:#182E10}
+.sv-low.voted{border-color:var(--go-d);background:var(--go-m)}
+.sv-out.voted{border-color:var(--sos);background:var(--sos-m)}
+.sv-ico{font-size:18px}
+.sv-lbl{font-family:var(--mono);font-size:9px;color:var(--tx-s);letter-spacing:.4px}
+.sv-cnt{font-family:var(--mono);font-size:11px;font-weight:900;color:var(--tx-m)}
+.sv-ok.voted .sv-cnt{color:#4A7A38}
+.sv-low.voted .sv-cnt{color:var(--gold)}
+.sv-out.voted .sv-cnt{color:var(--sos)}
+.sv-voted-hint{font-family:var(--mono);font-size:9px;color:var(--tx-m);text-align:center;
+  margin-top:-8px;margin-bottom:10px;letter-spacing:.3px}
+
+/* ── 星評価 ── */
+.star-section{margin:10px 0 12px}
+.star-section-ttl{font-family:var(--mono);font-size:9px;color:var(--tx-m);
+  text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px}
+.star-avg-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.star-big-val{font-family:var(--mono);font-size:28px;font-weight:900;color:var(--gold)}
+.star-big-right{}
+.star-display{font-size:16px;line-height:1;letter-spacing:1px}
+.star-total{font-family:var(--mono);font-size:10px;color:var(--tx-m);margin-top:2px}
+.review-cards{display:flex;flex-direction:column;gap:7px;max-height:150px;overflow-y:auto}
+.rv-card{background:var(--surf2);border-radius:8px;padding:8px 10px;border:1px solid var(--bd)}
+.rv-card-hdr{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.rv-card-author{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--tx-s)}
+.rv-card-stars{font-size:11px}
+.rv-card-txt{font-size:12px;color:var(--tx-s);line-height:1.5}
+.write-rv-btn{width:100%;background:var(--go-m);border:1px solid var(--go-d);border-radius:8px;
+  padding:9px;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--gold);
+  cursor:pointer;touch-action:manipulation;transition:opacity 140ms;margin-top:6px}
+.write-rv-btn:active{opacity:.75}
+
+/* ── 焚き火カレンダー ── */
+.fire-cal-section{margin:10px 0 12px}
+.fire-cal-ttl{font-family:var(--mono);font-size:9px;color:var(--tx-m);
+  text-transform:uppercase;letter-spacing:1.2px;margin-bottom:7px}
+.fire-cal-days{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:3px}
+.fire-cal-days::-webkit-scrollbar{display:none}
+.fc-day{flex-shrink:0;width:58px;background:var(--surf2);border-radius:8px;padding:8px 4px;
+  border:1px solid var(--bd);text-align:center}
+.fc-day.best{border-color:var(--ember);background:#2A1008}
+.fc-day.good{border-color:var(--go-d);background:var(--go-m)}
+.fc-day.bad{border-color:var(--bd)}
+.fc-day-lbl{font-family:var(--mono);font-size:9px;color:var(--tx-m);margin-bottom:3px}
+.fc-day-ico{font-size:20px;margin-bottom:2px}
+.fc-day-fire{font-family:var(--mono);font-size:9px;font-weight:700;margin-bottom:1px}
+.fc-day.best .fc-day-fire{color:var(--ember)}
+.fc-day.good .fc-day-fire{color:var(--gold)}
+.fc-day.bad .fc-day-fire{color:var(--tx-m)}
+.fc-day-tmp{font-family:var(--mono);font-size:9px;color:var(--tx-m)}
+
+/* ── キャンプログ ── */
+#log-screen{background:var(--bg)}
+.log-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px 10px;
+  border-bottom:1px solid var(--bd-g);flex-shrink:0}
+.log-hdr-ttl{font-family:var(--mono);font-size:16px;font-weight:900;color:var(--tx);letter-spacing:1px;flex:1}
+.log-list{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:10px;min-height:0}
+.log-card{background:var(--bg-card);border-radius:10px;border:1px solid var(--bd-g);
+  padding:12px 14px;animation:sUp 240ms ease both}
+.log-card-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px}
+.log-card-date{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:1px;flex:1}
+.log-card-del{border:1px solid var(--sos-b);background:var(--sos-m);border-radius:5px;
+  padding:3px 8px;font-family:var(--mono);font-size:9px;color:var(--sos);
+  cursor:pointer;touch-action:manipulation;flex-shrink:0}
+.log-card-site{font-family:var(--mono);font-size:13px;font-weight:900;color:var(--tx);margin-bottom:3px}
+.log-card-meta{font-size:11px;color:var(--tx-s);line-height:1.5}
+.log-card-img{width:100%;max-height:110px;object-fit:cover;border-radius:6px;
+  margin-top:8px;border:1px solid var(--bd)}
+.log-empty{display:flex;flex-direction:column;align-items:center;padding:44px 0;gap:7px}
+.log-empty-ico{font-size:38px;opacity:.3}
+.log-empty-txt{font-family:var(--mono);font-size:11px;color:var(--tx-m);letter-spacing:1px}
+
+/* ── ギア掲示板 ── */
+.gear-kind{background:#3A2060;border:1px solid #7A50B0;display:inline-flex;
+  align-items:center;gap:3px;border-radius:4px;padding:2px 7px}
+.gear-kind-txt{font-family:var(--mono);font-size:9px;font-weight:900;letter-spacing:1px;color:#C090E0}
+
+/* ── レビューモーダル ── */
+#review-modal{z-index:2800}
+.rv-stars-wrap{display:flex;justify-content:center;gap:10px;margin:12px 0 5px}
+.rv-star{font-size:34px;cursor:pointer;transition:transform 130ms;touch-action:manipulation}
+.rv-star:active{transform:scale(1.2)}
+.rv-score-txt{font-family:var(--mono);font-size:13px;color:var(--gold);
+  text-align:center;height:18px;font-weight:700;margin-bottom:10px}
+
+/* ── ログ投稿モーダル ── */
+#log-modal{z-index:2800}
 </style>
 <body>
 <div id="root">
@@ -738,16 +920,32 @@ textarea.f-input{resize:none;line-height:1.5}
       <span class="f-btn-txt">全体</span><span class="f-count" id="fc-all">0</span>
     </button>
     <button class="f-btn" data-f="rescue" style="--ac:var(--sos)">
-      <span class="f-btn-txt">レスキュー</span><span class="f-count" id="fc-sos">0</span>
+      <span class="f-btn-txt">SOS</span><span class="f-count" id="fc-sos">0</span>
     </button>
     <button class="f-btn" data-f="give" style="--ac:var(--give)">
       <span class="f-btn-txt">ギブ</span><span class="f-count" id="fc-give">0</span>
+    </button>
+    <button class="f-btn" data-f="gear" style="--ac:#8A5AAA">
+      <span class="f-btn-txt">ギア交換</span><span class="f-count" id="fc-gear">0</span>
     </button>
   </div>
   <div style="padding:7px 12px 0;flex-shrink:0">
     <div class="sample-note" id="board-s-note">📋 初期投稿はサンプルです。</div>
   </div>
   <div class="board" id="board"></div>
+</div>
+
+
+<!-- ══ LOG SCREEN ══ -->
+<div id="log-screen" class="screen">
+  <div class="log-hdr">
+    <div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--ol-l);letter-spacing:2px;margin-bottom:2px">🔥 MAKI-LOG</div>
+      <div class="log-hdr-ttl">マイ焚き火ログ</div>
+    </div>
+    <button class="new-btn" id="new-log-btn">＋ 記録</button>
+  </div>
+  <div class="log-list" id="log-list"></div>
 </div>
 
 <!-- ══ MYPAGE SCREEN ══ -->
@@ -827,6 +1025,7 @@ textarea.f-input{resize:none;line-height:1.5}
   <button class="tb on" data-t="map"><div class="tb-bar"></div><span class="tb-ico">🗺</span><span class="tb-lbl">マップ</span></button>
   <button class="tb" data-t="post"><div class="tb-bar"></div><span class="tb-ico">✏️</span><span class="tb-lbl">投稿</span></button>
   <button class="tb" data-t="rescue"><div class="tb-bar"></div><div style="position:relative"><span class="tb-ico">🏕</span><div class="tb-dot" id="rescue-dot"></div></div><span class="tb-lbl">レスキュー</span></button>
+  <button class="tb" data-t="log"><div class="tb-bar"></div><span class="tb-ico">📔</span><span class="tb-lbl">ログ</span></button>
   <button class="tb" data-t="mypage"><div class="tb-bar"></div><span class="tb-ico">👤</span><span class="tb-lbl">マイページ</span></button>
 </div>
 </div><!-- #root -->
@@ -857,16 +1056,21 @@ textarea.f-input{resize:none;line-height:1.5}
     <div class="f-sec" style="margin-bottom:14px"><div class="f-sec-txt">// キャンパーズ・ログ 投稿</div></div>
     <div class="f-block">
       <div class="f-lbl">📡 投稿種別</div>
-      <div class="k-sel-row" id="k-sel-row">
-        <button class="k-sel-btn" data-k="rescue">
+      <div class="k-sel-row" id="k-sel-row" style="flex-wrap:wrap">
+        <button class="k-sel-btn" data-k="rescue" style="flex:1;min-width:80px">
           <span class="k-sel-ico">🆘</span>
-          <span class="k-sel-lbl">レスキュー</span>
-          <span class="k-sel-desc">困りごと・SOS</span>
+          <span class="k-sel-lbl">SOS</span>
+          <span class="k-sel-desc">困りごと</span>
         </button>
-        <button class="k-sel-btn" data-k="give">
+        <button class="k-sel-btn" data-k="give" style="flex:1;min-width:80px">
           <span class="k-sel-ico">🎁</span>
           <span class="k-sel-lbl">ギブ</span>
-          <span class="k-sel-desc">譲ります・シェア</span>
+          <span class="k-sel-desc">譲ります</span>
+        </button>
+        <button class="k-sel-btn" data-k="gear" style="flex:1;min-width:80px">
+          <span class="k-sel-ico">🔧</span>
+          <span class="k-sel-lbl">ギア交換</span>
+          <span class="k-sel-desc">交換・譲渡</span>
         </button>
       </div>
     </div>
@@ -1226,6 +1430,21 @@ function openDetail(s){
   const canDel=prof.nickname&&s.postedBy===prof.nickname;
   del.style.display=canDel?'flex':'none';
   del.onclick=()=>doDelete(s.id);
+
+  // 在庫投票・星評価・焚き火カレンダーを detail-body の末尾に挿入
+  const body=document.getElementById('detail-body');
+  // 既存の追加コンテナを削除してクリアに
+  ['vote-container','star-container','cal-container'].forEach(id=>{
+    const old=body.querySelector('#'+id); if(old) old.remove();
+  });
+  const voteDiv=document.createElement('div'); voteDiv.id='vote-container';
+  const starDiv=document.createElement('div'); starDiv.id='star-container';
+  const calDiv=document.createElement('div');  calDiv.id='cal-container';
+  body.appendChild(voteDiv); body.appendChild(starDiv); body.appendChild(calDiv);
+  renderStockVote(s.id, voteDiv);
+  renderStarSection(s.id, starDiv);
+  renderFireCalendar(s.lat, s.lng, calDiv);
+
   document.getElementById('detail').classList.add('on');
 }
 
@@ -1393,6 +1612,7 @@ function goTab(t){
   document.querySelector(`.tb[data-t="${t}"]`).classList.add('on');
   if(t==='rescue'){document.getElementById('rescue-dot').classList.remove('on');renderBoard()}
   if(t==='mypage'){syncProfileUI();updateStats()}
+  if(t==='log'){renderLogList()}
   if(t==='map'&&lmap) setTimeout(()=>{lmap.invalidateSize();positionNearby()},60);
 }
 document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>goTab(b.dataset.t)));
@@ -1745,6 +1965,7 @@ function updFC(){
   document.getElementById('fc-all').textContent=board.length;
   document.getElementById('fc-sos').textContent=board.filter(p=>p.kind==='rescue').length;
   document.getElementById('fc-give').textContent=board.filter(p=>p.kind==='give').length;
+  document.getElementById('fc-gear').textContent=board.filter(p=>p.kind==='gear').length;
 }
 // filter buttons — style active
 function styleFilter(){
@@ -2011,6 +2232,198 @@ function openUserProfile(authorName){
   openOverlay('user-profile-modal');
 }
 
+
+// ════════════════════════════════════════════════
+// 機能1: 在庫リアルタイム投票
+// ════════════════════════════════════════════════
+const SK_VOTE='maki_votes';
+function loadVotes(){ return load(SK_VOTE)||{} }
+function saveVotes(v){ save(SK_VOTE,v) }
+
+function renderStockVote(spotId, container){
+  const votes = loadVotes();
+  const sv = votes[spotId] || {ok:0,low:0,out:0,myVote:null,resetAt:Date.now()};
+  // 24時間でリセット
+  if(Date.now() - sv.resetAt > 86400000){
+    sv.ok=0; sv.low=0; sv.out=0; sv.myVote=null; sv.resetAt=Date.now();
+    votes[spotId]=sv; saveVotes(votes);
+  }
+  const total = sv.ok+sv.low+sv.out;
+  const hint = sv.myVote ? `あなたの投票: ${sv.myVote==='ok'?'たっぷり':sv.myVote==='low'?'残り少ない':'売り切れ'} (24h後にリセット)` : 'タップして在庫状況を報告';
+  container.innerHTML=`
+    <div style="font-family:var(--mono);font-size:9px;color:var(--tx-m);margin-bottom:6px;letter-spacing:.8px;text-transform:uppercase">📊 在庫リアルタイム投票</div>
+    <div class="stock-vote">
+      <button class="sv-btn sv-ok${sv.myVote==='ok'?' voted':''}" data-v="ok" data-sid="${spotId}">
+        <span class="sv-ico">🟢</span>
+        <span class="sv-lbl">たっぷり</span>
+        <span class="sv-cnt">${sv.ok}</span>
+      </button>
+      <button class="sv-btn sv-low${sv.myVote==='low'?' voted':''}" data-v="low" data-sid="${spotId}">
+        <span class="sv-ico">🟡</span>
+        <span class="sv-lbl">残り少ない</span>
+        <span class="sv-cnt">${sv.low}</span>
+      </button>
+      <button class="sv-btn sv-out${sv.myVote==='out'?' voted':''}" data-v="out" data-sid="${spotId}">
+        <span class="sv-ico">🔴</span>
+        <span class="sv-lbl">売り切れ</span>
+        <span class="sv-cnt">${sv.out}</span>
+      </button>
+    </div>
+    <div class="sv-voted-hint">${hint}</div>`;
+  container.querySelectorAll('.sv-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const v=btn.dataset.v, sid=btn.dataset.sid;
+      const vs=loadVotes();
+      const sv2=vs[sid]||{ok:0,low:0,out:0,myVote:null,resetAt:Date.now()};
+      if(sv2.myVote===v) return; // 同じ投票は無視
+      if(sv2.myVote) sv2[sv2.myVote]--; // 前の投票を取り消し
+      sv2[v]++;
+      sv2.myVote=v;
+      vs[sid]=sv2;
+      saveVotes(vs);
+      renderStockVote(sid, container);
+    });
+  });
+}
+
+// ════════════════════════════════════════════════
+// 機能2: 口コミ・星評価
+// ════════════════════════════════════════════════
+const SK_REVIEWS='maki_reviews';
+function loadReviews(){ return load(SK_REVIEWS)||{} }
+function saveReviews(r){ save(SK_REVIEWS,r) }
+
+let curReviewSpotId=null, curRvScore=0;
+
+function renderStarSection(spotId, container){
+  const revs = (loadReviews()[spotId]||[]);
+  const avg = revs.length ? (revs.reduce((s,r)=>s+r.score,0)/revs.length).toFixed(1) : '—';
+  const starStr = score => '⭐'.repeat(Math.round(score))+'☆'.repeat(5-Math.round(score));
+  container.innerHTML=`
+    <div class="star-section">
+      <div class="star-section-ttl">⭐ 口コミ・評価</div>
+      <div class="star-avg-row">
+        <div class="star-big-val">${avg}</div>
+        <div class="star-big-right">
+          <div class="star-display">${revs.length?starStr(parseFloat(avg)):'☆☆☆☆☆'}</div>
+          <div class="star-total">${revs.length}件のレビュー</div>
+        </div>
+      </div>
+      ${revs.length?`<div class="review-cards">${revs.slice(-3).reverse().map(r=>`
+        <div class="rv-card">
+          <div class="rv-card-hdr">
+            <span class="rv-card-author">${r.author}</span>
+            <span class="rv-card-stars">${'⭐'.repeat(r.score)}</span>
+          </div>
+          ${r.comment?`<div class="rv-card-txt">${r.comment}</div>`:''}
+        </div>`).join('')}</div>`:''}
+      <button class="write-rv-btn" data-sid="${spotId}">✏️ 口コミを書く</button>
+    </div>`;
+  container.querySelector('.write-rv-btn').addEventListener('click',()=>openReviewModal(spotId));
+}
+
+function openReviewModal(spotId){
+  if(requireNickname()) return;
+  curReviewSpotId=spotId; curRvScore=0;
+  const spot=spots.find(s=>s.id===spotId);
+  document.getElementById('rv-modal-ttl').textContent=`// ${spot?spot.name:'スポット'} の口コミ`;
+  document.getElementById('rv-comment').value='';
+  document.getElementById('rv-score-txt').textContent='タップで評価';
+  updateRvStars(0,'rv-stars','rv-score-txt');
+  openOverlay('review-modal');
+}
+
+function updateRvStars(score, starsId, txtId){
+  const labels=['','最悪','イマイチ','普通','良い！','最高！'];
+  document.querySelectorAll(`#${starsId} .rv-star`).forEach(s=>{
+    s.textContent = parseInt(s.dataset.v)<=score ? '⭐' : '☆';
+  });
+  document.getElementById(txtId).textContent = score>0 ? `${score}点 — ${labels[score]}` : 'タップで評価';
+}
+
+// ════════════════════════════════════════════════
+// 機能3: 焚き火適性カレンダー (Open-Meteo)
+// ════════════════════════════════════════════════
+async function renderFireCalendar(lat, lng, container){
+  container.innerHTML=`<div class="fire-cal-section"><div class="fire-cal-ttl">🔥 今週の焚き火適性予報</div><div style="font-family:var(--mono);font-size:10px;color:var(--tx-m)">取得中…</div></div>`;
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,weather_code&timezone=Asia%2FTokyo&forecast_days=7`;
+    const r=await fetch(url,{signal:AbortSignal.timeout(6000)});
+    if(!r.ok) throw 0;
+    const d=await r.json();
+    const days=d.daily;
+    const dayNames=['日','月','火','水','木','金','土'];
+    const cards=days.time.map((dateStr,i)=>{
+      const wind=days.wind_speed_10m_max[i];
+      const rain=days.precipitation_probability_max[i];
+      const wc=days.weather_code[i];
+      const tmax=days.temperature_2m_max[i];
+      const tmin=days.temperature_2m_min[i];
+      const wd=new Date(dateStr+'T00:00:00+09:00');
+      const dayLbl=(i===0?'今日':i===1?'明日':dayNames[wd.getDay()]+'曜');
+      const emo=wc<=1?'☀️':wc<=3?'🌤':wc<=45?'☁️':wc<=67?'🌧':wc<=77?'❄️':'⛈';
+      let cls='bad', fireScore='×';
+      if(wind<=3&&rain<=20&&wc<=3){cls='best';fireScore='🔥最高'}
+      else if(wind<=6&&rain<=40&&wc<=45){cls='good';fireScore='🔥良い'}
+      else{fireScore='注意'}
+      return `<div class="fc-day ${cls}">
+        <div class="fc-day-lbl">${dayLbl}</div>
+        <div class="fc-day-ico">${emo}</div>
+        <div class="fc-day-fire">${fireScore}</div>
+        <div class="fc-day-tmp">${Math.round(tmin)}〜${Math.round(tmax)}°</div>
+      </div>`;
+    }).join('');
+    container.innerHTML=`<div class="fire-cal-section"><div class="fire-cal-ttl">🔥 今週の焚き火適性予報</div><div class="fire-cal-days">${cards}</div></div>`;
+  }catch{
+    container.innerHTML=`<div class="fire-cal-section"><div style="font-family:var(--mono);font-size:10px;color:var(--tx-m)">予報を取得できませんでした</div></div>`;
+  }
+}
+
+// ════════════════════════════════════════════════
+// 機能4: マイキャンプログ
+// ════════════════════════════════════════════════
+const SK_LOGS='maki_logs';
+function loadLogs(){ return load(SK_LOGS)||[] }
+function saveLogs(l){ save(SK_LOGS,l) }
+
+let logPhotoB64=null, curLogScore=0;
+
+function renderLogList(){
+  const logs=loadLogs();
+  const cont=document.getElementById('log-list');
+  if(!cont) return;
+  if(!logs.length){
+    cont.innerHTML=`<div class="log-empty"><span class="log-empty-ico">📔</span><span class="log-empty-txt">焚き火ログがまだありません</span><span class="log-empty-txt" style="margin-top:4px">＋記録 ボタンから記録しよう</span></div>`;
+    return;
+  }
+  cont.innerHTML=logs.slice().reverse().map((log,i)=>`
+    <div class="log-card" style="animation-delay:${i*50}ms">
+      <div class="log-card-top">
+        <div class="log-card-date">📅 ${log.date}</div>
+        <button class="log-card-del" data-lid="${log.id}">🗑 削除</button>
+      </div>
+      <div class="log-card-site">🏕 ${log.site}</div>
+      <div class="log-card-meta">
+        ${log.wood?`🪵 ${log.wood}<br>`:''}
+        ${'🔥'.repeat(log.score||0)}${'　'.repeat(5-(log.score||0))}
+        ${log.memo?`<br>📝 ${log.memo}`:''}
+      </div>
+      ${log.photo?`<img class="log-card-img" src="${log.photo}" alt=""/>`:''}
+    </div>`).join('');
+  cont.querySelectorAll('.log-card-del').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(!confirm('このログを削除しますか？')) return;
+      const logs2=loadLogs().filter(l=>l.id!==btn.dataset.lid);
+      saveLogs(logs2); renderLogList();
+    });
+  });
+}
+
+// ════════════════════════════════════════════════
+// 機能5: ギア交換掲示板 (KINDSに追加)
+// ════════════════════════════════════════════════
+KINDS.gear={badge:'GEAR',color:'#8A5AAA',muted:'#2A1A40',border:'#6A40A0',icon:'🔧'};
 // ── INIT (DOMContentLoaded でまとめて初期化) ──
 window.addEventListener('DOMContentLoaded',()=>{
   initData();
@@ -2066,9 +2479,82 @@ window.addEventListener('DOMContentLoaded',()=>{
   // アバター変更・削除ボタン
   document.getElementById('av-change-btn')?.addEventListener('click',e=>{e.stopPropagation();avFile.click()});
   document.getElementById('av-delete-btn')?.addEventListener('click',e=>{e.stopPropagation();deleteAvatar()});
-  // 画像設定済みなら削除ボタンを表示
   if(prof.avatarUrl) document.getElementById('av-delete-btn').style.display='';
+
+  // ── レビューモーダル ──
+  // 星タップ
+  document.querySelectorAll('#rv-stars .rv-star').forEach(s=>{
+    s.addEventListener('click',()=>{curRvScore=parseInt(s.dataset.v);updateRvStars(curRvScore,'rv-stars','rv-score-txt')});
+  });
+  document.getElementById('rv-cancel')?.addEventListener('click',()=>closeOverlay('review-modal'));
+  document.getElementById('rv-submit')?.addEventListener('click',()=>{
+    if(!curRvScore){alert('評価を選んでください');return}
+    const revs=loadReviews();
+    const list=revs[curReviewSpotId]||[];
+    list.push({author:prof.nickname||'匿名',score:curRvScore,comment:document.getElementById('rv-comment').value.trim(),postedAt:Date.now()});
+    revs[curReviewSpotId]=list;
+    saveReviews(revs);
+    closeOverlay('review-modal');
+    // 詳細カードの星セクションを再描画
+    const sc=document.getElementById('star-container');
+    if(sc) renderStarSection(curReviewSpotId, sc);
+  });
+
+  // ── ログモーダル ──
+  // ログ星タップ
+  document.querySelectorAll('#log-stars .rv-star').forEach(s=>{
+    s.addEventListener('click',()=>{curLogScore=parseInt(s.dataset.v);updateRvStars(curLogScore,'log-stars','log-score-txt')});
+  });
+  // ログ写真
+  const lpd=document.getElementById('log-photo-drop'), lpf=document.getElementById('log-photo-file');
+  if(lpd&&lpf){
+    lpd.addEventListener('click',()=>lpf.click());
+    lpd.addEventListener('dragover',e=>{e.preventDefault();lpd.classList.add('drag')});
+    lpd.addEventListener('dragleave',()=>lpd.classList.remove('drag'));
+    lpd.addEventListener('drop',e=>{e.preventDefault();lpd.classList.remove('drag');const f=e.dataTransfer.files[0];if(f) readLogPhoto(f)});
+    lpf.addEventListener('change',e=>{const f=e.target.files[0];if(f) readLogPhoto(f)});
+  }
+  // ログ日付デフォルト
+  const logDate=document.getElementById('log-date');
+  if(logDate) logDate.value=new Date().toISOString().slice(0,10);
+
+  document.getElementById('new-log-btn')?.addEventListener('click',()=>{
+    if(requireNickname()) return;
+    curLogScore=0; logPhotoB64=null;
+    document.getElementById('log-site').value='';
+    document.getElementById('log-wood').value='';
+    document.getElementById('log-memo').value='';
+    const lpp=document.getElementById('log-photo-prev');if(lpp){lpp.classList.remove('on');lpp.src=''}
+    if(logDate) logDate.value=new Date().toISOString().slice(0,10);
+    updateRvStars(0,'log-stars','log-score-txt');
+    openOverlay('log-modal');
+  });
+  document.getElementById('log-cancel')?.addEventListener('click',()=>closeOverlay('log-modal'));
+  document.getElementById('log-submit')?.addEventListener('click',()=>{
+    const site=document.getElementById('log-site').value.trim();
+    const date=document.getElementById('log-date').value;
+    if(!site){alert('キャンプ場・場所を入力してください');return}
+    const logs=loadLogs();
+    logs.push({
+      id:`l_${Date.now()}`,date,site,
+      wood:document.getElementById('log-wood').value.trim(),
+      score:curLogScore,
+      memo:document.getElementById('log-memo').value.trim(),
+      photo:logPhotoB64||null,
+    });
+    saveLogs(logs);
+    closeOverlay('log-modal');
+    renderLogList();
+    goTab('log');
+  });
 });
+
+// ログ写真読み込み
+function readLogPhoto(file){
+  const r=new FileReader();
+  r.onload=ev=>{logPhotoB64=ev.target.result;const p=document.getElementById('log-photo-prev');if(p){p.src=logPhotoB64;p.classList.add('on')}};
+  r.readAsDataURL(file);
+}
 </script>
 
 
@@ -2084,6 +2570,77 @@ window.addEventListener('DOMContentLoaded',()=>{
     <div style="margin-top:14px">
       <button class="act act-neu" style="width:100%;padding:12px" id="up-close">✕ 閉じる</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ REVIEW MODAL ══ -->
+<div class="overlay" id="review-modal">
+  <div class="sheet">
+    <div class="card-handle"></div>
+    <div class="f-sec" style="margin-bottom:10px"><div class="f-sec-txt" id="rv-modal-ttl">// 口コミを書く</div></div>
+    <div class="f-lbl" style="text-align:center;margin-bottom:6px">評価を選んでください</div>
+    <div class="rv-stars-wrap" id="rv-stars">
+      <span class="rv-star" data-v="1">⭐</span>
+      <span class="rv-star" data-v="2">⭐</span>
+      <span class="rv-star" data-v="3">⭐</span>
+      <span class="rv-star" data-v="4">⭐</span>
+      <span class="rv-star" data-v="5">⭐</span>
+    </div>
+    <div class="rv-score-txt" id="rv-score-txt">タップで評価</div>
+    <div class="f-block">
+      <div class="f-lbl">💬 コメント (任意)</div>
+      <textarea id="rv-comment" class="f-input" style="min-height:70px" placeholder="乾燥具合・価格・スタッフ対応など..."></textarea>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="act act-neu" style="flex:1" id="rv-cancel">✕ キャンセル</button>
+      <button class="act act-pri" style="flex:2" id="rv-submit">⭐ 投稿する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOG MODAL ══ -->
+<div class="overlay" id="log-modal">
+  <div class="sheet">
+    <div class="card-handle"></div>
+    <div class="f-sec" style="margin-bottom:12px"><div class="f-sec-txt">// 焚き火ログを記録</div></div>
+    <div class="f-block">
+      <div class="f-lbl">📅 日付 <span class="req">*</span></div>
+      <input id="log-date" class="f-input" type="date"/>
+    </div>
+    <div class="f-block">
+      <div class="f-lbl">🏕 キャンプ場 / 場所 <span class="req">*</span></div>
+      <input id="log-site" class="f-input" type="text" placeholder="例: ふもとっぱら"/>
+    </div>
+    <div class="f-block">
+      <div class="f-lbl">🪵 使った薪</div>
+      <input id="log-wood" class="f-input" type="text" placeholder="例: ナラ (杉山製材所) ¥500"/>
+    </div>
+    <div class="f-block">
+      <div class="f-lbl">🔥 焚き火評価</div>
+      <div class="rv-stars-wrap" id="log-stars">
+        <span class="rv-star" data-v="1">🔥</span>
+        <span class="rv-star" data-v="2">🔥</span>
+        <span class="rv-star" data-v="3">🔥</span>
+        <span class="rv-star" data-v="4">🔥</span>
+        <span class="rv-star" data-v="5">🔥</span>
+      </div>
+      <div class="rv-score-txt" id="log-score-txt">タップで評価</div>
+    </div>
+    <div class="f-block">
+      <div class="f-lbl">📝 メモ</div>
+      <textarea id="log-memo" class="f-input" style="min-height:60px" placeholder="天気・焚き火の感想など自由に..."></textarea>
+    </div>
+    <div class="f-block">
+      <div class="f-lbl">📷 写真 (任意)</div>
+      <div class="photo-drop" id="log-photo-drop"><div class="photo-drop-txt">📷 タップまたはドラッグ&ドロップ</div></div>
+      <img id="log-photo-prev" class="photo-prev" src="" alt=""/>
+      <input type="file" id="log-photo-file" accept="image/*" style="display:none"/>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="act act-neu" style="flex:1" id="log-cancel">✕ キャンセル</button>
+      <button class="submit-btn" style="flex:2;margin-top:0;padding:12px" id="log-submit">📔 記録する</button>
+    </div>
+    <div style="height:10px"></div>
   </div>
 </div>
 <!-- ══ NICKNAME PROMPT MODAL ══ -->
